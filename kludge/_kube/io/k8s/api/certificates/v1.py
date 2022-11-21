@@ -112,7 +112,7 @@ class CertificateSigningRequest(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel22 = {}
+    metadata: v1.ObjectMetaModel22 = Field({})
     spec: CertificateSigningRequestSpec = Field(
         ...,
         description="spec contains the certificate request, and is immutable after creation. Only the request, signerName, expirationSeconds, and usages fields can be set on creation. Other fields are derived by Kubernetes and cannot be modified by users.",
@@ -139,4 +139,4 @@ class CertificateSigningRequestList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel20 = {}
+    metadata: v1.ListMetaModel20 = Field({})

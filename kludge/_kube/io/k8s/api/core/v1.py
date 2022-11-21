@@ -4208,7 +4208,7 @@ class NamespaceCondition(BaseModel):
     NamespaceCondition contains details about state of namespace.
     """
 
-    lastTransitionTime: v1.Time = {}
+    lastTransitionTime: v1.Time = Field(...)
     message: Optional[str]
     reason: Optional[str]
     status: str = Field(..., description="Status of the condition, one of True, False, Unknown.")

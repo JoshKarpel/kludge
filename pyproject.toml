@@ -62,7 +62,7 @@ testpaths = ["tests", "kludge"]
 pretty = false
 show_error_codes = true
 
-files = ["kludge/*.py", "tests/*.py"]
+files = ["kludge/**/*.py", "tests/**/*.py"]
 
 check_untyped_defs = true
 disallow_incomplete_defs = true
