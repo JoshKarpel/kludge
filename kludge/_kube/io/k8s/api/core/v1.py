@@ -239,7 +239,7 @@ class ContainerPort(BaseModel):
         None,
         description="If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.",
     )
-    protocol: str = Field(
+    protocol: Optional[str] = Field(
         "TCP", description='Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".\n\n'
     )
 
@@ -374,7 +374,7 @@ class GRPCAction(BaseModel):
     port: int = Field(
         ..., description="Port number of the gRPC service. Number must be in the range 1 to 65535."
     )
-    service: str = Field(
+    service: Optional[str] = Field(
         "",
         description="Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).\n\nIf this is not specified, the default behavior is defined by gRPC.",
     )
@@ -593,7 +593,7 @@ class NodeDaemonEndpoints(BaseModel):
     NodeDaemonEndpoints lists ports opened by daemons running on the Node.
     """
 
-    kubeletEndpoint: DaemonEndpoint = Field(
+    kubeletEndpoint: Optional[DaemonEndpoint] = Field(
         {}, description="Endpoint on which Kubelet is listening."
     )
 
@@ -758,7 +758,7 @@ class PodDNSConfigOption(BaseModel):
     """
 
     name: Optional[str] = Field(None, description="Required.")
-    value: Optional[str]
+    value: Optional[str] = None
 
 
 class PodIP(BaseModel):
@@ -1976,7 +1976,7 @@ class ContainerPortModel(BaseModel):
         None,
         description="If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.",
     )
-    protocol: str = Field(
+    protocol: Optional[str] = Field(
         "TCP", description='Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".\n\n'
     )
 
@@ -2059,7 +2059,7 @@ class GRPCActionModel(BaseModel):
     port: int = Field(
         ..., description="Port number of the gRPC service. Number must be in the range 1 to 65535."
     )
-    service: str = Field(
+    service: Optional[str] = Field(
         "",
         description="Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).\n\nIf this is not specified, the default behavior is defined by gRPC.",
     )
@@ -2289,7 +2289,7 @@ class PodDNSConfigOptionModel(BaseModel):
     """
 
     name: Optional[str] = Field(None, description="Required.")
-    value: Optional[str]
+    value: Optional[str] = None
 
 
 class PodOSModel(BaseModel):
@@ -2870,7 +2870,7 @@ class ContainerPortModel1(BaseModel):
         None,
         description="If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.",
     )
-    protocol: str = Field(
+    protocol: Optional[str] = Field(
         "TCP", description='Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".\n\n'
     )
 
@@ -2953,7 +2953,7 @@ class GRPCActionModel1(BaseModel):
     port: int = Field(
         ..., description="Port number of the gRPC service. Number must be in the range 1 to 65535."
     )
-    service: str = Field(
+    service: Optional[str] = Field(
         "",
         description="Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).\n\nIf this is not specified, the default behavior is defined by gRPC.",
     )
@@ -3151,7 +3151,7 @@ class PodDNSConfigOptionModel1(BaseModel):
     """
 
     name: Optional[str] = Field(None, description="Required.")
-    value: Optional[str]
+    value: Optional[str] = None
 
 
 class PodOSModel1(BaseModel):
@@ -3864,7 +3864,9 @@ class ContainerStateRunning(BaseModel):
     ContainerStateRunning is a running state of a container.
     """
 
-    startedAt: v1.Time = Field({}, description="Time at which the container was last (re-)started")
+    startedAt: Optional[v1.Time] = Field(
+        {}, description="Time at which the container was last (re-)started"
+    )
 
 
 class ContainerStateTerminated(BaseModel):
@@ -3876,7 +3878,9 @@ class ContainerStateTerminated(BaseModel):
         None, description="Container's ID in the format '<type>://<container_id>'"
     )
     exitCode: int = Field(..., description="Exit status from the last termination of the container")
-    finishedAt: v1.Time = Field({}, description="Time at which the container last terminated")
+    finishedAt: Optional[v1.Time] = Field(
+        {}, description="Time at which the container last terminated"
+    )
     message: Optional[str] = Field(
         None, description="Message regarding the last termination of the container"
     )
@@ -3886,7 +3890,7 @@ class ContainerStateTerminated(BaseModel):
     signal: Optional[int] = Field(
         None, description="Signal from the last termination of the container"
     )
-    startedAt: v1.Time = Field(
+    startedAt: Optional[v1.Time] = Field(
         {}, description="Time at which previous execution of the container started"
     )
 
@@ -3976,7 +3980,9 @@ class EventSeries(BaseModel):
     count: Optional[int] = Field(
         None, description="Number of occurrences in this series up to the last heartbeat time"
     )
-    lastObservedTime: v1.MicroTime = Field({}, description="Time of the last occurrence observed")
+    lastObservedTime: Optional[v1.MicroTime] = Field(
+        {}, description="Time of the last occurrence observed"
+    )
 
 
 class FlexPersistentVolumeSource(BaseModel):
@@ -4208,9 +4214,9 @@ class NamespaceCondition(BaseModel):
     NamespaceCondition contains details about state of namespace.
     """
 
-    lastTransitionTime: v1.Time = Field(...)
-    message: Optional[str]
-    reason: Optional[str]
+    lastTransitionTime: Optional[v1.Time] = {}
+    message: Optional[str] = None
+    reason: Optional[str] = None
     status: str = Field(..., description="Status of the condition, one of True, False, Unknown.")
     type: str = Field(..., description="Type of namespace controller condition.")
 
@@ -4235,10 +4241,10 @@ class NodeCondition(BaseModel):
     NodeCondition contains condition information for a node.
     """
 
-    lastHeartbeatTime: v1.Time = Field(
+    lastHeartbeatTime: Optional[v1.Time] = Field(
         {}, description="Last time we got an update on a given condition."
     )
-    lastTransitionTime: v1.Time = Field(
+    lastTransitionTime: Optional[v1.Time] = Field(
         {}, description="Last time the condition transit from one status to another."
     )
     message: Optional[str] = Field(
@@ -4286,13 +4292,13 @@ class NodeStatus(BaseModel):
         None,
         description="Status of the config assigned to the node via the dynamic Kubelet config feature.",
     )
-    daemonEndpoints: NodeDaemonEndpoints = Field(
+    daemonEndpoints: Optional[NodeDaemonEndpoints] = Field(
         {}, description="Endpoints of daemons running on the Node."
     )
     images: Optional[list[ContainerImage]] = Field(
         None, description="List of container images on this node"
     )
-    nodeInfo: NodeSystemInfo = Field(
+    nodeInfo: Optional[NodeSystemInfo] = Field(
         {},
         description="Set of ids/uuids to uniquely identify the node. More info: https://kubernetes.io/docs/concepts/nodes/node/#info",
     )
@@ -4313,10 +4319,10 @@ class PersistentVolumeClaimCondition(BaseModel):
     PersistentVolumeClaimCondition contails details about state of pvc
     """
 
-    lastProbeTime: v1.Time = Field(
+    lastProbeTime: Optional[v1.Time] = Field(
         {}, description="lastProbeTime is the time we probed the condition."
     )
-    lastTransitionTime: v1.Time = Field(
+    lastTransitionTime: Optional[v1.Time] = Field(
         {},
         description="lastTransitionTime is the time the condition transitioned from one status to another.",
     )
@@ -4366,8 +4372,8 @@ class PodCondition(BaseModel):
     PodCondition contains details for the current condition of this pod.
     """
 
-    lastProbeTime: v1.Time = Field({}, description="Last time we probed the condition.")
-    lastTransitionTime: v1.Time = Field(
+    lastProbeTime: Optional[v1.Time] = Field({}, description="Last time we probed the condition.")
+    lastTransitionTime: Optional[v1.Time] = Field(
         {}, description="Last time the condition transitioned from one status to another."
     )
     message: Optional[str] = Field(
@@ -4496,7 +4502,7 @@ class ReplicationControllerCondition(BaseModel):
     ReplicationControllerCondition describes the state of a replication controller at a certain point.
     """
 
-    lastTransitionTime: v1.Time = Field(
+    lastTransitionTime: Optional[v1.Time] = Field(
         {}, description="The last time the condition transitioned from one status to another."
     )
     message: Optional[str] = Field(
@@ -4547,7 +4553,7 @@ class ResourceFieldSelector(BaseModel):
     containerName: Optional[str] = Field(
         None, description="Container name: required for volumes, optional for env vars"
     )
-    divisor: resource.Quantity = Field(
+    divisor: Optional[resource.Quantity] = Field(
         {}, description='Specifies the output format of the exposed resources, defaults to "1"'
     )
     resource: str = Field(..., description="Required: resource to select")
@@ -4705,11 +4711,11 @@ class ServicePort(BaseModel):
         description="The port on each node on which this service is exposed when type is NodePort or LoadBalancer.  Usually assigned by the system. If a value is specified, in-range, and not in use it will be used, otherwise the operation will fail.  If not specified, a port will be allocated if this Service requires one.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type from NodePort to ClusterIP). More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport",
     )
     port: int = Field(..., description="The port that will be exposed by this service.")
-    protocol: str = Field(
+    protocol: Optional[str] = Field(
         "TCP",
         description='The IP protocol for this port. Supports "TCP", "UDP", and "SCTP". Default is TCP.\n\n',
     )
-    targetPort: intstr.IntOrString = Field(
+    targetPort: Optional[intstr.IntOrString] = Field(
         {},
         description="Number or name of the port to access on the pods targeted by the service. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME. If this is a string, it will be looked up as a named port in the target Pod's container ports. If this is not specified, the value of the 'port' field is used (an identity map). This field is ignored for services with clusterIP=None, and should be omitted or set equal to the 'port' field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
     )
@@ -5448,7 +5454,7 @@ class ResourceFieldSelectorModel(BaseModel):
     containerName: Optional[str] = Field(
         None, description="Container name: required for volumes, optional for env vars"
     )
-    divisor: resource.QuantityModel5 = Field(
+    divisor: Optional[resource.QuantityModel5] = Field(
         {}, description='Specifies the output format of the exposed resources, defaults to "1"'
     )
     resource: str = Field(..., description="Required: resource to select")
@@ -5796,10 +5802,10 @@ class PersistentVolumeClaimConditionModel(BaseModel):
     PersistentVolumeClaimCondition contails details about state of pvc
     """
 
-    lastProbeTime: v1.TimeModel21 = Field(
+    lastProbeTime: Optional[v1.TimeModel21] = Field(
         {}, description="lastProbeTime is the time we probed the condition."
     )
-    lastTransitionTime: v1.TimeModel21 = Field(
+    lastTransitionTime: Optional[v1.TimeModel21] = Field(
         {},
         description="lastTransitionTime is the time the condition transitioned from one status to another.",
     )
@@ -5918,7 +5924,7 @@ class ResourceFieldSelectorModel1(BaseModel):
     containerName: Optional[str] = Field(
         None, description="Container name: required for volumes, optional for env vars"
     )
-    divisor: resource.QuantityModel6 = Field(
+    divisor: Optional[resource.QuantityModel6] = Field(
         {}, description='Specifies the output format of the exposed resources, defaults to "1"'
     )
     resource: str = Field(..., description="Required: resource to select")
@@ -6047,7 +6053,7 @@ class Binding(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -6072,7 +6078,7 @@ class ComponentStatus(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -6092,7 +6098,7 @@ class ComponentStatusList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -6123,7 +6129,7 @@ class ConfigMap(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -6143,7 +6149,7 @@ class ConfigMapList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -6178,7 +6184,7 @@ class ContainerStatus(BaseModel):
         description="The image the container is running. More info: https://kubernetes.io/docs/concepts/containers/images.",
     )
     imageID: str = Field(..., description="ImageID of the container's image.")
-    lastState: ContainerState = Field(
+    lastState: Optional[ContainerState] = Field(
         {}, description="Details about the container's last termination condition."
     )
     name: str = Field(
@@ -6195,7 +6201,7 @@ class ContainerStatus(BaseModel):
         None,
         description="Specifies whether the container has passed its startup probe. Initialized as false, becomes true after startupProbe is considered successful. Resets to false when the container is restarted, or if kubelet loses state temporarily. Is always true when no startupProbe is defined.",
     )
-    state: ContainerState = Field(
+    state: Optional[ContainerState] = Field(
         {}, description="Details about the container's current condition."
     )
 
@@ -6262,7 +6268,7 @@ class Endpoints(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -6286,7 +6292,7 @@ class EndpointsList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -6326,8 +6332,10 @@ class Event(BaseModel):
         description="APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
     )
     count: Optional[int] = Field(None, description="The number of times this event has occurred.")
-    eventTime: v1.MicroTime = Field({}, description="Time when this Event was first observed.")
-    firstTimestamp: v1.Time = Field(
+    eventTime: Optional[v1.MicroTime] = Field(
+        {}, description="Time when this Event was first observed."
+    )
+    firstTimestamp: Optional[v1.Time] = Field(
         {},
         description="The time at which the event was first recorded. (Time of server receipt is in TypeMeta.)",
     )
@@ -6336,7 +6344,7 @@ class Event(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    lastTimestamp: v1.Time = Field(
+    lastTimestamp: Optional[v1.Time] = Field(
         {}, description="The time at which the most recent occurrence of this event was recorded."
     )
     message: Optional[str] = Field(
@@ -6353,18 +6361,18 @@ class Event(BaseModel):
     related: Optional[ObjectReference] = Field(
         None, description="Optional secondary object for more complex actions."
     )
-    reportingComponent: str = Field(
+    reportingComponent: Optional[str] = Field(
         "",
         description="Name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.",
     )
-    reportingInstance: str = Field(
+    reportingInstance: Optional[str] = Field(
         "", description="ID of the controller instance, e.g. `kubelet-xyzf`."
     )
     series: Optional[EventSeries] = Field(
         None,
         description="Data about the Event series this event represents or nil if it's a singleton Event.",
     )
-    source: EventSource = Field(
+    source: Optional[EventSource] = Field(
         {},
         description="The component reporting this event. Should be a short machine understandable string.",
     )
@@ -6388,7 +6396,7 @@ class EventList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -6422,11 +6430,11 @@ class LimitRange(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: LimitRangeSpec = Field(
+    spec: Optional[LimitRangeSpec] = Field(
         {},
         description="Spec defines the limits enforced. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -6449,7 +6457,7 @@ class LimitRangeList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -6468,15 +6476,15 @@ class Namespace(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: NamespaceSpec = Field(
+    spec: Optional[NamespaceSpec] = Field(
         {},
         description="Spec defines the behavior of the Namespace. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
-    status: NamespaceStatus = Field(
+    status: Optional[NamespaceStatus] = Field(
         {},
         description="Status describes the current status of a Namespace. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -6499,7 +6507,7 @@ class NamespaceList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -6570,7 +6578,7 @@ class PersistentVolumeClaimSpec(BaseModel):
         None,
         description="dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef\n  allows any non-core object, as well as PersistentVolumeClaim objects.\n* While DataSource ignores disallowed values (dropping them), DataSourceRef\n  preserves all values, and generates an error if a disallowed value is\n  specified.\n(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.",
     )
-    resources: ResourceRequirements = Field(
+    resources: Optional[ResourceRequirements] = Field(
         {},
         description="resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources",
     )
@@ -6596,7 +6604,7 @@ class PersistentVolumeClaimTemplate(BaseModel):
     PersistentVolumeClaimTemplate is used to produce PersistentVolumeClaim objects as part of an EphemeralVolumeSource.
     """
 
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation.",
     )
@@ -6894,7 +6902,7 @@ class Secret(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -6925,7 +6933,7 @@ class SecretList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -6952,7 +6960,7 @@ class ServiceAccount(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -6979,7 +6987,7 @@ class ServiceAccountList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -6991,7 +6999,7 @@ class ServiceStatus(BaseModel):
     """
 
     conditions: Optional[list[v1.Condition]] = Field(None, description="Current service state")
-    loadBalancer: LoadBalancerStatus = Field(
+    loadBalancer: Optional[LoadBalancerStatus] = Field(
         {},
         description="LoadBalancer contains the current status of the load-balancer, if one is present.",
     )
@@ -7283,7 +7291,7 @@ class PersistentVolumeClaimSpecModel(BaseModel):
         None,
         description="dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef\n  allows any non-core object, as well as PersistentVolumeClaim objects.\n* While DataSource ignores disallowed values (dropping them), DataSourceRef\n  preserves all values, and generates an error if a disallowed value is\n  specified.\n(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.",
     )
-    resources: ResourceRequirementsModel = Field(
+    resources: Optional[ResourceRequirementsModel] = Field(
         {},
         description="resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources",
     )
@@ -7309,7 +7317,7 @@ class PersistentVolumeClaimTemplateModel(BaseModel):
     PersistentVolumeClaimTemplate is used to produce PersistentVolumeClaim objects as part of an EphemeralVolumeSource.
     """
 
-    metadata: v1.ObjectMetaModel17 = Field(
+    metadata: Optional[v1.ObjectMetaModel17] = Field(
         {},
         description="May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation.",
     )
@@ -7543,7 +7551,7 @@ class PersistentVolumeClaimSpecModel1(BaseModel):
         None,
         description="dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef\n  allows any non-core object, as well as PersistentVolumeClaim objects.\n* While DataSource ignores disallowed values (dropping them), DataSourceRef\n  preserves all values, and generates an error if a disallowed value is\n  specified.\n(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.",
     )
-    resources: ResourceRequirementsModel1 = Field(
+    resources: Optional[ResourceRequirementsModel1] = Field(
         {},
         description="resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources",
     )
@@ -7569,7 +7577,7 @@ class PersistentVolumeClaimTemplateModel1(BaseModel):
     PersistentVolumeClaimTemplate is used to produce PersistentVolumeClaim objects as part of an EphemeralVolumeSource.
     """
 
-    metadata: v1.ObjectMetaModel21 = Field(
+    metadata: Optional[v1.ObjectMetaModel21] = Field(
         {},
         description="May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation.",
     )
@@ -7761,15 +7769,15 @@ class Node(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: NodeSpec = Field(
+    spec: Optional[NodeSpec] = Field(
         {},
         description="Spec defines the behavior of a node. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
-    status: NodeStatus = Field(
+    status: Optional[NodeStatus] = Field(
         {},
         description="Most recently observed status of the node. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -7789,7 +7797,7 @@ class NodeList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -7808,15 +7816,15 @@ class PersistentVolume(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: PersistentVolumeSpec = Field(
+    spec: Optional[PersistentVolumeSpec] = Field(
         {},
         description="spec defines a specification of a persistent volume owned by the cluster. Provisioned by an administrator. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes",
     )
-    status: PersistentVolumeStatus = Field(
+    status: Optional[PersistentVolumeStatus] = Field(
         {},
         description="status represents the current information/status for the persistent volume. Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes",
     )
@@ -7835,15 +7843,15 @@ class PersistentVolumeClaim(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: PersistentVolumeClaimSpec = Field(
+    spec: Optional[PersistentVolumeClaimSpec] = Field(
         {},
         description="spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims",
     )
-    status: PersistentVolumeClaimStatus = Field(
+    status: Optional[PersistentVolumeClaimStatus] = Field(
         {},
         description="status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims",
     )
@@ -7866,7 +7874,7 @@ class PersistentVolumeClaimList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -7889,7 +7897,7 @@ class PersistentVolumeList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -7942,15 +7950,15 @@ class ResourceQuota(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: ResourceQuotaSpec = Field(
+    spec: Optional[ResourceQuotaSpec] = Field(
         {},
         description="Spec defines the desired quota. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
-    status: ResourceQuotaStatus = Field(
+    status: Optional[ResourceQuotaStatus] = Field(
         {},
         description="Status defines the actual enforced quota and its current usage. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -7973,7 +7981,7 @@ class ResourceQuotaList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -7992,15 +8000,15 @@ class Service(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: ServiceSpec = Field(
+    spec: Optional[ServiceSpec] = Field(
         {},
         description="Spec defines the behavior of a service. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
-    status: ServiceStatus = Field(
+    status: Optional[ServiceStatus] = Field(
         {},
         description="Most recently observed status of the service. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -8020,7 +8028,7 @@ class ServiceList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -8217,15 +8225,15 @@ class PersistentVolumeClaimModel(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel21 = Field(
+    metadata: Optional[v1.ObjectMetaModel21] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: PersistentVolumeClaimSpecModel1 = Field(
+    spec: Optional[PersistentVolumeClaimSpecModel1] = Field(
         {},
         description="spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims",
     )
-    status: PersistentVolumeClaimStatusModel = Field(
+    status: Optional[PersistentVolumeClaimStatusModel] = Field(
         {},
         description="status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims",
     )
@@ -8352,7 +8360,7 @@ class Container(BaseModel):
         None,
         description="Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
     )
-    resources: ResourceRequirements = Field(
+    resources: Optional[ResourceRequirements] = Field(
         {},
         description="Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
     )
@@ -8443,7 +8451,7 @@ class EphemeralContainer(BaseModel):
     readinessProbe: Optional[Probe] = Field(
         None, description="Probes are not allowed for ephemeral containers."
     )
-    resources: ResourceRequirements = Field(
+    resources: Optional[ResourceRequirements] = Field(
         {},
         description="Resources are not allowed for ephemeral containers. Ephemeral containers use spare resources already allocated to the pod.",
     )
@@ -8698,7 +8706,7 @@ class ContainerModel(BaseModel):
         None,
         description="Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
     )
-    resources: ResourceRequirementsModel = Field(
+    resources: Optional[ResourceRequirementsModel] = Field(
         {},
         description="Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
     )
@@ -8789,7 +8797,7 @@ class EphemeralContainerModel(BaseModel):
     readinessProbe: Optional[ProbeModel] = Field(
         None, description="Probes are not allowed for ephemeral containers."
     )
-    resources: ResourceRequirementsModel = Field(
+    resources: Optional[ResourceRequirementsModel] = Field(
         {},
         description="Resources are not allowed for ephemeral containers. Ephemeral containers use spare resources already allocated to the pod.",
     )
@@ -9044,7 +9052,7 @@ class ContainerModel1(BaseModel):
         None,
         description="Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
     )
-    resources: ResourceRequirementsModel1 = Field(
+    resources: Optional[ResourceRequirementsModel1] = Field(
         {},
         description="Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
     )
@@ -9135,7 +9143,7 @@ class EphemeralContainerModel1(BaseModel):
     readinessProbe: Optional[ProbeModel1] = Field(
         None, description="Probes are not allowed for ephemeral containers."
     )
-    resources: ResourceRequirementsModel1 = Field(
+    resources: Optional[ResourceRequirementsModel1] = Field(
         {},
         description="Resources are not allowed for ephemeral containers. Ephemeral containers use spare resources already allocated to the pod.",
     )
@@ -9479,11 +9487,11 @@ class PodTemplateSpec(BaseModel):
     PodTemplateSpec describes the data a pod should have when created from a template
     """
 
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: PodSpec = Field(
+    spec: Optional[PodSpec] = Field(
         {},
         description="Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -9668,11 +9676,11 @@ class PodTemplateSpecModel(BaseModel):
     PodTemplateSpec describes the data a pod should have when created from a template
     """
 
-    metadata: v1.ObjectMetaModel17 = Field(
+    metadata: Optional[v1.ObjectMetaModel17] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: PodSpecModel = Field(
+    spec: Optional[PodSpecModel] = Field(
         {},
         description="Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -9834,11 +9842,11 @@ class PodTemplateSpecModel1(BaseModel):
     PodTemplateSpec describes the data a pod should have when created from a template
     """
 
-    metadata: v1.ObjectMetaModel21 = Field(
+    metadata: Optional[v1.ObjectMetaModel21] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: PodSpecModel1 = Field(
+    spec: Optional[PodSpecModel1] = Field(
         {},
         description="Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -9857,15 +9865,15 @@ class Pod(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: PodSpec = Field(
+    spec: Optional[PodSpec] = Field(
         {},
         description="Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
-    status: PodStatus = Field(
+    status: Optional[PodStatus] = Field(
         {},
         description="Most recently observed status of the pod. This data may not be up to date. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -9888,7 +9896,7 @@ class PodList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -9907,11 +9915,11 @@ class PodTemplate(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    template: PodTemplateSpec = Field(
+    template: Optional[PodTemplateSpec] = Field(
         {},
         description="Template defines the pods that will be created from this pod template. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -9931,7 +9939,7 @@ class PodTemplateList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
@@ -9950,15 +9958,15 @@ class ReplicationController(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="If the Labels of a ReplicationController are empty, they are defaulted to be the same as the Pod(s) that the replication controller manages. Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: ReplicationControllerSpec = Field(
+    spec: Optional[ReplicationControllerSpec] = Field(
         {},
         description="Spec defines the specification of the desired behavior of the replication controller. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
-    status: ReplicationControllerStatus = Field(
+    status: Optional[ReplicationControllerStatus] = Field(
         {},
         description="Status is the most recently observed status of the replication controller. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -9981,7 +9989,7 @@ class ReplicationControllerList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMeta = Field(
+    metadata: Optional[v1.ListMeta] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )

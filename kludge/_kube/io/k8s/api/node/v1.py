@@ -55,7 +55,7 @@ class RuntimeClass(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1_1.ObjectMetaModel8 = Field(
+    metadata: Optional[v1_1.ObjectMetaModel8] = Field(
         {},
         description="More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -83,7 +83,7 @@ class RuntimeClassList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1_1.ListMetaModel8 = Field(
+    metadata: Optional[v1_1.ListMetaModel8] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )

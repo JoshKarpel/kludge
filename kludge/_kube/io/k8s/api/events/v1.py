@@ -43,15 +43,15 @@ class Event(BaseModel):
         None,
         description="deprecatedCount is the deprecated field assuring backward compatibility with core.v1 Event type.",
     )
-    deprecatedFirstTimestamp: v1.TimeModel16 = Field(
+    deprecatedFirstTimestamp: Optional[v1.TimeModel16] = Field(
         {},
         description="deprecatedFirstTimestamp is the deprecated field assuring backward compatibility with core.v1 Event type.",
     )
-    deprecatedLastTimestamp: v1.TimeModel16 = Field(
+    deprecatedLastTimestamp: Optional[v1.TimeModel16] = Field(
         {},
         description="deprecatedLastTimestamp is the deprecated field assuring backward compatibility with core.v1 Event type.",
     )
-    deprecatedSource: v1_1.EventSourceModel = Field(
+    deprecatedSource: Optional[v1_1.EventSourceModel] = Field(
         {},
         description="deprecatedSource is the deprecated field assuring backward compatibility with core.v1 Event type.",
     )
@@ -62,7 +62,7 @@ class Event(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel16 = Field(
+    metadata: Optional[v1.ObjectMetaModel16] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
@@ -74,7 +74,7 @@ class Event(BaseModel):
         None,
         description="reason is why the action was taken. It is human-readable. This field cannot be empty for new Events and it can have at most 128 characters.",
     )
-    regarding: v1_1.ObjectReferenceModel2 = Field(
+    regarding: Optional[v1_1.ObjectReferenceModel2] = Field(
         {},
         description="regarding contains the object this Event is about. In most cases it's an Object reporting controller implements, e.g. ReplicaSetController implements ReplicaSets and this event is emitted because it acts on some changes in a ReplicaSet object.",
     )
@@ -114,7 +114,7 @@ class EventList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel14 = Field(
+    metadata: Optional[v1.ListMetaModel14] = Field(
         {},
         description="Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )

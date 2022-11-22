@@ -81,7 +81,7 @@ class Endpoint(BaseModel):
         ...,
         description="addresses of this endpoint. The contents of this field are interpreted according to the corresponding EndpointSlice addressType field. Consumers must handle different types of addresses in the context of their own capabilities. This must contain at least one address but no more than 100. These are all assumed to be fungible and clients may choose to only use the first element. Refer to: https://issue.k8s.io/106267",
     )
-    conditions: EndpointConditions = Field(
+    conditions: Optional[EndpointConditions] = Field(
         {}, description="conditions contains information about the current status of the endpoint."
     )
     deprecatedTopology: Optional[dict[str, str]] = Field(
@@ -130,7 +130,7 @@ class EndpointSlice(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1_1.ObjectMetaModel1 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1_1.ObjectMetaModel1] = Field({}, description="Standard object's metadata.")
     ports: Optional[list[EndpointPort]] = Field(
         None,
         description='ports specifies the list of network ports exposed by each endpoint in this slice. Each port must have a unique name. When ports is empty, it indicates that there are no defined ports. When a port is defined with a nil port value, it indicates "all ports". Each slice may include a maximum of 100 ports.',
@@ -151,4 +151,4 @@ class EndpointSliceList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1_1.ListMetaModel1 = Field({}, description="Standard list metadata.")
+    metadata: Optional[v1_1.ListMetaModel1] = Field({}, description="Standard list metadata.")

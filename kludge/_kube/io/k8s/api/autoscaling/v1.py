@@ -134,15 +134,15 @@ class Scale(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata.",
     )
-    spec: ScaleSpec = Field(
+    spec: Optional[ScaleSpec] = Field(
         {},
         description="defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.",
     )
-    status: ScaleStatus = Field(
+    status: Optional[ScaleStatus] = Field(
         {},
         description="current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.",
     )
@@ -161,15 +161,15 @@ class HorizontalPodAutoscaler(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel = Field(
+    metadata: Optional[v1.ObjectMetaModel] = Field(
         {},
         description="Standard object metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: HorizontalPodAutoscalerSpec = Field(
+    spec: Optional[HorizontalPodAutoscalerSpec] = Field(
         {},
         description="behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.",
     )
-    status: HorizontalPodAutoscalerStatus = Field(
+    status: Optional[HorizontalPodAutoscalerStatus] = Field(
         {}, description="current information about the autoscaler."
     )
 
@@ -190,7 +190,7 @@ class HorizontalPodAutoscalerList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel = Field({}, description="Standard list metadata.")
+    metadata: Optional[v1.ListMetaModel] = Field({}, description="Standard list metadata.")
 
 
 class ScaleModel(BaseModel):
@@ -206,15 +206,15 @@ class ScaleModel(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel21 = Field(
+    metadata: Optional[v1.ObjectMetaModel21] = Field(
         {},
         description="Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata.",
     )
-    spec: ScaleSpecModel = Field(
+    spec: Optional[ScaleSpecModel] = Field(
         {},
         description="defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.",
     )
-    status: ScaleStatusModel = Field(
+    status: Optional[ScaleStatusModel] = Field(
         {},
         description="current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.",
     )

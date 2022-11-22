@@ -97,7 +97,7 @@ class ClusterRole(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel20 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ObjectMetaModel20] = Field({}, description="Standard object's metadata.")
     rules: Optional[list[PolicyRule]] = Field(
         None, description="Rules holds all the PolicyRules for this ClusterRole"
     )
@@ -116,7 +116,7 @@ class ClusterRoleBinding(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel20 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ObjectMetaModel20] = Field({}, description="Standard object's metadata.")
     roleRef: RoleRef = Field(
         ...,
         description="RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.",
@@ -142,7 +142,7 @@ class ClusterRoleBindingList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel18 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ListMetaModel18] = Field({}, description="Standard object's metadata.")
 
 
 class ClusterRoleList(BaseModel):
@@ -159,7 +159,7 @@ class ClusterRoleList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel18 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ListMetaModel18] = Field({}, description="Standard object's metadata.")
 
 
 class Role(BaseModel):
@@ -175,7 +175,7 @@ class Role(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel20 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ObjectMetaModel20] = Field({}, description="Standard object's metadata.")
     rules: Optional[list[PolicyRule]] = Field(
         None, description="Rules holds all the PolicyRules for this Role"
     )
@@ -194,7 +194,7 @@ class RoleBinding(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel20 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ObjectMetaModel20] = Field({}, description="Standard object's metadata.")
     roleRef: RoleRef = Field(
         ...,
         description="RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.",
@@ -218,7 +218,7 @@ class RoleBindingList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel18 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ListMetaModel18] = Field({}, description="Standard object's metadata.")
 
 
 class RoleList(BaseModel):
@@ -235,4 +235,4 @@ class RoleList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel18 = Field({}, description="Standard object's metadata.")
+    metadata: Optional[v1.ListMetaModel18] = Field({}, description="Standard object's metadata.")

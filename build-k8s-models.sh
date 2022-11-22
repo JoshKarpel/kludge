@@ -17,8 +17,6 @@ datamodel-codegen --input "${dir}/api/openapi-spec/v3" --output="${target}" \
   --target-python-version 3.9 \
   --use-standard-collections \
   --use_non_positive_negative_number_constrained_types \
-  --strict-nullable \
-  --strip-default-none \
   --use-schema-description
 
 find kludge/_kube -type d -exec touch {}/__init__.py \;

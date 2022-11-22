@@ -54,11 +54,11 @@ class CertificateSigningRequestCondition(BaseModel):
     CertificateSigningRequestCondition describes a condition of a CertificateSigningRequest object
     """
 
-    lastTransitionTime: v1.TimeModel22 = Field(
+    lastTransitionTime: Optional[v1.TimeModel22] = Field(
         {},
         description="lastTransitionTime is the time the condition last transitioned from one status to another. If unset, when a new condition type is added or an existing condition's status is changed, the server defaults this to the current time.",
     )
-    lastUpdateTime: v1.TimeModel22 = Field(
+    lastUpdateTime: Optional[v1.TimeModel22] = Field(
         {}, description="lastUpdateTime is the time of the last update to this condition"
     )
     message: Optional[str] = Field(
@@ -112,12 +112,12 @@ class CertificateSigningRequest(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel22 = Field({})
+    metadata: Optional[v1.ObjectMetaModel22] = {}
     spec: CertificateSigningRequestSpec = Field(
         ...,
         description="spec contains the certificate request, and is immutable after creation. Only the request, signerName, expirationSeconds, and usages fields can be set on creation. Other fields are derived by Kubernetes and cannot be modified by users.",
     )
-    status: CertificateSigningRequestStatus = Field(
+    status: Optional[CertificateSigningRequestStatus] = Field(
         {},
         description="status contains information about whether the request is approved or denied, and the certificate issued by the signer, or the failure condition indicating signer failure.",
     )
@@ -139,4 +139,4 @@ class CertificateSigningRequestList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel20 = Field({})
+    metadata: Optional[v1.ListMetaModel20] = {}

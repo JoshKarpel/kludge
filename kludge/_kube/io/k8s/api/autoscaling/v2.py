@@ -82,7 +82,7 @@ class HorizontalPodAutoscalerCondition(BaseModel):
     HorizontalPodAutoscalerCondition describes the state of a HorizontalPodAutoscaler at a certain point.
     """
 
-    lastTransitionTime: v1.TimeModel7 = Field(
+    lastTransitionTime: Optional[v1.TimeModel7] = Field(
         {},
         description="lastTransitionTime is the last time the condition transitioned from one status to another",
     )
@@ -420,15 +420,15 @@ class HorizontalPodAutoscaler(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel7 = Field(
+    metadata: Optional[v1.ObjectMetaModel7] = Field(
         {},
         description="metadata is the standard object metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: HorizontalPodAutoscalerSpec = Field(
+    spec: Optional[HorizontalPodAutoscalerSpec] = Field(
         {},
         description="spec is the specification for the behaviour of the autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.",
     )
-    status: HorizontalPodAutoscalerStatus = Field(
+    status: Optional[HorizontalPodAutoscalerStatus] = Field(
         {}, description="status is the current information about the autoscaler."
     )
 
@@ -449,4 +449,6 @@ class HorizontalPodAutoscalerList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel7 = Field({}, description="metadata is the standard list metadata.")
+    metadata: Optional[v1.ListMetaModel7] = Field(
+        {}, description="metadata is the standard list metadata."
+    )

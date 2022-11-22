@@ -100,7 +100,7 @@ class TokenReviewStatus(BaseModel):
     error: Optional[str] = Field(
         None, description="Error indicates that the token couldn't be checked"
     )
-    user: UserInfo = Field(
+    user: Optional[UserInfo] = Field(
         {}, description="User is the UserInfo associated with the provided token."
     )
 
@@ -118,14 +118,14 @@ class TokenRequest(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMeta = Field(
+    metadata: Optional[v1.ObjectMeta] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
     spec: TokenRequestSpec = Field(
         ..., description="Spec holds information about the request being evaluated"
     )
-    status: TokenRequestStatus = Field(
+    status: Optional[TokenRequestStatus] = Field(
         {},
         description="Status is filled in by the server and indicates whether the token can be authenticated.",
     )
@@ -144,14 +144,14 @@ class TokenReview(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel10 = Field(
+    metadata: Optional[v1.ObjectMetaModel10] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
     spec: TokenReviewSpec = Field(
         ..., description="Spec holds information about the request being evaluated"
     )
-    status: TokenReviewStatus = Field(
+    status: Optional[TokenReviewStatus] = Field(
         {},
         description="Status is filled in by the server and indicates whether the request can be authenticated.",
     )

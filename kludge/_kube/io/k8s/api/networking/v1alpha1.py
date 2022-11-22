@@ -16,11 +16,11 @@ class ClusterCIDRSpec(BaseModel):
     ClusterCIDRSpec defines the desired state of ClusterCIDR.
     """
 
-    ipv4: str = Field(
+    ipv4: Optional[str] = Field(
         "",
         description='IPv4 defines an IPv4 IP block in CIDR notation(e.g. "10.0.0.0/8"). At least one of IPv4 and IPv6 must be specified. This field is immutable.',
     )
-    ipv6: str = Field(
+    ipv6: Optional[str] = Field(
         "",
         description='IPv6 defines an IPv6 IP block in CIDR notation(e.g. "fd12:3456:789a:1::/64"). At least one of IPv4 and IPv6 must be specified. This field is immutable.',
     )
@@ -47,11 +47,11 @@ class ClusterCIDR(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1_1.ObjectMetaModel15 = Field(
+    metadata: Optional[v1_1.ObjectMetaModel15] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
-    spec: ClusterCIDRSpec = Field(
+    spec: Optional[ClusterCIDRSpec] = Field(
         {},
         description="Spec is the desired state of the ClusterCIDR. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status",
     )
@@ -71,7 +71,7 @@ class ClusterCIDRList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1_1.ListMetaModel13 = Field(
+    metadata: Optional[v1_1.ListMetaModel13] = Field(
         {},
         description="Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )

@@ -115,8 +115,8 @@ class ExternalDocumentation(BaseModel):
     ExternalDocumentation allows referencing an external resource for extended documentation.
     """
 
-    description: Optional[str]
-    url: Optional[str]
+    description: Optional[str] = None
+    url: Optional[str] = None
 
 
 class JSON(BaseModel):
@@ -232,7 +232,7 @@ class CustomResourceDefinitionCondition(BaseModel):
     CustomResourceDefinitionCondition contains details for the current condition of this pod.
     """
 
-    lastTransitionTime: v1.TimeModel18 = Field(
+    lastTransitionTime: Optional[v1.TimeModel18] = Field(
         {},
         description="lastTransitionTime last time the condition transitioned from one status to another.",
     )
@@ -258,7 +258,7 @@ class CustomResourceDefinitionStatus(BaseModel):
     CustomResourceDefinitionStatus indicates the state of the CustomResourceDefinition
     """
 
-    acceptedNames: CustomResourceDefinitionNames = Field(
+    acceptedNames: Optional[CustomResourceDefinitionNames] = Field(
         {},
         description="acceptedNames are the names that are actually being used to serve discovery. They may be different than the names in spec.",
     )
@@ -279,47 +279,47 @@ class JSONSchemaProps(BaseModel):
 
     _ref: Optional[str] = Field(None, alias="$ref")
     _schema: Optional[str] = Field(None, alias="$schema")
-    additionalItems: Optional[JSONSchemaPropsOrBool]
-    additionalProperties: Optional[JSONSchemaPropsOrBool]
-    allOf: Optional[list[JSONSchemaProps]]
-    anyOf: Optional[list[JSONSchemaProps]]
+    additionalItems: Optional[JSONSchemaPropsOrBool] = None
+    additionalProperties: Optional[JSONSchemaPropsOrBool] = None
+    allOf: Optional[list[JSONSchemaProps]] = None
+    anyOf: Optional[list[JSONSchemaProps]] = None
     default: Optional[JSON] = Field(
         None,
         description="default is a default value for undefined object fields. Defaulting is a beta feature under the CustomResourceDefaulting feature gate. Defaulting requires spec.preserveUnknownFields to be false.",
     )
-    definitions: Optional[dict[str, JSONSchemaProps]]
-    dependencies: Optional[dict[str, JSONSchemaPropsOrStringArray]]
-    description: Optional[str]
-    enum: Optional[list[JSON]]
-    example: Optional[JSON]
-    exclusiveMaximum: Optional[bool]
-    exclusiveMinimum: Optional[bool]
-    externalDocs: Optional[ExternalDocumentation]
+    definitions: Optional[dict[str, JSONSchemaProps]] = None
+    dependencies: Optional[dict[str, JSONSchemaPropsOrStringArray]] = None
+    description: Optional[str] = None
+    enum: Optional[list[JSON]] = None
+    example: Optional[JSON] = None
+    exclusiveMaximum: Optional[bool] = None
+    exclusiveMinimum: Optional[bool] = None
+    externalDocs: Optional[ExternalDocumentation] = None
     format: Optional[str] = Field(
         None,
         description='format is an OpenAPI v3 format string. Unknown formats are ignored. The following formats are validated:\n\n- bsonobjectid: a bson object ID, i.e. a 24 characters hex string - uri: an URI as parsed by Golang net/url.ParseRequestURI - email: an email address as parsed by Golang net/mail.ParseAddress - hostname: a valid representation for an Internet host name, as defined by RFC 1034, section 3.1 [RFC1034]. - ipv4: an IPv4 IP as parsed by Golang net.ParseIP - ipv6: an IPv6 IP as parsed by Golang net.ParseIP - cidr: a CIDR as parsed by Golang net.ParseCIDR - mac: a MAC address as parsed by Golang net.ParseMAC - uuid: an UUID that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$ - uuid3: an UUID3 that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?3[0-9a-f]{3}-?[0-9a-f]{4}-?[0-9a-f]{12}$ - uuid4: an UUID4 that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?4[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$ - uuid5: an UUID5 that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?5[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$ - isbn: an ISBN10 or ISBN13 number string like "0321751043" or "978-0321751041" - isbn10: an ISBN10 number string like "0321751043" - isbn13: an ISBN13 number string like "978-0321751041" - creditcard: a credit card number defined by the regex ^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})$ with any non digit characters mixed in - ssn: a U.S. social security number following the regex ^\\d{3}[- ]?\\d{2}[- ]?\\d{4}$ - hexcolor: an hexadecimal color code like "#FFFFFF: following the regex ^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$ - rgbcolor: an RGB color code like rgb like "rgb(255,255,2559" - byte: base64 encoded binary data - password: any kind of string - date: a date string like "2006-01-02" as defined by full-date in RFC3339 - duration: a duration string like "22 ns" as parsed by Golang time.ParseDuration or compatible with Scala duration format - datetime: a date time string like "2014-12-15T19:30:20.000Z" as defined by date-time in RFC3339.',
     )
-    id: Optional[str]
-    items: Optional[JSONSchemaPropsOrArray]
-    maxItems: Optional[int]
-    maxLength: Optional[int]
-    maxProperties: Optional[int]
-    maximum: Optional[float]
-    minItems: Optional[int]
-    minLength: Optional[int]
-    minProperties: Optional[int]
-    minimum: Optional[float]
-    multipleOf: Optional[float]
+    id: Optional[str] = None
+    items: Optional[JSONSchemaPropsOrArray] = None
+    maxItems: Optional[int] = None
+    maxLength: Optional[int] = None
+    maxProperties: Optional[int] = None
+    maximum: Optional[float] = None
+    minItems: Optional[int] = None
+    minLength: Optional[int] = None
+    minProperties: Optional[int] = None
+    minimum: Optional[float] = None
+    multipleOf: Optional[float] = None
     not_: Optional[JSONSchemaProps] = Field(None, alias="not")
-    nullable: Optional[bool]
-    oneOf: Optional[list[JSONSchemaProps]]
-    pattern: Optional[str]
-    patternProperties: Optional[dict[str, JSONSchemaProps]]
-    properties: Optional[dict[str, JSONSchemaProps]]
-    required: Optional[list[str]]
-    title: Optional[str]
-    type: Optional[str]
-    uniqueItems: Optional[bool]
+    nullable: Optional[bool] = None
+    oneOf: Optional[list[JSONSchemaProps]] = None
+    pattern: Optional[str] = None
+    patternProperties: Optional[dict[str, JSONSchemaProps]] = None
+    properties: Optional[dict[str, JSONSchemaProps]] = None
+    required: Optional[list[str]] = None
+    title: Optional[str] = None
+    type: Optional[str] = None
+    uniqueItems: Optional[bool] = None
     x_kubernetes_embedded_resource: Optional[bool] = Field(
         None,
         alias="x-kubernetes-embedded-resource",
@@ -450,14 +450,14 @@ class CustomResourceDefinition(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ObjectMetaModel18 = Field(
+    metadata: Optional[v1.ObjectMetaModel18] = Field(
         {},
         description="Standard object's metadata More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
     spec: CustomResourceDefinitionSpec = Field(
         ..., description="spec describes how the user wants the resources to appear"
     )
-    status: CustomResourceDefinitionStatus = Field(
+    status: Optional[CustomResourceDefinitionStatus] = Field(
         {}, description="status indicates the actual state of the CustomResourceDefinition"
     )
 
@@ -478,7 +478,7 @@ class CustomResourceDefinitionList(BaseModel):
         None,
         description="Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
     )
-    metadata: v1.ListMetaModel16 = Field(
+    metadata: Optional[v1.ListMetaModel16] = Field(
         {},
         description="Standard object's metadata More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata",
     )
