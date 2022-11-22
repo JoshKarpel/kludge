@@ -25,10 +25,7 @@ python = ">=3.10,<4"
 rich = ">=12"
 typer = ">=0.6"
 textual = ">=0.5"
-aiohttp = "^3.8.3"
-cchardet = "^2.1.7"
-aiodns = "^3.0.0"
-pyyaml = "^6.0"
+kubernetes-asyncio = "^24.2.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7"
@@ -40,8 +37,6 @@ pytest-mypy = ">=0.10"
 pytest-mock = ">=3"
 hypothesis = ">=6"
 textual = {extras = ["dev"], version = ">=0.5"}
-datamodel-code-generator = "^0.14.0"
-types-pyyaml = "^6.0.12.2"
 
 
 [tool.poetry.scripts]
