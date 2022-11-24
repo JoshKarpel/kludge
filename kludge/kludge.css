@@ -1,0 +1,12 @@
+#inputs {
+    height: 3;
+}
+
+Input {
+    border: green;
+    width: 50%;
+}
+
+DataTable {
+    border: red;
+}
