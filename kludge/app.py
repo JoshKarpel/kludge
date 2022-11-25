@@ -16,7 +16,7 @@ from textual.containers import Horizontal
 from textual.events import Key
 from textual.reactive import reactive
 from textual.widget import Widget
-from textual.widgets import DataTable, Footer, Header, Input, Static
+from textual.widgets import DataTable, Footer, Header, Input
 
 RESOURCE = Literal[
     "node",
@@ -179,7 +179,6 @@ class ResourcesTable(Widget):
             Input(name="Namespace", id="namespace", value="", placeholder="all"),
             Input(name="Resource", id="resource", value="pod"),
             Input(name="Filter", id="filter", value="", placeholder="*"),
-            Static(str(int(self.col_verbosity)), id="verbosity"),
             id="inputs",
         )
         yield DataTable()
@@ -255,37 +254,37 @@ class ResourcesTable(Widget):
         elif event.key == "escape":
             self.query_one(DataTable).focus()
 
-        if (
-            self.resource == "namespace"
-            and event.key == "enter"
-            and self.query_one(DataTable).has_focus
-        ):
-            y = self.query_one(DataTable).cursor_cell.row
-            self.get_widget_by_id("namespace").value = self.results[y].metadata.name
-            self.get_widget_by_id("resource").value = "pod"
-            # self.namespace = self.results[y].metadata.name
-            # self.resource = "pod"
+        if self.query_one(DataTable).has_focus:
+            if self.resource == "namespace" and event.key == "enter":
+                y = self.query_one(DataTable).cursor_cell.row
+                self.get_widget_by_id("namespace").value = self.results[y].metadata.name
+                self.get_widget_by_id("resource").value = "pod"
 
     async def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "resource":
             if event.value in RESOURCE_ALIASES:
                 self.resource = event.value
                 self.get_widget_by_id("filter").value = ""
+                event.input.remove_class("bad")
+            else:
+                event.input.add_class("bad")
         elif event.input.id == "filter":
             self.filter = event.value
         elif event.input.id == "namespace":
             if event.value == "":
                 self.namespace = None
+                event.input.remove_class("bad")
             elif event.value in (await self.namespace_names()):
                 self.namespace = event.value
+                event.input.remove_class("bad")
+            else:
+                event.input.add_class("bad")
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         self.query_one(DataTable).focus()
 
     def action_cycle_col_verbosity(self) -> None:
         self.col_verbosity = ColumnVerbosity((self.col_verbosity + 1) % (max(ColumnVerbosity) + 1))
-        self.get_widget_by_id("verbosity").update(str(int(self.col_verbosity)))
-
         self.results = self.results  # force results watcher to run
 
 

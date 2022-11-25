@@ -7,6 +7,10 @@ Input {
     width: 1fr;
 }
 
+Input.bad {
+    border: red round;
+}
+
 #verbosity {
     border: cyan round;
     width: 3;
