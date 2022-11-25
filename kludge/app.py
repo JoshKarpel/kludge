@@ -255,6 +255,17 @@ class ResourcesTable(Widget):
         elif event.key == "escape":
             self.query_one(DataTable).focus()
 
+        if (
+            self.resource == "namespace"
+            and event.key == "enter"
+            and self.query_one(DataTable).has_focus
+        ):
+            y = self.query_one(DataTable).cursor_cell.row
+            self.get_widget_by_id("namespace").value = self.results[y].metadata.name
+            self.get_widget_by_id("resource").value = "pod"
+            # self.namespace = self.results[y].metadata.name
+            # self.resource = "pod"
+
     async def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "resource":
             if event.value in RESOURCE_ALIASES:
@@ -267,6 +278,9 @@ class ResourcesTable(Widget):
                 self.namespace = None
             elif event.value in (await self.namespace_names()):
                 self.namespace = event.value
+
+    async def on_input_submitted(self, event: Input.Submitted) -> None:
+        self.query_one(DataTable).focus()
 
     def action_cycle_col_verbosity(self) -> None:
         self.col_verbosity = ColumnVerbosity((self.col_verbosity + 1) % (max(ColumnVerbosity) + 1))
