@@ -15,18 +15,21 @@ from textual.widget import Widget
 from textual.widgets import DataTable, Footer, Header, Input
 
 RESOURCE = Literal[
-    "pod",
     "node",
     "namespace",
+    "pod",
+    "service",
 ]
 
 RESOURCE_ALIASES: Mapping[str, RESOURCE] = {
-    "pod": "pod",
-    "pods": "pod",
     "node": "node",
     "nodes": "node",
     "namespace": "namespace",
     "ns": "namespace",
+    "pod": "pod",
+    "pods": "pod",
+    "service": "service",
+    "svc": "service",
 }
 
 
@@ -88,13 +91,6 @@ def pod_containers_ready(pod: V1Pod) -> str:
 
 
 RESOURCE_COLS: Mapping[RESOURCE, Mapping[str, Callable[[object], str]]] = {
-    "pod": {
-        "name": name,
-        "namespace": namespace,
-        "ready": pod_containers_ready,
-        "status": lambda obj: obj.status.phase,
-        "age": age,
-    },
     "node": {
         "name": name,
         "status": lambda obj: NODE_STATUS_MAP[
@@ -104,6 +100,22 @@ RESOURCE_COLS: Mapping[RESOURCE, Mapping[str, Callable[[object], str]]] = {
     },
     "namespace": {
         "name": name,
+        "age": age,
+    },
+    "pod": {
+        "namespace": namespace,
+        "name": name,
+        "ready": pod_containers_ready,
+        "status": lambda obj: obj.status.phase,
+        "age": age,
+    },
+    "service": {
+        "namespace": namespace,
+        "name": name,
+        "cluster-ip": lambda obj: obj.spec.cluster_ip,
+        "ports": lambda obj: ", ".join(
+            f"{port.name}:{port.port}/{port.protocol}" for port in obj.spec.ports
+        ),
         "age": age,
     },
 }
@@ -156,12 +168,16 @@ class ResourcesTable(Widget):
         match resource, namespace:
             case "node", _:
                 return (await CoreV1Api(api).list_node()).items
+            case "namespace", _:
+                return (await CoreV1Api(api).list_namespace()).items
             case "pod", None:
                 return (await CoreV1Api(api).list_pod_for_all_namespaces()).items
             case "pod", namespace:
                 return (await CoreV1Api(api).list_namespaced_pod(namespace)).items
-            case "namespace", _:
-                return (await CoreV1Api(api).list_namespace()).items
+            case "service", None:
+                return (await CoreV1Api(api).list_service_for_all_namespaces()).items
+            case "service", namespace:
+                return (await CoreV1Api(api).list_namespaced_service(namespace)).items
             case _:
                 self.app.bell()
                 return []
@@ -185,8 +201,10 @@ class ResourcesTable(Widget):
     def on_key(self, event: Key) -> None:
         if event.key == "slash":
             self.get_widget_by_id("filter").focus()
-        elif event.key == "colon":
+        elif event.key == "semicolon":
             self.get_widget_by_id("resource").focus()
+        elif event.key == "apostrophe":
+            self.get_widget_by_id("namespace").focus()
         elif event.key == "escape":
             self.query_one(DataTable).focus()
 
@@ -194,6 +212,7 @@ class ResourcesTable(Widget):
         if event.input.id == "resource":
             if event.value in RESOURCE_ALIASES:
                 self.resource = event.value
+                self.get_widget_by_id("filter").value = ""
         elif event.input.id == "filter":
             self.filter = event.value
         elif event.input.id == "namespace":
