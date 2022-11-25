@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.kuard.namespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuard
+  namespace: kuard
+  labels:
+    app: kuard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuard
+  template:
+    metadata:
+      labels:
+        app: kuard
+    spec:
+      containers:
+      - name: kuard
+        image: {{ .Values.kuard.image }}
+        ports:
+          - containerPort: 8080
+            name: kuard-port
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          periodSeconds: 2
+          initialDelaySeconds: 0
+          failureThreshold: 3
+          successThreshold: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuard
+  namespace: {{ .Values.kuard.namespace }}
+spec:
+  selector:
+    app: kuard
+  type: NodePort
+  ports:
+    - name: kuard
+      port: 8080
+      protocol: TCP
+      targetPort: kuard-port
+      nodePort: 30000

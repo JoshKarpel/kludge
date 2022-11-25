@@ -7,6 +7,11 @@ Input {
     width: 1fr;
 }
 
+#verbosity {
+    border: cyan round;
+    width: 3;
+}
+
 DataTable {
     border: cyan round;
 }

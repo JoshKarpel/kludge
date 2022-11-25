@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from enum import Enum
 from fnmatch import fnmatch
-from typing import Callable, Literal
+from typing import Callable, Generic, Iterable, Literal, TypeVar
 
-from kubernetes_asyncio.client import ApiClient, CoreV1Api, V1Pod
+from kubernetes_asyncio.client import ApiClient, CoreV1Api, V1Namespace, V1Node, V1Pod, V1Service
 from kubernetes_asyncio.config import load_kube_config
+from rich.console import RenderableType
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.events import Key
 from textual.reactive import reactive
 from textual.widget import Widget
-from textual.widgets import DataTable, Footer, Header, Input
+from textual.widgets import DataTable, Footer, Header, Input, Static
 
 RESOURCE = Literal[
     "node",
@@ -21,20 +25,24 @@ RESOURCE = Literal[
     "service",
 ]
 
-RESOURCE_ALIASES: Mapping[str, RESOURCE] = {
-    "node": "node",
-    "nodes": "node",
-    "namespace": "namespace",
-    "ns": "namespace",
-    "pod": "pod",
-    "pods": "pod",
-    "service": "service",
-    "svc": "service",
+_RESOURCE_ALIASES: Mapping[RESOURCE, set[str]] = {
+    "node": {"nodes"},
+    "namespace": {"ns"},
+    "pod": {"pods", "po"},
+    "service": {"services", "svc"},
 }
 
+RESOURCE_ALIASES: Mapping[str, RESOURCE] = {
+    alias: resource
+    for resource, aliases in _RESOURCE_ALIASES.items()
+    for alias in (*aliases, resource)
+}
 
-def item_by_attr(collections: list[object], attr: str, value: object) -> object | None:
-    for c in collections:
+T = TypeVar("T")
+
+
+def first_item_with_attr_value(items: Iterable[T], attr: str, value: object) -> T | None:
+    for c in items:
         if getattr(c, attr) == value:
             return c
     return None
@@ -90,34 +98,64 @@ def pod_containers_ready(pod: V1Pod) -> str:
     return f"{num_ready}/{num_total}"
 
 
-RESOURCE_COLS: Mapping[RESOURCE, Mapping[str, Callable[[object], str]]] = {
-    "node": {
-        "name": name,
-        "status": lambda obj: NODE_STATUS_MAP[
-            item_by_attr(obj.status.conditions, "type", "Ready").status
+class ColumnVerbosity(int, Enum):
+    Normal = 0
+    Wide = 1
+
+
+R = TypeVar("R")
+
+
+@dataclass(frozen=True)
+class Col(Generic[R]):
+    header: str
+    getter: Callable[[R], RenderableType]
+    verbosity: ColumnVerbosity = ColumnVerbosity.Normal
+
+
+NODE_COLS: list[Col[V1Node]] = [
+    Col(header="name", getter=name),
+    Col(
+        header="status",
+        getter=lambda obj: NODE_STATUS_MAP[
+            first_item_with_attr_value(obj.status.conditions, "type", "Ready").status
         ],
-        "age": age,
-    },
-    "namespace": {
-        "name": name,
-        "age": age,
-    },
-    "pod": {
-        "namespace": namespace,
-        "name": name,
-        "ready": pod_containers_ready,
-        "status": lambda obj: obj.status.phase,
-        "age": age,
-    },
-    "service": {
-        "namespace": namespace,
-        "name": name,
-        "cluster-ip": lambda obj: obj.spec.cluster_ip,
-        "ports": lambda obj: ", ".join(
+    ),
+    Col(header="age", getter=age),
+]
+
+NAMESPACE_COLS: list[Col[V1Namespace]] = [
+    Col(header="name", getter=name),
+    Col(header="age", getter=age),
+]
+
+POD_COLS: list[Col[V1Pod]] = [
+    Col(header="namespace", getter=namespace),
+    Col(header="name", getter=name),
+    Col(header="ready", getter=pod_containers_ready),
+    Col(header="status", getter=lambda pod: pod.status.phase),
+    Col(header="age", getter=age),
+    Col(header="pod-ip", getter=lambda pod: pod.status.pod_ip, verbosity=ColumnVerbosity.Wide),
+]
+
+SERVICE_COLS: list[Col[V1Service]] = [
+    Col(header="namespace", getter=namespace),
+    Col(header="name", getter=name),
+    Col(header="cluster-ip", getter=lambda service: service.spec.cluster_ip),
+    Col(
+        header="ports",
+        getter=lambda obj: ", ".join(
             f"{port.name}:{port.port}/{port.protocol}" for port in obj.spec.ports
         ),
-        "age": age,
-    },
+    ),
+    Col(header="age", getter=age),
+]
+
+RESOURCE_COLS: Mapping[RESOURCE, list[Col]] = {
+    "node": NODE_COLS,
+    "namespace": NAMESPACE_COLS,
+    "pod": POD_COLS,
+    "service": SERVICE_COLS,
 }
 
 
@@ -127,15 +165,21 @@ class ResourcesTable(Widget):
     filter: str = reactive("*")
     raw_results: list[object] = reactive(list, always_update=True)
     results: list[object] = reactive(list, always_update=True)
+    col_verbosity: ColumnVerbosity = reactive(ColumnVerbosity.Normal)
+
+    BINDINGS = [
+        Binding("w", "cycle_col_verbosity", "Cycle column verbosity"),
+    ]
 
     async def api(self) -> ApiClient:
         return await self.app.api()
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
-            Input(name="Resource", id="resource", value="pod"),
             Input(name="Namespace", id="namespace", value="", placeholder="all"),
+            Input(name="Resource", id="resource", value="pod"),
             Input(name="Filter", id="filter", value="", placeholder="*"),
+            Static(str(int(self.col_verbosity)), id="verbosity"),
             id="inputs",
         )
         yield DataTable()
@@ -187,11 +231,14 @@ class ResourcesTable(Widget):
         dt.clear()
         dt.columns.clear()
 
-        cols = RESOURCE_COLS[self.resource]
-        dt.add_columns(*(c.upper() for c in cols.keys()))
+        cols = [
+            c for c in RESOURCE_COLS[self.resource] if int(c.verbosity) <= int(self.col_verbosity)
+        ]
+
+        dt.add_columns(*(c.header.upper() for c in cols))
 
         for o in results:
-            dt.add_row(*(get(o) for get in cols.values()))
+            dt.add_row(*(c.getter(o) for c in cols))
 
     async def namespace_names(self) -> set[str]:
         return {
@@ -220,6 +267,12 @@ class ResourcesTable(Widget):
                 self.namespace = None
             elif event.value in (await self.namespace_names()):
                 self.namespace = event.value
+
+    def action_cycle_col_verbosity(self) -> None:
+        self.col_verbosity = ColumnVerbosity((self.col_verbosity + 1) % (max(ColumnVerbosity) + 1))
+        self.get_widget_by_id("verbosity").update(str(int(self.col_verbosity)))
+
+        self.results = self.results  # force results watcher to run
 
 
 class KludgeApp(App[None]):

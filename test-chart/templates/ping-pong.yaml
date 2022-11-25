@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.pingPong.pingNamespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ping
+  namespace: {{ .Values.pingPong.pingNamespace }}
+  labels:
+    app: ping
+spec:
+  replicas: {{ .Values.pingPong.replicas }}
+  selector:
+    matchLabels:
+      app: ping
+  template:
+    metadata:
+      labels:
+        app: ping
+    spec:
+      containers:
+      - name: ping
+        image: {{ .Values.pingPong.image }}
+        command: ["sh", "-x", "-c", "while true ; do echo -n $({{ .Values.pingPong.call }}) '-> '  ;  nc pong.{{.Values.pingPong.pongNamespace}} {{ .Values.pingPong.pongPort }} ; sleep {{ .Values.pingPong.interval }} ; done"]
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.pingPong.pongNamespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pong
+  namespace: {{ .Values.pingPong.pongNamespace }}
+  labels:
+    app: pong
+spec:
+  replicas: {{ .Values.pingPong.replicas }}
+  selector:
+    matchLabels:
+      app: pong
+  template:
+    metadata:
+      labels:
+        app: pong
+    spec:
+      containers:
+      - name: pong
+        image: {{ .Values.pingPong.image }}
+        command: ["nc", "-v", "-l", "-p", "{{ .Values.pingPong.pongPort }}", "-k", "-e", "{{ .Values.pingPong.response }}"]
+        ports:
+          - containerPort: {{ .Values.pingPong.pongPort }}
+            name: pong-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pong
+  namespace: {{ .Values.pingPong.pongNamespace }}
+spec:
+  selector:
+    app: pong
+  ports:
+    - name: pong
+      port: {{ .Values.pingPong.pongPort }}
+      protocol: TCP
+      targetPort: pong-port
