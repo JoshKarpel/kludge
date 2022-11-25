@@ -3,10 +3,10 @@
 }
 
 Input {
-    border: green;
-    width: 30%;
+    border: cyan round;
+    width: 1fr;
 }
 
 DataTable {
-    border: red;
+    border: cyan round;
 }

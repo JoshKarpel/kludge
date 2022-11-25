@@ -5,10 +5,11 @@ from datetime import datetime, timezone
 from fnmatch import fnmatch
 from typing import Callable, Literal
 
-from kubernetes_asyncio.client import ApiClient, CoreV1Api
+from kubernetes_asyncio.client import ApiClient, CoreV1Api, V1Pod
 from kubernetes_asyncio.config import load_kube_config
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
+from textual.events import Key
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import DataTable, Footer, Header, Input
@@ -77,10 +78,21 @@ def age(obj) -> str:
     return time_since(obj.metadata.creation_timestamp)
 
 
+def pod_containers_ready(pod: V1Pod) -> str:
+    container_statuses = pod.status.container_statuses
+
+    num_total = len(container_statuses)
+    num_ready = sum(cs.ready for cs in container_statuses)
+
+    return f"{num_ready}/{num_total}"
+
+
 RESOURCE_COLS: Mapping[RESOURCE, Mapping[str, Callable[[object], str]]] = {
     "pod": {
         "name": name,
         "namespace": namespace,
+        "ready": pod_containers_ready,
+        "status": lambda obj: obj.status.phase,
         "age": age,
     },
     "node": {
@@ -110,7 +122,7 @@ class ResourcesTable(Widget):
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Input(name="Resource", id="resource", value="pod"),
-            Input(name="Namespace", id="namespace", value="", placeholder=""),
+            Input(name="Namespace", id="namespace", value="", placeholder="all"),
             Input(name="Filter", id="filter", value="", placeholder="*"),
             id="inputs",
         )
@@ -169,6 +181,14 @@ class ResourcesTable(Widget):
         return {
             ns.metadata.name for ns in (await CoreV1Api(await self.api()).list_namespace()).items
         }
+
+    def on_key(self, event: Key) -> None:
+        if event.key == "slash":
+            self.get_widget_by_id("filter").focus()
+        elif event.key == "colon":
+            self.get_widget_by_id("resource").focus()
+        elif event.key == "escape":
+            self.query_one(DataTable).focus()
 
     async def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "resource":
