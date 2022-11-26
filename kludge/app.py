@@ -16,7 +16,7 @@ from textual.containers import Horizontal
 from textual.events import Key
 from textual.reactive import reactive
 from textual.widget import Widget
-from textual.widgets import DataTable, Footer, Header, Input
+from textual.widgets import DataTable, Input
 
 RESOURCE = Literal[
     "node",
@@ -244,6 +244,9 @@ class ResourcesTable(Widget):
             ns.metadata.name for ns in (await CoreV1Api(await self.api()).list_namespace()).items
         }
 
+    def selected_resource(self) -> object:
+        return self.results[self.query_one(DataTable).cursor_cell.row]
+
     def on_key(self, event: Key) -> None:
         if event.key == "slash":
             self.get_widget_by_id("filter").focus()
@@ -256,8 +259,7 @@ class ResourcesTable(Widget):
 
         if self.query_one(DataTable).has_focus:
             if self.resource == "namespace" and event.key == "enter":
-                y = self.query_one(DataTable).cursor_cell.row
-                self.get_widget_by_id("namespace").value = self.results[y].metadata.name
+                self.get_widget_by_id("namespace").value = self.selected_resource().metadata.name
                 self.get_widget_by_id("resource").value = "pod"
 
     async def on_input_changed(self, event: Input.Changed) -> None:
@@ -302,7 +304,4 @@ class KludgeApp(App[None]):
         return self._api
 
     def compose(self) -> ComposeResult:
-        yield Header()
-        yield Footer()
-
         yield ResourcesTable()
