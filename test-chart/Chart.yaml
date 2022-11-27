@@ -1,0 +1,7 @@
+apiVersion: v2
+name: test-chart
+description: Helm chart for testing kludge
+
+type: application
+
+version: 0.1.0

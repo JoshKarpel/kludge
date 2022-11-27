@@ -1,0 +1,22 @@
+pingPong:
+  pingNamespace: "ping"
+  pongNamespace: "pong"
+  image: "docker.io/library/busybox:stable"
+  replicas: 2
+  pongPort: 80
+  call: "hostname"
+  response: "hostname"
+  interval: 15
+
+ubuntu:
+  image: "ubuntu:20.04"
+
+python:
+  image: "python:3.10"
+  packages:
+    - ipython
+    - kubernetes
+
+kuard:
+  namespace: kuard
+  image: "gcr.io/kuar-demo/kuard-amd64:blue"

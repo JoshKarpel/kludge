@@ -1,0 +1,21 @@
+#inputs {
+    height: 3;
+}
+
+Input {
+    border: cyan round;
+    width: 1fr;
+}
+
+Input.bad {
+    border: red round;
+}
+
+#verbosity {
+    border: cyan round;
+    width: 3;
+}
+
+DataTable {
+    border: cyan round;
+}
