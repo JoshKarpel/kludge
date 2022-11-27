@@ -89,7 +89,18 @@ def path_to_name(path: str) -> tuple[str, list[str]]:
 
 def object_ref_to_name(ref: str) -> str:
     #     #/components/schemas/io.k8s.api.core.v1.ComponentStatus'
-    return ref.removeprefix("#/components/schemas/io.k8s.api.core.").replace(".", "")
+    return (
+        ref.replace("#/components/schemas/io.k8s.api.core.", "Core")
+        .replace("#/components/schemas/io.k8s.apimachinery.pkg.apis.meta.", "Core")
+        .replace("v1", "V1")
+        .replace(".", "")
+    )
+
+
+def camel_to_snake(s: str) -> str:
+    # https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
+    s = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", s)
+    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s).lower()
 
 
 def generate_functions(path: str, spec: PathItem) -> Iterable[str]:
@@ -98,28 +109,34 @@ def generate_functions(path: str, spec: PathItem) -> Iterable[str]:
     args = ["session: ClientSession"] + [f"{p}: str" for p in params]
     fmt_args = ", ".join(args)
     if spec.get is not None:
+        op_id = spec.get.operationId
         response_types = spec.get.responses["200"].content
         if "application/json" in response_types:
             return_type = response_types["application/json"]
             if isinstance(return_type.media_type_schema, Reference):
                 rt = object_ref_to_name(return_type.media_type_schema.ref)
-                get_or_list = "get" if "name" in params else "list"
-                yield dedent(
-                    f"""\
-                    async def {get_or_list}_{name}({fmt_args}) -> {rt}:
-                        \"\"\"
-                        Original path: {path}
-                        Derived name: {name}
-                        Derived params: {params}
-                        Return type: {return_type.media_type_schema.ref}
-                        \"\"\"
-                        async with session.get(f"{path}", ssl=sslcontext) as response:
-                            j = await response.json()
-                            return {rt}.parse_obj(j)
-                    """
-                )
             else:
-                print(return_type)  # TODO: get pod logs is in here
+                rt = return_type.media_type_schema.type
+
+            return_line = (
+                f"return {rt}.parse_obj(await response.json())"
+                if rt != "string"
+                else "return await response.text()"
+            )
+
+            yield dedent(
+                f"""\
+                async def {camel_to_snake(op_id)}({fmt_args}) -> {rt}:
+                    \"\"\"
+                    Original path: {path}
+                    Op ID: {op_id}
+                    Derived name: {name}
+                    Derived params: {params}
+                    \"\"\"
+                    async with session.get(f"{path}", ssl=sslcontext) as response:
+                        {return_line}
+                """
+            )
 
 
 if __name__ == "__main__":
