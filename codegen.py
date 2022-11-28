@@ -70,6 +70,10 @@ def generate(
     renderers = []
 
     for name, schema in api.components.schemas.items():
+        if name in [
+            "io.k8s.apimachinery.pkg.apis.meta.v1.Patch",
+        ]:
+            continue
         renderers.append(Klass(name, schema))
 
     for path, spec in api.paths.items():
@@ -119,6 +123,8 @@ class Klass:
             )
             return
 
+        required = self.schema.required or []
+
         for prop_name, prop in self.schema.properties.items():
             if prop.type is None:
                 try:
@@ -160,9 +166,7 @@ class Klass:
                 return
 
             if prop.default is not None:
-                if isinstance(prop.default, dict) and prop.type is None:
-                    d = f"default_factory={t}"
-                elif prop.type == "string":
+                if prop.type == "string":
                     d = f'default="{prop.default}"'
                 else:
                     d = f"default={prop.default}"
@@ -173,6 +177,9 @@ class Klass:
             else:
                 d = "..."
 
+            if prop_name not in required and prop.default is None:
+                t = f"{t} | None"
+
             if prop_name == "continue":
                 prop_name = "continue_"
 
@@ -182,6 +189,9 @@ class Klass:
         c = dedent(
             f"""\
             class {object_ref_to_name(self.name)}(BaseModel):
+                \"\"\"
+                Original name: {self.name}
+                \"\"\"
             """
         )
         for f in fields:
@@ -242,6 +252,7 @@ def object_ref_to_name(ref: str) -> str:
         .replace("io.k8s.api.authentication.", "Authentication")
         .replace("io.k8s.api.core.", "Core")
         .replace("io.k8s.apimachinery.pkg.apis.meta.", "Meta")
+        .replace("io.k8s.api.autoscaling.", "Autoscaling")
         .replace("v1", "V1")
         .replace(".", "")
     )
