@@ -9,7 +9,6 @@ from typing import Iterable
 from openapi_schema_pydantic import OpenAPI, PathItem, Reference, Schema
 from rich.console import Console
 from rich.style import Style
-from rich.syntax import Syntax
 from rich.text import Text
 from typer import Typer
 
@@ -25,6 +24,7 @@ cli = Typer()
 @cli.command()
 def generate(
     tag: str = "release-1.25",
+    out: Path = Path(__file__).parent.resolve() / "kludge" / "kube.py",
 ):
     kubernetes_dir = BASE_WORKDIR / "k8s" / tag
 
@@ -62,18 +62,19 @@ def generate(
     pod_file = specs_dir / "api__v1_openapi.json"
 
     api: OpenAPI = OpenAPI.parse_file(pod_file)
+
+    for name, schema in api.components.schemas.items():
+        # if name not in ["io.k8s.api.core.v1.Pod", "io.k8s.api.core.v1.PodSpec"]:
+        #     continue
+        chunks.append(generate_class(name, schema))
+
     for path, spec in api.paths.items():
         if "watch" in path:
             continue
-        # chunks.extend(generate_functions(path, spec))
+        chunks.extend(generate_functions(path, spec))
 
-    for name, schema in api.components.schemas.items():
-        if name not in ["io.k8s.api.core.v1.Pod", "io.k8s.api.core.v1.PodSpec"]:
-            continue
-        chunks.append(generate_class(name, schema))
-
-    code = "\n".join(c for c in chunks if c)
-    console.print(Syntax(code, lexer="python"))
+    out.write_text("\n".join(c for c in chunks if c))
+    console.print(Text(f"Wrote generated code to {out}", style=Style(color="green")))
 
 
 RE_PARAMS = re.compile(r"\{(\w+)\}")
@@ -86,8 +87,9 @@ def params_from_path(path: str) -> list[str]:
 def object_ref_to_name(ref: str) -> str:
     return (
         ref.replace("#/components/schemas/", "")
+        .replace("io.k8s.api.authentication.", "Authentication")
         .replace("io.k8s.api.core.", "Core")
-        .replace("io.k8s.apimachinery.pkg.apis.meta.", "Core")
+        .replace("io.k8s.apimachinery.pkg.apis.meta.", "Meta")
         .replace("v1", "V1")
         .replace(".", "")
     )
@@ -128,7 +130,7 @@ def generate_functions(path: str, spec: PathItem) -> Iterable[str]:
                     Op ID: {op_id}
                     Derived params: {params}
                     \"\"\"
-                    async with session.get(f"{path}", ssl=sslcontext) as response:
+                    async with session.get(f"{path}") as response:
                         {return_line}
                 """
             )
@@ -137,9 +139,19 @@ def generate_functions(path: str, spec: PathItem) -> Iterable[str]:
 def generate_class(name: str, schema: Schema) -> str:
     fields = []
 
+    if schema.properties is None:
+        console.print(f"{name=}")
+        console.print(f"{schema=}")
+        return ""
+
     for prop_name, prop in schema.properties.items():
         if prop.type is None:
-            t = object_ref_to_name(prop.allOf[0].ref)
+            try:
+                t = object_ref_to_name(prop.allOf[0].ref)
+            except:
+                console.print(f"{name=}")
+                console.print(f"{prop.type=} {prop=}")
+                t = "panic"
         elif prop.type == "string":
             t = "str"
         elif prop.type == "integer":
@@ -150,17 +162,27 @@ def generate_class(name: str, schema: Schema) -> str:
             if isinstance(prop.items, Reference):
                 item_type = object_ref_to_name(prop.items.ref)
             else:
-                item_type = object_ref_to_name(prop.items.allOf[0].ref)
+                try:
+                    item_type = object_ref_to_name(prop.items.allOf[0].ref)
+                except Exception:
+                    console.print(name)
+                    console.print(prop_name)
+                    console.print(prop)
+                    console.print(f"panic {prop.type=} {prop.items=}")
+                    item_type = "panic"
             t = f"list[{item_type}]"
         else:
             console.print(name)
             console.print(prop_name)
             console.print(prop)
             console.print(f"panic {prop.type=}")
+            t = "panic"
 
         if prop.default is not None:
             if isinstance(prop.default, dict) and prop.type is None:
                 d = f"default_factory={t}"
+            elif prop.type == "string":
+                d = f'default="{prop.default}"'
             else:
                 d = f"default={prop.default}"
         elif prop_name == "kind":
@@ -170,6 +192,9 @@ def generate_class(name: str, schema: Schema) -> str:
         else:
             d = "..."
 
+        if prop_name == "continue":
+            prop_name = "continue_"
+
         fields.append(f'{camel_to_snake(prop_name)}: {t} = Field({d}, alias="{prop_name}")')
         # fields.append(f"{camel_to_snake(prop_name)}: {t} = Field({d}, alias=\"{prop_name}\", description=\"{prop.description}\")")
 
@@ -178,9 +203,6 @@ def generate_class(name: str, schema: Schema) -> str:
     return dedent(
         f"""\
         class {object_ref_to_name(name)}(BaseModel):
-            \"\"\"
-            {schema.description}
-            \"\"\"
             {fmt_fields}
         """
     )
