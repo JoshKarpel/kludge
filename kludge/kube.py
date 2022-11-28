@@ -23,12 +23,6 @@ class AuthenticationV1TokenRequest(BaseModel):
     )
 
 
-class AuthenticationV1TokenRequestSpec(BaseModel):
-    audiences: list[panic] = Field(..., alias="audiences")
-    bound_object_ref: AuthenticationV1BoundObjectReference = Field(..., alias="boundObjectRef")
-    expiration_seconds: int = Field(..., alias="expirationSeconds")
-
-
 class AuthenticationV1TokenRequestStatus(BaseModel):
     expiration_timestamp: MetaV1Time = Field(
         default_factory=MetaV1Time, alias="expirationTimestamp"
@@ -104,54 +98,6 @@ class CoreV1Binding(BaseModel):
     target: CoreV1ObjectReference = Field(default_factory=CoreV1ObjectReference, alias="target")
 
 
-class CoreV1CSIPersistentVolumeSource(BaseModel):
-    controller_expand_secret_ref: CoreV1SecretReference = Field(
-        ..., alias="controllerExpandSecretRef"
-    )
-    controller_publish_secret_ref: CoreV1SecretReference = Field(
-        ..., alias="controllerPublishSecretRef"
-    )
-    driver: str = Field(default="", alias="driver")
-    fs_type: str = Field(..., alias="fsType")
-    node_expand_secret_ref: CoreV1SecretReference = Field(..., alias="nodeExpandSecretRef")
-    node_publish_secret_ref: CoreV1SecretReference = Field(..., alias="nodePublishSecretRef")
-    node_stage_secret_ref: CoreV1SecretReference = Field(..., alias="nodeStageSecretRef")
-    read_only: bool = Field(..., alias="readOnly")
-    volume_attributes: panic = Field(..., alias="volumeAttributes")
-    volume_handle: str = Field(default="", alias="volumeHandle")
-
-
-class CoreV1CSIVolumeSource(BaseModel):
-    driver: str = Field(default="", alias="driver")
-    fs_type: str = Field(..., alias="fsType")
-    node_publish_secret_ref: CoreV1LocalObjectReference = Field(..., alias="nodePublishSecretRef")
-    read_only: bool = Field(..., alias="readOnly")
-    volume_attributes: panic = Field(..., alias="volumeAttributes")
-
-
-class CoreV1Capabilities(BaseModel):
-    add: list[panic] = Field(..., alias="add")
-    drop: list[panic] = Field(..., alias="drop")
-
-
-class CoreV1CephFSPersistentVolumeSource(BaseModel):
-    monitors: list[panic] = Field(..., alias="monitors")
-    path: str = Field(..., alias="path")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_file: str = Field(..., alias="secretFile")
-    secret_ref: CoreV1SecretReference = Field(..., alias="secretRef")
-    user: str = Field(..., alias="user")
-
-
-class CoreV1CephFSVolumeSource(BaseModel):
-    monitors: list[panic] = Field(..., alias="monitors")
-    path: str = Field(..., alias="path")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_file: str = Field(..., alias="secretFile")
-    secret_ref: CoreV1LocalObjectReference = Field(..., alias="secretRef")
-    user: str = Field(..., alias="user")
-
-
 class CoreV1CinderPersistentVolumeSource(BaseModel):
     fs_type: str = Field(..., alias="fsType")
     read_only: bool = Field(..., alias="readOnly")
@@ -191,15 +137,6 @@ class CoreV1ComponentStatusList(BaseModel):
     metadata: MetaV1ListMeta = Field(default_factory=MetaV1ListMeta, alias="metadata")
 
 
-class CoreV1ConfigMap(BaseModel):
-    api_version: str = Field("v1", alias="apiVersion")
-    binary_data: panic = Field(..., alias="binaryData")
-    data: panic = Field(..., alias="data")
-    immutable: bool = Field(..., alias="immutable")
-    kind: str = Field("ConfigMap", alias="kind")
-    metadata: MetaV1ObjectMeta = Field(default_factory=MetaV1ObjectMeta, alias="metadata")
-
-
 class CoreV1ConfigMapEnvSource(BaseModel):
     name: str = Field(..., alias="name")
     optional: bool = Field(..., alias="optional")
@@ -237,38 +174,6 @@ class CoreV1ConfigMapVolumeSource(BaseModel):
     items: list[CoreV1KeyToPath] = Field(..., alias="items")
     name: str = Field(..., alias="name")
     optional: bool = Field(..., alias="optional")
-
-
-class CoreV1Container(BaseModel):
-    args: list[panic] = Field(..., alias="args")
-    command: list[panic] = Field(..., alias="command")
-    env: list[CoreV1EnvVar] = Field(..., alias="env")
-    env_from: list[CoreV1EnvFromSource] = Field(..., alias="envFrom")
-    image: str = Field(..., alias="image")
-    image_pull_policy: str = Field(..., alias="imagePullPolicy")
-    lifecycle: CoreV1Lifecycle = Field(..., alias="lifecycle")
-    liveness_probe: CoreV1Probe = Field(..., alias="livenessProbe")
-    name: str = Field(default="", alias="name")
-    ports: list[CoreV1ContainerPort] = Field(..., alias="ports")
-    readiness_probe: CoreV1Probe = Field(..., alias="readinessProbe")
-    resources: CoreV1ResourceRequirements = Field(
-        default_factory=CoreV1ResourceRequirements, alias="resources"
-    )
-    security_context: CoreV1SecurityContext = Field(..., alias="securityContext")
-    startup_probe: CoreV1Probe = Field(..., alias="startupProbe")
-    stdin: bool = Field(..., alias="stdin")
-    stdin_once: bool = Field(..., alias="stdinOnce")
-    termination_message_path: str = Field(..., alias="terminationMessagePath")
-    termination_message_policy: str = Field(..., alias="terminationMessagePolicy")
-    tty: bool = Field(..., alias="tty")
-    volume_devices: list[CoreV1VolumeDevice] = Field(..., alias="volumeDevices")
-    volume_mounts: list[CoreV1VolumeMount] = Field(..., alias="volumeMounts")
-    working_dir: str = Field(..., alias="workingDir")
-
-
-class CoreV1ContainerImage(BaseModel):
-    names: list[panic] = Field(..., alias="names")
-    size_bytes: int = Field(..., alias="sizeBytes")
 
 
 class CoreV1ContainerPort(BaseModel):
@@ -396,34 +301,6 @@ class CoreV1EnvVarSource(BaseModel):
     secret_key_ref: CoreV1SecretKeySelector = Field(..., alias="secretKeyRef")
 
 
-class CoreV1EphemeralContainer(BaseModel):
-    args: list[panic] = Field(..., alias="args")
-    command: list[panic] = Field(..., alias="command")
-    env: list[CoreV1EnvVar] = Field(..., alias="env")
-    env_from: list[CoreV1EnvFromSource] = Field(..., alias="envFrom")
-    image: str = Field(..., alias="image")
-    image_pull_policy: str = Field(..., alias="imagePullPolicy")
-    lifecycle: CoreV1Lifecycle = Field(..., alias="lifecycle")
-    liveness_probe: CoreV1Probe = Field(..., alias="livenessProbe")
-    name: str = Field(default="", alias="name")
-    ports: list[CoreV1ContainerPort] = Field(..., alias="ports")
-    readiness_probe: CoreV1Probe = Field(..., alias="readinessProbe")
-    resources: CoreV1ResourceRequirements = Field(
-        default_factory=CoreV1ResourceRequirements, alias="resources"
-    )
-    security_context: CoreV1SecurityContext = Field(..., alias="securityContext")
-    startup_probe: CoreV1Probe = Field(..., alias="startupProbe")
-    stdin: bool = Field(..., alias="stdin")
-    stdin_once: bool = Field(..., alias="stdinOnce")
-    target_container_name: str = Field(..., alias="targetContainerName")
-    termination_message_path: str = Field(..., alias="terminationMessagePath")
-    termination_message_policy: str = Field(..., alias="terminationMessagePolicy")
-    tty: bool = Field(..., alias="tty")
-    volume_devices: list[CoreV1VolumeDevice] = Field(..., alias="volumeDevices")
-    volume_mounts: list[CoreV1VolumeMount] = Field(..., alias="volumeMounts")
-    working_dir: str = Field(..., alias="workingDir")
-
-
 class CoreV1EphemeralVolumeSource(BaseModel):
     volume_claim_template: CoreV1PersistentVolumeClaimTemplate = Field(
         ..., alias="volumeClaimTemplate"
@@ -469,34 +346,6 @@ class CoreV1EventSeries(BaseModel):
 class CoreV1EventSource(BaseModel):
     component: str = Field(..., alias="component")
     host: str = Field(..., alias="host")
-
-
-class CoreV1ExecAction(BaseModel):
-    command: list[panic] = Field(..., alias="command")
-
-
-class CoreV1FCVolumeSource(BaseModel):
-    fs_type: str = Field(..., alias="fsType")
-    lun: int = Field(..., alias="lun")
-    read_only: bool = Field(..., alias="readOnly")
-    target_ww_ns: list[panic] = Field(..., alias="targetWWNs")
-    wwids: list[panic] = Field(..., alias="wwids")
-
-
-class CoreV1FlexPersistentVolumeSource(BaseModel):
-    driver: str = Field(default="", alias="driver")
-    fs_type: str = Field(..., alias="fsType")
-    options: panic = Field(..., alias="options")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_ref: CoreV1SecretReference = Field(..., alias="secretRef")
-
-
-class CoreV1FlexVolumeSource(BaseModel):
-    driver: str = Field(default="", alias="driver")
-    fs_type: str = Field(..., alias="fsType")
-    options: panic = Field(..., alias="options")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_ref: CoreV1LocalObjectReference = Field(..., alias="secretRef")
 
 
 class CoreV1FlockerVolumeSource(BaseModel):
@@ -550,42 +399,9 @@ class CoreV1HTTPHeader(BaseModel):
     value: str = Field(default="", alias="value")
 
 
-class CoreV1HostAlias(BaseModel):
-    hostnames: list[panic] = Field(..., alias="hostnames")
-    ip: str = Field(..., alias="ip")
-
-
 class CoreV1HostPathVolumeSource(BaseModel):
     path: str = Field(default="", alias="path")
     type: str = Field(..., alias="type")
-
-
-class CoreV1ISCSIPersistentVolumeSource(BaseModel):
-    chap_auth_discovery: bool = Field(..., alias="chapAuthDiscovery")
-    chap_auth_session: bool = Field(..., alias="chapAuthSession")
-    fs_type: str = Field(..., alias="fsType")
-    initiator_name: str = Field(..., alias="initiatorName")
-    iqn: str = Field(default="", alias="iqn")
-    iscsi_interface: str = Field(..., alias="iscsiInterface")
-    lun: int = Field(default=0, alias="lun")
-    portals: list[panic] = Field(..., alias="portals")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_ref: CoreV1SecretReference = Field(..., alias="secretRef")
-    target_portal: str = Field(default="", alias="targetPortal")
-
-
-class CoreV1ISCSIVolumeSource(BaseModel):
-    chap_auth_discovery: bool = Field(..., alias="chapAuthDiscovery")
-    chap_auth_session: bool = Field(..., alias="chapAuthSession")
-    fs_type: str = Field(..., alias="fsType")
-    initiator_name: str = Field(..., alias="initiatorName")
-    iqn: str = Field(default="", alias="iqn")
-    iscsi_interface: str = Field(..., alias="iscsiInterface")
-    lun: int = Field(default=0, alias="lun")
-    portals: list[panic] = Field(..., alias="portals")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_ref: CoreV1LocalObjectReference = Field(..., alias="secretRef")
-    target_portal: str = Field(default="", alias="targetPortal")
 
 
 class CoreV1KeyToPath(BaseModel):
@@ -610,15 +426,6 @@ class CoreV1LimitRange(BaseModel):
     kind: str = Field("LimitRange", alias="kind")
     metadata: MetaV1ObjectMeta = Field(default_factory=MetaV1ObjectMeta, alias="metadata")
     spec: CoreV1LimitRangeSpec = Field(default_factory=CoreV1LimitRangeSpec, alias="spec")
-
-
-class CoreV1LimitRangeItem(BaseModel):
-    default: panic = Field(..., alias="default")
-    default_request: panic = Field(..., alias="defaultRequest")
-    max: panic = Field(..., alias="max")
-    max_limit_request_ratio: panic = Field(..., alias="maxLimitRequestRatio")
-    min: panic = Field(..., alias="min")
-    type: str = Field(default="", alias="type")
 
 
 class CoreV1LimitRangeList(BaseModel):
@@ -678,10 +485,6 @@ class CoreV1NamespaceList(BaseModel):
     items: list[CoreV1Namespace] = Field(..., alias="items")
     kind: str = Field("NamespaceList", alias="kind")
     metadata: MetaV1ListMeta = Field(default_factory=MetaV1ListMeta, alias="metadata")
-
-
-class CoreV1NamespaceSpec(BaseModel):
-    finalizers: list[panic] = Field(..., alias="finalizers")
 
 
 class CoreV1NamespaceStatus(BaseModel):
@@ -748,41 +551,9 @@ class CoreV1NodeSelector(BaseModel):
     node_selector_terms: list[CoreV1NodeSelectorTerm] = Field(..., alias="nodeSelectorTerms")
 
 
-class CoreV1NodeSelectorRequirement(BaseModel):
-    key: str = Field(default="", alias="key")
-    operator: str = Field(default="", alias="operator")
-    values: list[panic] = Field(..., alias="values")
-
-
 class CoreV1NodeSelectorTerm(BaseModel):
     match_expressions: list[CoreV1NodeSelectorRequirement] = Field(..., alias="matchExpressions")
     match_fields: list[CoreV1NodeSelectorRequirement] = Field(..., alias="matchFields")
-
-
-class CoreV1NodeSpec(BaseModel):
-    config_source: CoreV1NodeConfigSource = Field(..., alias="configSource")
-    external_id: str = Field(..., alias="externalID")
-    pod_cidr: str = Field(..., alias="podCIDR")
-    pod_cid_rs: list[panic] = Field(..., alias="podCIDRs")
-    provider_id: str = Field(..., alias="providerID")
-    taints: list[CoreV1Taint] = Field(..., alias="taints")
-    unschedulable: bool = Field(..., alias="unschedulable")
-
-
-class CoreV1NodeStatus(BaseModel):
-    addresses: list[CoreV1NodeAddress] = Field(..., alias="addresses")
-    allocatable: panic = Field(..., alias="allocatable")
-    capacity: panic = Field(..., alias="capacity")
-    conditions: list[CoreV1NodeCondition] = Field(..., alias="conditions")
-    config: CoreV1NodeConfigStatus = Field(..., alias="config")
-    daemon_endpoints: CoreV1NodeDaemonEndpoints = Field(
-        default_factory=CoreV1NodeDaemonEndpoints, alias="daemonEndpoints"
-    )
-    images: list[CoreV1ContainerImage] = Field(..., alias="images")
-    node_info: CoreV1NodeSystemInfo = Field(default_factory=CoreV1NodeSystemInfo, alias="nodeInfo")
-    phase: str = Field(..., alias="phase")
-    volumes_attached: list[CoreV1AttachedVolume] = Field(..., alias="volumesAttached")
-    volumes_in_use: list[panic] = Field(..., alias="volumesInUse")
 
 
 class CoreV1NodeSystemInfo(BaseModel):
@@ -853,28 +624,6 @@ class CoreV1PersistentVolumeClaimList(BaseModel):
     metadata: MetaV1ListMeta = Field(default_factory=MetaV1ListMeta, alias="metadata")
 
 
-class CoreV1PersistentVolumeClaimSpec(BaseModel):
-    access_modes: list[panic] = Field(..., alias="accessModes")
-    data_source: CoreV1TypedLocalObjectReference = Field(..., alias="dataSource")
-    data_source_ref: CoreV1TypedLocalObjectReference = Field(..., alias="dataSourceRef")
-    resources: CoreV1ResourceRequirements = Field(
-        default_factory=CoreV1ResourceRequirements, alias="resources"
-    )
-    selector: MetaV1LabelSelector = Field(..., alias="selector")
-    storage_class_name: str = Field(..., alias="storageClassName")
-    volume_mode: str = Field(..., alias="volumeMode")
-    volume_name: str = Field(..., alias="volumeName")
-
-
-class CoreV1PersistentVolumeClaimStatus(BaseModel):
-    access_modes: list[panic] = Field(..., alias="accessModes")
-    allocated_resources: panic = Field(..., alias="allocatedResources")
-    capacity: panic = Field(..., alias="capacity")
-    conditions: list[CoreV1PersistentVolumeClaimCondition] = Field(..., alias="conditions")
-    phase: str = Field(..., alias="phase")
-    resize_status: str = Field(..., alias="resizeStatus")
-
-
 class CoreV1PersistentVolumeClaimTemplate(BaseModel):
     metadata: MetaV1ObjectMeta = Field(default_factory=MetaV1ObjectMeta, alias="metadata")
     spec: CoreV1PersistentVolumeClaimSpec = Field(
@@ -892,43 +641,6 @@ class CoreV1PersistentVolumeList(BaseModel):
     items: list[CoreV1PersistentVolume] = Field(..., alias="items")
     kind: str = Field("PersistentVolumeList", alias="kind")
     metadata: MetaV1ListMeta = Field(default_factory=MetaV1ListMeta, alias="metadata")
-
-
-class CoreV1PersistentVolumeSpec(BaseModel):
-    access_modes: list[panic] = Field(..., alias="accessModes")
-    aws_elastic_block_store: CoreV1AWSElasticBlockStoreVolumeSource = Field(
-        ..., alias="awsElasticBlockStore"
-    )
-    azure_disk: CoreV1AzureDiskVolumeSource = Field(..., alias="azureDisk")
-    azure_file: CoreV1AzureFilePersistentVolumeSource = Field(..., alias="azureFile")
-    capacity: panic = Field(..., alias="capacity")
-    cephfs: CoreV1CephFSPersistentVolumeSource = Field(..., alias="cephfs")
-    cinder: CoreV1CinderPersistentVolumeSource = Field(..., alias="cinder")
-    claim_ref: CoreV1ObjectReference = Field(..., alias="claimRef")
-    csi: CoreV1CSIPersistentVolumeSource = Field(..., alias="csi")
-    fc: CoreV1FCVolumeSource = Field(..., alias="fc")
-    flex_volume: CoreV1FlexPersistentVolumeSource = Field(..., alias="flexVolume")
-    flocker: CoreV1FlockerVolumeSource = Field(..., alias="flocker")
-    gce_persistent_disk: CoreV1GCEPersistentDiskVolumeSource = Field(..., alias="gcePersistentDisk")
-    glusterfs: CoreV1GlusterfsPersistentVolumeSource = Field(..., alias="glusterfs")
-    host_path: CoreV1HostPathVolumeSource = Field(..., alias="hostPath")
-    iscsi: CoreV1ISCSIPersistentVolumeSource = Field(..., alias="iscsi")
-    local: CoreV1LocalVolumeSource = Field(..., alias="local")
-    mount_options: list[panic] = Field(..., alias="mountOptions")
-    nfs: CoreV1NFSVolumeSource = Field(..., alias="nfs")
-    node_affinity: CoreV1VolumeNodeAffinity = Field(..., alias="nodeAffinity")
-    persistent_volume_reclaim_policy: str = Field(..., alias="persistentVolumeReclaimPolicy")
-    photon_persistent_disk: CoreV1PhotonPersistentDiskVolumeSource = Field(
-        ..., alias="photonPersistentDisk"
-    )
-    portworx_volume: CoreV1PortworxVolumeSource = Field(..., alias="portworxVolume")
-    quobyte: CoreV1QuobyteVolumeSource = Field(..., alias="quobyte")
-    rbd: CoreV1RBDPersistentVolumeSource = Field(..., alias="rbd")
-    scale_io: CoreV1ScaleIOPersistentVolumeSource = Field(..., alias="scaleIO")
-    storage_class_name: str = Field(..., alias="storageClassName")
-    storageos: CoreV1StorageOSPersistentVolumeSource = Field(..., alias="storageos")
-    volume_mode: str = Field(..., alias="volumeMode")
-    vsphere_volume: CoreV1VsphereVirtualDiskVolumeSource = Field(..., alias="vsphereVolume")
 
 
 class CoreV1PersistentVolumeStatus(BaseModel):
@@ -959,13 +671,6 @@ class CoreV1PodAffinity(BaseModel):
     )
 
 
-class CoreV1PodAffinityTerm(BaseModel):
-    label_selector: MetaV1LabelSelector = Field(..., alias="labelSelector")
-    namespace_selector: MetaV1LabelSelector = Field(..., alias="namespaceSelector")
-    namespaces: list[panic] = Field(..., alias="namespaces")
-    topology_key: str = Field(default="", alias="topologyKey")
-
-
 class CoreV1PodAntiAffinity(BaseModel):
     preferred_during_scheduling_ignored_during_execution: list[
         CoreV1WeightedPodAffinityTerm
@@ -982,12 +687,6 @@ class CoreV1PodCondition(BaseModel):
     reason: str = Field(..., alias="reason")
     status: str = Field(default="", alias="status")
     type: str = Field(default="", alias="type")
-
-
-class CoreV1PodDNSConfig(BaseModel):
-    nameservers: list[panic] = Field(..., alias="nameservers")
-    options: list[CoreV1PodDNSConfigOption] = Field(..., alias="options")
-    searches: list[panic] = Field(..., alias="searches")
 
 
 class CoreV1PodDNSConfigOption(BaseModel):
@@ -1012,61 +711,6 @@ class CoreV1PodOS(BaseModel):
 
 class CoreV1PodReadinessGate(BaseModel):
     condition_type: str = Field(default="", alias="conditionType")
-
-
-class CoreV1PodSecurityContext(BaseModel):
-    fs_group: int = Field(..., alias="fsGroup")
-    fs_group_change_policy: str = Field(..., alias="fsGroupChangePolicy")
-    run_as_group: int = Field(..., alias="runAsGroup")
-    run_as_non_root: bool = Field(..., alias="runAsNonRoot")
-    run_as_user: int = Field(..., alias="runAsUser")
-    se_linux_options: CoreV1SELinuxOptions = Field(..., alias="seLinuxOptions")
-    seccomp_profile: CoreV1SeccompProfile = Field(..., alias="seccompProfile")
-    supplemental_groups: list[panic] = Field(..., alias="supplementalGroups")
-    sysctls: list[CoreV1Sysctl] = Field(..., alias="sysctls")
-    windows_options: CoreV1WindowsSecurityContextOptions = Field(..., alias="windowsOptions")
-
-
-class CoreV1PodSpec(BaseModel):
-    active_deadline_seconds: int = Field(..., alias="activeDeadlineSeconds")
-    affinity: CoreV1Affinity = Field(..., alias="affinity")
-    automount_service_account_token: bool = Field(..., alias="automountServiceAccountToken")
-    containers: list[CoreV1Container] = Field(..., alias="containers")
-    dns_config: CoreV1PodDNSConfig = Field(..., alias="dnsConfig")
-    dns_policy: str = Field(..., alias="dnsPolicy")
-    enable_service_links: bool = Field(..., alias="enableServiceLinks")
-    ephemeral_containers: list[CoreV1EphemeralContainer] = Field(..., alias="ephemeralContainers")
-    host_aliases: list[CoreV1HostAlias] = Field(..., alias="hostAliases")
-    host_ipc: bool = Field(..., alias="hostIPC")
-    host_network: bool = Field(..., alias="hostNetwork")
-    host_pid: bool = Field(..., alias="hostPID")
-    host_users: bool = Field(..., alias="hostUsers")
-    hostname: str = Field(..., alias="hostname")
-    image_pull_secrets: list[CoreV1LocalObjectReference] = Field(..., alias="imagePullSecrets")
-    init_containers: list[CoreV1Container] = Field(..., alias="initContainers")
-    node_name: str = Field(..., alias="nodeName")
-    node_selector: panic = Field(..., alias="nodeSelector")
-    os: CoreV1PodOS = Field(..., alias="os")
-    overhead: panic = Field(..., alias="overhead")
-    preemption_policy: str = Field(..., alias="preemptionPolicy")
-    priority: int = Field(..., alias="priority")
-    priority_class_name: str = Field(..., alias="priorityClassName")
-    readiness_gates: list[CoreV1PodReadinessGate] = Field(..., alias="readinessGates")
-    restart_policy: str = Field(..., alias="restartPolicy")
-    runtime_class_name: str = Field(..., alias="runtimeClassName")
-    scheduler_name: str = Field(..., alias="schedulerName")
-    security_context: CoreV1PodSecurityContext = Field(..., alias="securityContext")
-    service_account: str = Field(..., alias="serviceAccount")
-    service_account_name: str = Field(..., alias="serviceAccountName")
-    set_hostname_as_fqdn: bool = Field(..., alias="setHostnameAsFQDN")
-    share_process_namespace: bool = Field(..., alias="shareProcessNamespace")
-    subdomain: str = Field(..., alias="subdomain")
-    termination_grace_period_seconds: int = Field(..., alias="terminationGracePeriodSeconds")
-    tolerations: list[CoreV1Toleration] = Field(..., alias="tolerations")
-    topology_spread_constraints: list[CoreV1TopologySpreadConstraint] = Field(
-        ..., alias="topologySpreadConstraints"
-    )
-    volumes: list[CoreV1Volume] = Field(..., alias="volumes")
 
 
 class CoreV1PodStatus(BaseModel):
@@ -1152,28 +796,6 @@ class CoreV1QuobyteVolumeSource(BaseModel):
     volume: str = Field(default="", alias="volume")
 
 
-class CoreV1RBDPersistentVolumeSource(BaseModel):
-    fs_type: str = Field(..., alias="fsType")
-    image: str = Field(default="", alias="image")
-    keyring: str = Field(..., alias="keyring")
-    monitors: list[panic] = Field(..., alias="monitors")
-    pool: str = Field(..., alias="pool")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_ref: CoreV1SecretReference = Field(..., alias="secretRef")
-    user: str = Field(..., alias="user")
-
-
-class CoreV1RBDVolumeSource(BaseModel):
-    fs_type: str = Field(..., alias="fsType")
-    image: str = Field(default="", alias="image")
-    keyring: str = Field(..., alias="keyring")
-    monitors: list[panic] = Field(..., alias="monitors")
-    pool: str = Field(..., alias="pool")
-    read_only: bool = Field(..., alias="readOnly")
-    secret_ref: CoreV1LocalObjectReference = Field(..., alias="secretRef")
-    user: str = Field(..., alias="user")
-
-
 class CoreV1ReplicationController(BaseModel):
     api_version: str = Field("v1", alias="apiVersion")
     kind: str = Field("ReplicationController", alias="kind")
@@ -1199,13 +821,6 @@ class CoreV1ReplicationControllerList(BaseModel):
     items: list[CoreV1ReplicationController] = Field(..., alias="items")
     kind: str = Field("ReplicationControllerList", alias="kind")
     metadata: MetaV1ListMeta = Field(default_factory=MetaV1ListMeta, alias="metadata")
-
-
-class CoreV1ReplicationControllerSpec(BaseModel):
-    min_ready_seconds: int = Field(..., alias="minReadySeconds")
-    replicas: int = Field(..., alias="replicas")
-    selector: panic = Field(..., alias="selector")
-    template: CoreV1PodTemplateSpec = Field(..., alias="template")
 
 
 class CoreV1ReplicationControllerStatus(BaseModel):
@@ -1240,22 +855,6 @@ class CoreV1ResourceQuotaList(BaseModel):
     items: list[CoreV1ResourceQuota] = Field(..., alias="items")
     kind: str = Field("ResourceQuotaList", alias="kind")
     metadata: MetaV1ListMeta = Field(default_factory=MetaV1ListMeta, alias="metadata")
-
-
-class CoreV1ResourceQuotaSpec(BaseModel):
-    hard: panic = Field(..., alias="hard")
-    scope_selector: CoreV1ScopeSelector = Field(..., alias="scopeSelector")
-    scopes: list[panic] = Field(..., alias="scopes")
-
-
-class CoreV1ResourceQuotaStatus(BaseModel):
-    hard: panic = Field(..., alias="hard")
-    used: panic = Field(..., alias="used")
-
-
-class CoreV1ResourceRequirements(BaseModel):
-    limits: panic = Field(..., alias="limits")
-    requests: panic = Field(..., alias="requests")
 
 
 class CoreV1SELinuxOptions(BaseModel):
@@ -1297,25 +896,9 @@ class CoreV1ScopeSelector(BaseModel):
     )
 
 
-class CoreV1ScopedResourceSelectorRequirement(BaseModel):
-    operator: str = Field(default="", alias="operator")
-    scope_name: str = Field(default="", alias="scopeName")
-    values: list[panic] = Field(..., alias="values")
-
-
 class CoreV1SeccompProfile(BaseModel):
     localhost_profile: str = Field(..., alias="localhostProfile")
     type: str = Field(default="", alias="type")
-
-
-class CoreV1Secret(BaseModel):
-    api_version: str = Field("v1", alias="apiVersion")
-    data: panic = Field(..., alias="data")
-    immutable: bool = Field(..., alias="immutable")
-    kind: str = Field("Secret", alias="kind")
-    metadata: MetaV1ObjectMeta = Field(default_factory=MetaV1ObjectMeta, alias="metadata")
-    string_data: panic = Field(..., alias="stringData")
-    type: str = Field(..., alias="type")
 
 
 class CoreV1SecretEnvSource(BaseModel):
@@ -1416,28 +999,6 @@ class CoreV1ServicePort(BaseModel):
     )
 
 
-class CoreV1ServiceSpec(BaseModel):
-    allocate_load_balancer_node_ports: bool = Field(..., alias="allocateLoadBalancerNodePorts")
-    cluster_ip: str = Field(..., alias="clusterIP")
-    cluster_i_ps: list[panic] = Field(..., alias="clusterIPs")
-    external_i_ps: list[panic] = Field(..., alias="externalIPs")
-    external_name: str = Field(..., alias="externalName")
-    external_traffic_policy: str = Field(..., alias="externalTrafficPolicy")
-    health_check_node_port: int = Field(..., alias="healthCheckNodePort")
-    internal_traffic_policy: str = Field(..., alias="internalTrafficPolicy")
-    ip_families: list[panic] = Field(..., alias="ipFamilies")
-    ip_family_policy: str = Field(..., alias="ipFamilyPolicy")
-    load_balancer_class: str = Field(..., alias="loadBalancerClass")
-    load_balancer_ip: str = Field(..., alias="loadBalancerIP")
-    load_balancer_source_ranges: list[panic] = Field(..., alias="loadBalancerSourceRanges")
-    ports: list[CoreV1ServicePort] = Field(..., alias="ports")
-    publish_not_ready_addresses: bool = Field(..., alias="publishNotReadyAddresses")
-    selector: panic = Field(..., alias="selector")
-    session_affinity: str = Field(..., alias="sessionAffinity")
-    session_affinity_config: CoreV1SessionAffinityConfig = Field(..., alias="sessionAffinityConfig")
-    type: str = Field(..., alias="type")
-
-
 class CoreV1ServiceStatus(BaseModel):
     conditions: list[MetaV1Condition] = Field(..., alias="conditions")
     load_balancer: CoreV1LoadBalancerStatus = Field(
@@ -1490,17 +1051,6 @@ class CoreV1Toleration(BaseModel):
     operator: str = Field(..., alias="operator")
     toleration_seconds: int = Field(..., alias="tolerationSeconds")
     value: str = Field(..., alias="value")
-
-
-class CoreV1TopologySpreadConstraint(BaseModel):
-    label_selector: MetaV1LabelSelector = Field(..., alias="labelSelector")
-    match_label_keys: list[panic] = Field(..., alias="matchLabelKeys")
-    max_skew: int = Field(default=0, alias="maxSkew")
-    min_domains: int = Field(..., alias="minDomains")
-    node_affinity_policy: str = Field(..., alias="nodeAffinityPolicy")
-    node_taints_policy: str = Field(..., alias="nodeTaintsPolicy")
-    topology_key: str = Field(default="", alias="topologyKey")
-    when_unsatisfiable: str = Field(default="", alias="whenUnsatisfiable")
 
 
 class CoreV1TypedLocalObjectReference(BaseModel):
@@ -1603,19 +1153,6 @@ class iok8sapipolicyV1Eviction(BaseModel):
     metadata: MetaV1ObjectMeta = Field(default_factory=MetaV1ObjectMeta, alias="metadata")
 
 
-class MetaV1APIResource(BaseModel):
-    categories: list[panic] = Field(..., alias="categories")
-    group: str = Field(..., alias="group")
-    kind: str = Field(default="", alias="kind")
-    name: str = Field(default="", alias="name")
-    namespaced: bool = Field(default=False, alias="namespaced")
-    short_names: list[panic] = Field(..., alias="shortNames")
-    singular_name: str = Field(default="", alias="singularName")
-    storage_version_hash: str = Field(..., alias="storageVersionHash")
-    verbs: list[panic] = Field(..., alias="verbs")
-    version: str = Field(..., alias="version")
-
-
 class MetaV1APIResourceList(BaseModel):
     api_version: str = Field("v1", alias="apiVersion")
     group_version: str = Field(default="", alias="groupVersion")
@@ -1630,27 +1167,6 @@ class MetaV1Condition(BaseModel):
     reason: str = Field(default="", alias="reason")
     status: str = Field(default="", alias="status")
     type: str = Field(default="", alias="type")
-
-
-class MetaV1DeleteOptions(BaseModel):
-    api_version: str = Field("v1", alias="apiVersion")
-    dry_run: list[panic] = Field(..., alias="dryRun")
-    grace_period_seconds: int = Field(..., alias="gracePeriodSeconds")
-    kind: str = Field("DeleteOptions", alias="kind")
-    orphan_dependents: bool = Field(..., alias="orphanDependents")
-    preconditions: MetaV1Preconditions = Field(..., alias="preconditions")
-    propagation_policy: str = Field(..., alias="propagationPolicy")
-
-
-class MetaV1LabelSelector(BaseModel):
-    match_expressions: list[MetaV1LabelSelectorRequirement] = Field(..., alias="matchExpressions")
-    match_labels: panic = Field(..., alias="matchLabels")
-
-
-class MetaV1LabelSelectorRequirement(BaseModel):
-    key: str = Field(default="", alias="key")
-    operator: str = Field(default="", alias="operator")
-    values: list[panic] = Field(..., alias="values")
 
 
 class MetaV1ListMeta(BaseModel):
@@ -1668,24 +1184,6 @@ class MetaV1ManagedFieldsEntry(BaseModel):
     operation: str = Field(..., alias="operation")
     subresource: str = Field(..., alias="subresource")
     time: MetaV1Time = Field(..., alias="time")
-
-
-class MetaV1ObjectMeta(BaseModel):
-    annotations: panic = Field(..., alias="annotations")
-    creation_timestamp: MetaV1Time = Field(default_factory=MetaV1Time, alias="creationTimestamp")
-    deletion_grace_period_seconds: int = Field(..., alias="deletionGracePeriodSeconds")
-    deletion_timestamp: MetaV1Time = Field(..., alias="deletionTimestamp")
-    finalizers: list[panic] = Field(..., alias="finalizers")
-    generate_name: str = Field(..., alias="generateName")
-    generation: int = Field(..., alias="generation")
-    labels: panic = Field(..., alias="labels")
-    managed_fields: list[MetaV1ManagedFieldsEntry] = Field(..., alias="managedFields")
-    name: str = Field(..., alias="name")
-    namespace: str = Field(..., alias="namespace")
-    owner_references: list[MetaV1OwnerReference] = Field(..., alias="ownerReferences")
-    resource_version: str = Field(..., alias="resourceVersion")
-    self_link: str = Field(..., alias="selfLink")
-    uid: str = Field(..., alias="uid")
 
 
 class MetaV1OwnerReference(BaseModel):
