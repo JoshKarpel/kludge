@@ -135,9 +135,6 @@ def generate_functions(path: str, spec: PathItem) -> Iterable[str]:
 
 
 def generate_class(name: str, schema: Schema) -> str:
-    # console.print(name)
-    # console.print(schema)
-
     fields = []
 
     for prop_name, prop in schema.properties.items():
@@ -153,16 +150,23 @@ def generate_class(name: str, schema: Schema) -> str:
             if isinstance(prop.items, Reference):
                 item_type = object_ref_to_name(prop.items.ref)
             else:
-                item_type = "foo"
+                item_type = object_ref_to_name(prop.items.allOf[0].ref)
             t = f"list[{item_type}]"
         else:
-            print(f"panic {prop.type=}")
+            console.print(name)
+            console.print(prop_name)
+            console.print(prop)
+            console.print(f"panic {prop.type=}")
 
         if prop.default is not None:
             if isinstance(prop.default, dict) and prop.type is None:
                 d = f"default_factory={t}"
             else:
                 d = f"default={prop.default}"
+        elif prop_name == "kind":
+            d = f'"{name.split(".")[-1]}"'
+        elif prop_name == "apiVersion":
+            d = '"v1"' if "v1" in name else "..."
         else:
             d = "..."
 
