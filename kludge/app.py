@@ -8,7 +8,6 @@ from fnmatch import fnmatch
 from typing import Callable, Generic, Iterable, Literal, TypeVar
 
 from kubernetes_asyncio.client import ApiClient, CoreV1Api, V1Namespace, V1Node, V1Pod, V1Service
-from kubernetes_asyncio.config import load_kube_config
 from rich.console import RenderableType
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -17,6 +16,17 @@ from textual.events import Key
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import DataTable, Input
+
+from kludge.klient import Klient
+from kludge.konfig import Konfig
+from kludge.kube import (
+    list_core_v1_namespace,
+    list_core_v1_namespaced_pod,
+    list_core_v1_namespaced_service,
+    list_core_v1_node,
+    list_core_v1_pod_for_all_namespaces,
+    list_core_v1_service_for_all_namespaces,
+)
 
 RESOURCE = Literal[
     "node",
@@ -206,21 +216,23 @@ class ResourcesTable(Widget):
         self.results = [r for r in raw_results if fnmatch(r.metadata.name, f"{self.filter}*")]
 
     async def _query(self, resource: RESOURCE, namespace: str) -> list[object]:
-        api = await self.api()
-
         match resource, namespace:
             case "node", _:
-                return (await CoreV1Api(api).list_node()).items
+                return (await list_core_v1_node(self.app.klient)).items
             case "namespace", _:
-                return (await CoreV1Api(api).list_namespace()).items
+                return (await list_core_v1_namespace(self.app.klient)).items
             case "pod", None:
-                return (await CoreV1Api(api).list_pod_for_all_namespaces()).items
+                return (await list_core_v1_pod_for_all_namespaces(self.app.klient)).items
             case "pod", namespace:
-                return (await CoreV1Api(api).list_namespaced_pod(namespace)).items
+                return (
+                    await list_core_v1_namespaced_pod(self.app.klient, namespace=namespace)
+                ).items
             case "service", None:
-                return (await CoreV1Api(api).list_service_for_all_namespaces()).items
+                return (await list_core_v1_service_for_all_namespaces(self.app.klient)).items
             case "service", namespace:
-                return (await CoreV1Api(api).list_namespaced_service(namespace)).items
+                return (
+                    await list_core_v1_namespaced_service(self.app.klient, namespace=namespace)
+                ).items
             case _:
                 self.app.bell()
                 return []
@@ -295,13 +307,10 @@ class KludgeApp(App[None]):
     BINDINGS = []
     SCREENS = {}
 
-    async def api(self) -> ApiClient:
-        if hasattr(self, "_api"):
-            return self._api
+    def __init__(self):
+        super().__init__()
 
-        await load_kube_config()
-        self._api = ApiClient()
-        return self._api
+        self.klient = Klient(Konfig.build())
 
     def compose(self) -> ComposeResult:
         yield ResourcesTable()

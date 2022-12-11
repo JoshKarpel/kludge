@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from aiohttp import ClientSession
 from pydantic import BaseModel, Field
+
+from kludge.klient import Klient
 
 
 class AuthenticationV1BoundObjectReference(BaseModel):
@@ -2599,649 +2600,856 @@ class UtilIntOrString(BaseModel):
     __root__: int | str
 
 
-async def get_core_v1_api_resources(session: ClientSession) -> MetaV1APIResourceList:
+async def get_core_v1_api_resources(klient: Klient) -> MetaV1APIResourceList:
     """
     Original path: /api/v1/
     Op ID: getCoreV1APIResources
     Derived params: []
     """
-    async with session.get(f"/api/v1/") as response:
+    async with await klient.get(f"/api/v1/") as response:
         return MetaV1APIResourceList.parse_obj(await response.json())
 
 
-async def list_core_v1_component_status(session: ClientSession) -> CoreV1ComponentStatusList:
+async def list_core_v1_component_status(klient: Klient) -> CoreV1ComponentStatusList:
     """
     Original path: /api/v1/componentstatuses
     Op ID: listCoreV1ComponentStatus
     Derived params: []
     """
-    async with session.get(f"/api/v1/componentstatuses") as response:
+    async with await klient.get(f"/api/v1/componentstatuses") as response:
         return CoreV1ComponentStatusList.parse_obj(await response.json())
 
 
-async def read_core_v1_component_status(session: ClientSession, name: str) -> CoreV1ComponentStatus:
+async def read_core_v1_component_status(klient: Klient, name: str) -> CoreV1ComponentStatus:
     """
     Original path: /api/v1/componentstatuses/{name}
     Op ID: readCoreV1ComponentStatus
     Derived params: ['name']
     """
-    async with session.get(f"/api/v1/componentstatuses/{name}") as response:
+    async with await klient.get(f"/api/v1/componentstatuses/{name}") as response:
         return CoreV1ComponentStatus.parse_obj(await response.json())
 
 
-async def list_core_v1_config_map_for_all_namespaces(session: ClientSession) -> CoreV1ConfigMapList:
+async def list_core_v1_config_map_for_all_namespaces(klient: Klient) -> CoreV1ConfigMapList:
     """
     Original path: /api/v1/configmaps
     Op ID: listCoreV1ConfigMapForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/configmaps") as response:
+    async with await klient.get(f"/api/v1/configmaps") as response:
         return CoreV1ConfigMapList.parse_obj(await response.json())
 
 
-async def list_core_v1_endpoints_for_all_namespaces(session: ClientSession) -> CoreV1EndpointsList:
+async def list_core_v1_endpoints_for_all_namespaces(klient: Klient) -> CoreV1EndpointsList:
     """
     Original path: /api/v1/endpoints
     Op ID: listCoreV1EndpointsForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/endpoints") as response:
+    async with await klient.get(f"/api/v1/endpoints") as response:
         return CoreV1EndpointsList.parse_obj(await response.json())
 
 
-async def list_core_v1_event_for_all_namespaces(session: ClientSession) -> CoreV1EventList:
+async def list_core_v1_event_for_all_namespaces(klient: Klient) -> CoreV1EventList:
     """
     Original path: /api/v1/events
     Op ID: listCoreV1EventForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/events") as response:
+    async with await klient.get(f"/api/v1/events") as response:
         return CoreV1EventList.parse_obj(await response.json())
 
 
-async def list_core_v1_limit_range_for_all_namespaces(
-    session: ClientSession,
-) -> CoreV1LimitRangeList:
+async def list_core_v1_limit_range_for_all_namespaces(klient: Klient) -> CoreV1LimitRangeList:
     """
     Original path: /api/v1/limitranges
     Op ID: listCoreV1LimitRangeForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/limitranges") as response:
+    async with await klient.get(f"/api/v1/limitranges") as response:
         return CoreV1LimitRangeList.parse_obj(await response.json())
 
 
-async def list_core_v1_namespace(session: ClientSession) -> CoreV1NamespaceList:
+async def list_core_v1_namespace(klient: Klient) -> CoreV1NamespaceList:
     """
     Original path: /api/v1/namespaces
     Op ID: listCoreV1Namespace
     Derived params: []
     """
-    async with session.get(f"/api/v1/namespaces") as response:
+    async with await klient.get(f"/api/v1/namespaces") as response:
         return CoreV1NamespaceList.parse_obj(await response.json())
 
 
-async def list_core_v1_namespaced_config_map(
-    session: ClientSession, namespace: str
-) -> CoreV1ConfigMapList:
+async def list_core_v1_namespaced_config_map(klient: Klient, namespace: str) -> CoreV1ConfigMapList:
     """
     Original path: /api/v1/namespaces/{namespace}/configmaps
     Op ID: listCoreV1NamespacedConfigMap
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/configmaps") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps") as response:
         return CoreV1ConfigMapList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_config_map(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1ConfigMap:
     """
     Original path: /api/v1/namespaces/{namespace}/configmaps/{name}
     Op ID: readCoreV1NamespacedConfigMap
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/configmaps/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps/{name}") as response:
         return CoreV1ConfigMap.parse_obj(await response.json())
 
 
-async def list_core_v1_namespaced_endpoints(
-    session: ClientSession, namespace: str
-) -> CoreV1EndpointsList:
+async def list_core_v1_namespaced_endpoints(klient: Klient, namespace: str) -> CoreV1EndpointsList:
     """
     Original path: /api/v1/namespaces/{namespace}/endpoints
     Op ID: listCoreV1NamespacedEndpoints
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/endpoints") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints") as response:
         return CoreV1EndpointsList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_endpoints(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1Endpoints:
     """
     Original path: /api/v1/namespaces/{namespace}/endpoints/{name}
     Op ID: readCoreV1NamespacedEndpoints
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/endpoints/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints/{name}") as response:
         return CoreV1Endpoints.parse_obj(await response.json())
 
 
-async def list_core_v1_namespaced_event(session: ClientSession, namespace: str) -> CoreV1EventList:
+async def list_core_v1_namespaced_event(klient: Klient, namespace: str) -> CoreV1EventList:
     """
     Original path: /api/v1/namespaces/{namespace}/events
     Op ID: listCoreV1NamespacedEvent
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/events") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/events") as response:
         return CoreV1EventList.parse_obj(await response.json())
 
 
-async def read_core_v1_namespaced_event(
-    session: ClientSession, namespace: str, name: str
-) -> CoreV1Event:
+async def read_core_v1_namespaced_event(klient: Klient, namespace: str, name: str) -> CoreV1Event:
     """
     Original path: /api/v1/namespaces/{namespace}/events/{name}
     Op ID: readCoreV1NamespacedEvent
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/events/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/events/{name}") as response:
         return CoreV1Event.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_limit_range(
-    session: ClientSession, namespace: str
+    klient: Klient, namespace: str
 ) -> CoreV1LimitRangeList:
     """
     Original path: /api/v1/namespaces/{namespace}/limitranges
     Op ID: listCoreV1NamespacedLimitRange
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/limitranges") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges") as response:
         return CoreV1LimitRangeList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_limit_range(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1LimitRange:
     """
     Original path: /api/v1/namespaces/{namespace}/limitranges/{name}
     Op ID: readCoreV1NamespacedLimitRange
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/limitranges/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges/{name}") as response:
         return CoreV1LimitRange.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_persistent_volume_claim(
-    session: ClientSession, namespace: str
+    klient: Klient, namespace: str
 ) -> CoreV1PersistentVolumeClaimList:
     """
     Original path: /api/v1/namespaces/{namespace}/persistentvolumeclaims
     Op ID: listCoreV1NamespacedPersistentVolumeClaim
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/persistentvolumeclaims") as response:
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/persistentvolumeclaims"
+    ) as response:
         return CoreV1PersistentVolumeClaimList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_persistent_volume_claim(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1PersistentVolumeClaim:
     """
     Original path: /api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}
     Op ID: readCoreV1NamespacedPersistentVolumeClaim
     Derived params: ['namespace', 'name']
     """
-    async with session.get(
+    async with await klient.get(
         f"/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
     ) as response:
         return CoreV1PersistentVolumeClaim.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_persistent_volume_claim_status(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1PersistentVolumeClaim:
     """
     Original path: /api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}/status
     Op ID: readCoreV1NamespacedPersistentVolumeClaimStatus
     Derived params: ['namespace', 'name']
     """
-    async with session.get(
+    async with await klient.get(
         f"/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}/status"
     ) as response:
         return CoreV1PersistentVolumeClaim.parse_obj(await response.json())
 
 
-async def list_core_v1_namespaced_pod(session: ClientSession, namespace: str) -> CoreV1PodList:
+async def list_core_v1_namespaced_pod(klient: Klient, namespace: str) -> CoreV1PodList:
     """
     Original path: /api/v1/namespaces/{namespace}/pods
     Op ID: listCoreV1NamespacedPod
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/pods") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods") as response:
         return CoreV1PodList.parse_obj(await response.json())
 
 
-async def read_core_v1_namespaced_pod(
-    session: ClientSession, namespace: str, name: str
-) -> CoreV1Pod:
+async def read_core_v1_namespaced_pod(klient: Klient, namespace: str, name: str) -> CoreV1Pod:
     """
     Original path: /api/v1/namespaces/{namespace}/pods/{name}
     Op ID: readCoreV1NamespacedPod
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/pods/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}") as response:
         return CoreV1Pod.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_pod_ephemeralcontainers(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1Pod:
     """
     Original path: /api/v1/namespaces/{namespace}/pods/{name}/ephemeralcontainers
     Op ID: readCoreV1NamespacedPodEphemeralcontainers
     Derived params: ['namespace', 'name']
     """
-    async with session.get(
+    async with await klient.get(
         f"/api/v1/namespaces/{namespace}/pods/{name}/ephemeralcontainers"
     ) as response:
         return CoreV1Pod.parse_obj(await response.json())
 
 
-async def read_core_v1_namespaced_pod_log(session: ClientSession, namespace: str, name: str) -> str:
+async def read_core_v1_namespaced_pod_log(klient: Klient, namespace: str, name: str) -> str:
     """
     Original path: /api/v1/namespaces/{namespace}/pods/{name}/log
     Op ID: readCoreV1NamespacedPodLog
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/pods/{name}/log") as response:
-        return str.parse_obj(await response.json())
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}/log") as response:
+        return await response.text()
 
 
 async def read_core_v1_namespaced_pod_status(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1Pod:
     """
     Original path: /api/v1/namespaces/{namespace}/pods/{name}/status
     Op ID: readCoreV1NamespacedPodStatus
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/pods/{name}/status") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}/status") as response:
         return CoreV1Pod.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_pod_template(
-    session: ClientSession, namespace: str
+    klient: Klient, namespace: str
 ) -> CoreV1PodTemplateList:
     """
     Original path: /api/v1/namespaces/{namespace}/podtemplates
     Op ID: listCoreV1NamespacedPodTemplate
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/podtemplates") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates") as response:
         return CoreV1PodTemplateList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_pod_template(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1PodTemplate:
     """
     Original path: /api/v1/namespaces/{namespace}/podtemplates/{name}
     Op ID: readCoreV1NamespacedPodTemplate
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/podtemplates/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates/{name}") as response:
         return CoreV1PodTemplate.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_replication_controller(
-    session: ClientSession, namespace: str
+    klient: Klient, namespace: str
 ) -> CoreV1ReplicationControllerList:
     """
     Original path: /api/v1/namespaces/{namespace}/replicationcontrollers
     Op ID: listCoreV1NamespacedReplicationController
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/replicationcontrollers") as response:
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/replicationcontrollers"
+    ) as response:
         return CoreV1ReplicationControllerList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_replication_controller(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1ReplicationController:
     """
     Original path: /api/v1/namespaces/{namespace}/replicationcontrollers/{name}
     Op ID: readCoreV1NamespacedReplicationController
     Derived params: ['namespace', 'name']
     """
-    async with session.get(
+    async with await klient.get(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}"
     ) as response:
         return CoreV1ReplicationController.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_replication_controller_scale(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> AutoscalingV1Scale:
     """
     Original path: /api/v1/namespaces/{namespace}/replicationcontrollers/{name}/scale
     Op ID: readCoreV1NamespacedReplicationControllerScale
     Derived params: ['namespace', 'name']
     """
-    async with session.get(
+    async with await klient.get(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}/scale"
     ) as response:
         return AutoscalingV1Scale.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_replication_controller_status(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1ReplicationController:
     """
     Original path: /api/v1/namespaces/{namespace}/replicationcontrollers/{name}/status
     Op ID: readCoreV1NamespacedReplicationControllerStatus
     Derived params: ['namespace', 'name']
     """
-    async with session.get(
+    async with await klient.get(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}/status"
     ) as response:
         return CoreV1ReplicationController.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_resource_quota(
-    session: ClientSession, namespace: str
+    klient: Klient, namespace: str
 ) -> CoreV1ResourceQuotaList:
     """
     Original path: /api/v1/namespaces/{namespace}/resourcequotas
     Op ID: listCoreV1NamespacedResourceQuota
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/resourcequotas") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/resourcequotas") as response:
         return CoreV1ResourceQuotaList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_resource_quota(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1ResourceQuota:
     """
     Original path: /api/v1/namespaces/{namespace}/resourcequotas/{name}
     Op ID: readCoreV1NamespacedResourceQuota
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/resourcequotas/{name}") as response:
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/resourcequotas/{name}"
+    ) as response:
         return CoreV1ResourceQuota.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_resource_quota_status(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1ResourceQuota:
     """
     Original path: /api/v1/namespaces/{namespace}/resourcequotas/{name}/status
     Op ID: readCoreV1NamespacedResourceQuotaStatus
     Derived params: ['namespace', 'name']
     """
-    async with session.get(
+    async with await klient.get(
         f"/api/v1/namespaces/{namespace}/resourcequotas/{name}/status"
     ) as response:
         return CoreV1ResourceQuota.parse_obj(await response.json())
 
 
-async def list_core_v1_namespaced_secret(
-    session: ClientSession, namespace: str
-) -> CoreV1SecretList:
+async def list_core_v1_namespaced_secret(klient: Klient, namespace: str) -> CoreV1SecretList:
     """
     Original path: /api/v1/namespaces/{namespace}/secrets
     Op ID: listCoreV1NamespacedSecret
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/secrets") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets") as response:
         return CoreV1SecretList.parse_obj(await response.json())
 
 
-async def read_core_v1_namespaced_secret(
-    session: ClientSession, namespace: str, name: str
-) -> CoreV1Secret:
+async def read_core_v1_namespaced_secret(klient: Klient, namespace: str, name: str) -> CoreV1Secret:
     """
     Original path: /api/v1/namespaces/{namespace}/secrets/{name}
     Op ID: readCoreV1NamespacedSecret
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/secrets/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets/{name}") as response:
         return CoreV1Secret.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_service_account(
-    session: ClientSession, namespace: str
+    klient: Klient, namespace: str
 ) -> CoreV1ServiceAccountList:
     """
     Original path: /api/v1/namespaces/{namespace}/serviceaccounts
     Op ID: listCoreV1NamespacedServiceAccount
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/serviceaccounts") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/serviceaccounts") as response:
         return CoreV1ServiceAccountList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_service_account(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1ServiceAccount:
     """
     Original path: /api/v1/namespaces/{namespace}/serviceaccounts/{name}
     Op ID: readCoreV1NamespacedServiceAccount
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/serviceaccounts/{name}") as response:
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
+    ) as response:
         return CoreV1ServiceAccount.parse_obj(await response.json())
 
 
-async def list_core_v1_namespaced_service(
-    session: ClientSession, namespace: str
-) -> CoreV1ServiceList:
+async def list_core_v1_namespaced_service(klient: Klient, namespace: str) -> CoreV1ServiceList:
     """
     Original path: /api/v1/namespaces/{namespace}/services
     Op ID: listCoreV1NamespacedService
     Derived params: ['namespace']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/services") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/services") as response:
         return CoreV1ServiceList.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_service(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1Service:
     """
     Original path: /api/v1/namespaces/{namespace}/services/{name}
     Op ID: readCoreV1NamespacedService
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/services/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/services/{name}") as response:
         return CoreV1Service.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_service_status(
-    session: ClientSession, namespace: str, name: str
+    klient: Klient, namespace: str, name: str
 ) -> CoreV1Service:
     """
     Original path: /api/v1/namespaces/{namespace}/services/{name}/status
     Op ID: readCoreV1NamespacedServiceStatus
     Derived params: ['namespace', 'name']
     """
-    async with session.get(f"/api/v1/namespaces/{namespace}/services/{name}/status") as response:
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/services/{name}/status"
+    ) as response:
         return CoreV1Service.parse_obj(await response.json())
 
 
-async def read_core_v1_namespace(session: ClientSession, name: str) -> CoreV1Namespace:
+async def read_core_v1_namespace(klient: Klient, name: str) -> CoreV1Namespace:
     """
     Original path: /api/v1/namespaces/{name}
     Op ID: readCoreV1Namespace
     Derived params: ['name']
     """
-    async with session.get(f"/api/v1/namespaces/{name}") as response:
+    async with await klient.get(f"/api/v1/namespaces/{name}") as response:
         return CoreV1Namespace.parse_obj(await response.json())
 
 
-async def read_core_v1_namespace_status(session: ClientSession, name: str) -> CoreV1Namespace:
+async def read_core_v1_namespace_status(klient: Klient, name: str) -> CoreV1Namespace:
     """
     Original path: /api/v1/namespaces/{name}/status
     Op ID: readCoreV1NamespaceStatus
     Derived params: ['name']
     """
-    async with session.get(f"/api/v1/namespaces/{name}/status") as response:
+    async with await klient.get(f"/api/v1/namespaces/{name}/status") as response:
         return CoreV1Namespace.parse_obj(await response.json())
 
 
-async def list_core_v1_node(session: ClientSession) -> CoreV1NodeList:
+async def list_core_v1_node(klient: Klient) -> CoreV1NodeList:
     """
     Original path: /api/v1/nodes
     Op ID: listCoreV1Node
     Derived params: []
     """
-    async with session.get(f"/api/v1/nodes") as response:
+    async with await klient.get(f"/api/v1/nodes") as response:
         return CoreV1NodeList.parse_obj(await response.json())
 
 
-async def read_core_v1_node(session: ClientSession, name: str) -> CoreV1Node:
+async def read_core_v1_node(klient: Klient, name: str) -> CoreV1Node:
     """
     Original path: /api/v1/nodes/{name}
     Op ID: readCoreV1Node
     Derived params: ['name']
     """
-    async with session.get(f"/api/v1/nodes/{name}") as response:
+    async with await klient.get(f"/api/v1/nodes/{name}") as response:
         return CoreV1Node.parse_obj(await response.json())
 
 
-async def read_core_v1_node_status(session: ClientSession, name: str) -> CoreV1Node:
+async def read_core_v1_node_status(klient: Klient, name: str) -> CoreV1Node:
     """
     Original path: /api/v1/nodes/{name}/status
     Op ID: readCoreV1NodeStatus
     Derived params: ['name']
     """
-    async with session.get(f"/api/v1/nodes/{name}/status") as response:
+    async with await klient.get(f"/api/v1/nodes/{name}/status") as response:
         return CoreV1Node.parse_obj(await response.json())
 
 
 async def list_core_v1_persistent_volume_claim_for_all_namespaces(
-    session: ClientSession,
+    klient: Klient,
 ) -> CoreV1PersistentVolumeClaimList:
     """
     Original path: /api/v1/persistentvolumeclaims
     Op ID: listCoreV1PersistentVolumeClaimForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/persistentvolumeclaims") as response:
+    async with await klient.get(f"/api/v1/persistentvolumeclaims") as response:
         return CoreV1PersistentVolumeClaimList.parse_obj(await response.json())
 
 
-async def list_core_v1_persistent_volume(session: ClientSession) -> CoreV1PersistentVolumeList:
+async def list_core_v1_persistent_volume(klient: Klient) -> CoreV1PersistentVolumeList:
     """
     Original path: /api/v1/persistentvolumes
     Op ID: listCoreV1PersistentVolume
     Derived params: []
     """
-    async with session.get(f"/api/v1/persistentvolumes") as response:
+    async with await klient.get(f"/api/v1/persistentvolumes") as response:
         return CoreV1PersistentVolumeList.parse_obj(await response.json())
 
 
-async def read_core_v1_persistent_volume(
-    session: ClientSession, name: str
-) -> CoreV1PersistentVolume:
+async def read_core_v1_persistent_volume(klient: Klient, name: str) -> CoreV1PersistentVolume:
     """
     Original path: /api/v1/persistentvolumes/{name}
     Op ID: readCoreV1PersistentVolume
     Derived params: ['name']
     """
-    async with session.get(f"/api/v1/persistentvolumes/{name}") as response:
+    async with await klient.get(f"/api/v1/persistentvolumes/{name}") as response:
         return CoreV1PersistentVolume.parse_obj(await response.json())
 
 
 async def read_core_v1_persistent_volume_status(
-    session: ClientSession, name: str
+    klient: Klient, name: str
 ) -> CoreV1PersistentVolume:
     """
     Original path: /api/v1/persistentvolumes/{name}/status
     Op ID: readCoreV1PersistentVolumeStatus
     Derived params: ['name']
     """
-    async with session.get(f"/api/v1/persistentvolumes/{name}/status") as response:
+    async with await klient.get(f"/api/v1/persistentvolumes/{name}/status") as response:
         return CoreV1PersistentVolume.parse_obj(await response.json())
 
 
-async def list_core_v1_pod_for_all_namespaces(session: ClientSession) -> CoreV1PodList:
+async def list_core_v1_pod_for_all_namespaces(klient: Klient) -> CoreV1PodList:
     """
     Original path: /api/v1/pods
     Op ID: listCoreV1PodForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/pods") as response:
+    async with await klient.get(f"/api/v1/pods") as response:
         return CoreV1PodList.parse_obj(await response.json())
 
 
-async def list_core_v1_pod_template_for_all_namespaces(
-    session: ClientSession,
-) -> CoreV1PodTemplateList:
+async def list_core_v1_pod_template_for_all_namespaces(klient: Klient) -> CoreV1PodTemplateList:
     """
     Original path: /api/v1/podtemplates
     Op ID: listCoreV1PodTemplateForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/podtemplates") as response:
+    async with await klient.get(f"/api/v1/podtemplates") as response:
         return CoreV1PodTemplateList.parse_obj(await response.json())
 
 
 async def list_core_v1_replication_controller_for_all_namespaces(
-    session: ClientSession,
+    klient: Klient,
 ) -> CoreV1ReplicationControllerList:
     """
     Original path: /api/v1/replicationcontrollers
     Op ID: listCoreV1ReplicationControllerForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/replicationcontrollers") as response:
+    async with await klient.get(f"/api/v1/replicationcontrollers") as response:
         return CoreV1ReplicationControllerList.parse_obj(await response.json())
 
 
-async def list_core_v1_resource_quota_for_all_namespaces(
-    session: ClientSession,
-) -> CoreV1ResourceQuotaList:
+async def list_core_v1_resource_quota_for_all_namespaces(klient: Klient) -> CoreV1ResourceQuotaList:
     """
     Original path: /api/v1/resourcequotas
     Op ID: listCoreV1ResourceQuotaForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/resourcequotas") as response:
+    async with await klient.get(f"/api/v1/resourcequotas") as response:
         return CoreV1ResourceQuotaList.parse_obj(await response.json())
 
 
-async def list_core_v1_secret_for_all_namespaces(session: ClientSession) -> CoreV1SecretList:
+async def list_core_v1_secret_for_all_namespaces(klient: Klient) -> CoreV1SecretList:
     """
     Original path: /api/v1/secrets
     Op ID: listCoreV1SecretForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/secrets") as response:
+    async with await klient.get(f"/api/v1/secrets") as response:
         return CoreV1SecretList.parse_obj(await response.json())
 
 
 async def list_core_v1_service_account_for_all_namespaces(
-    session: ClientSession,
+    klient: Klient,
 ) -> CoreV1ServiceAccountList:
     """
     Original path: /api/v1/serviceaccounts
     Op ID: listCoreV1ServiceAccountForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/serviceaccounts") as response:
+    async with await klient.get(f"/api/v1/serviceaccounts") as response:
         return CoreV1ServiceAccountList.parse_obj(await response.json())
 
 
-async def list_core_v1_service_for_all_namespaces(session: ClientSession) -> CoreV1ServiceList:
+async def list_core_v1_service_for_all_namespaces(klient: Klient) -> CoreV1ServiceList:
     """
     Original path: /api/v1/services
     Op ID: listCoreV1ServiceForAllNamespaces
     Derived params: []
     """
-    async with session.get(f"/api/v1/services") as response:
+    async with await klient.get(f"/api/v1/services") as response:
         return CoreV1ServiceList.parse_obj(await response.json())
+
+
+AuthenticationV1BoundObjectReference.update_forward_refs()
+AuthenticationV1TokenRequest.update_forward_refs()
+AuthenticationV1TokenRequestSpec.update_forward_refs()
+AuthenticationV1TokenRequestStatus.update_forward_refs()
+AutoscalingV1Scale.update_forward_refs()
+AutoscalingV1ScaleSpec.update_forward_refs()
+AutoscalingV1ScaleStatus.update_forward_refs()
+CoreV1AWSElasticBlockStoreVolumeSource.update_forward_refs()
+CoreV1Affinity.update_forward_refs()
+CoreV1AttachedVolume.update_forward_refs()
+CoreV1AzureDiskVolumeSource.update_forward_refs()
+CoreV1AzureFilePersistentVolumeSource.update_forward_refs()
+CoreV1AzureFileVolumeSource.update_forward_refs()
+CoreV1Binding.update_forward_refs()
+CoreV1CSIPersistentVolumeSource.update_forward_refs()
+CoreV1CSIVolumeSource.update_forward_refs()
+CoreV1Capabilities.update_forward_refs()
+CoreV1CephFSPersistentVolumeSource.update_forward_refs()
+CoreV1CephFSVolumeSource.update_forward_refs()
+CoreV1CinderPersistentVolumeSource.update_forward_refs()
+CoreV1CinderVolumeSource.update_forward_refs()
+CoreV1ClientIPConfig.update_forward_refs()
+CoreV1ComponentCondition.update_forward_refs()
+CoreV1ComponentStatus.update_forward_refs()
+CoreV1ComponentStatusList.update_forward_refs()
+CoreV1ConfigMap.update_forward_refs()
+CoreV1ConfigMapEnvSource.update_forward_refs()
+CoreV1ConfigMapKeySelector.update_forward_refs()
+CoreV1ConfigMapList.update_forward_refs()
+CoreV1ConfigMapNodeConfigSource.update_forward_refs()
+CoreV1ConfigMapProjection.update_forward_refs()
+CoreV1ConfigMapVolumeSource.update_forward_refs()
+CoreV1Container.update_forward_refs()
+CoreV1ContainerImage.update_forward_refs()
+CoreV1ContainerPort.update_forward_refs()
+CoreV1ContainerState.update_forward_refs()
+CoreV1ContainerStateRunning.update_forward_refs()
+CoreV1ContainerStateTerminated.update_forward_refs()
+CoreV1ContainerStateWaiting.update_forward_refs()
+CoreV1ContainerStatus.update_forward_refs()
+CoreV1DaemonEndpoint.update_forward_refs()
+CoreV1DownwardAPIProjection.update_forward_refs()
+CoreV1DownwardAPIVolumeFile.update_forward_refs()
+CoreV1DownwardAPIVolumeSource.update_forward_refs()
+CoreV1EmptyDirVolumeSource.update_forward_refs()
+CoreV1EndpointAddress.update_forward_refs()
+CoreV1EndpointPort.update_forward_refs()
+CoreV1EndpointSubset.update_forward_refs()
+CoreV1Endpoints.update_forward_refs()
+CoreV1EndpointsList.update_forward_refs()
+CoreV1EnvFromSource.update_forward_refs()
+CoreV1EnvVar.update_forward_refs()
+CoreV1EnvVarSource.update_forward_refs()
+CoreV1EphemeralContainer.update_forward_refs()
+CoreV1EphemeralVolumeSource.update_forward_refs()
+CoreV1Event.update_forward_refs()
+CoreV1EventList.update_forward_refs()
+CoreV1EventSeries.update_forward_refs()
+CoreV1EventSource.update_forward_refs()
+CoreV1ExecAction.update_forward_refs()
+CoreV1FCVolumeSource.update_forward_refs()
+CoreV1FlexPersistentVolumeSource.update_forward_refs()
+CoreV1FlexVolumeSource.update_forward_refs()
+CoreV1FlockerVolumeSource.update_forward_refs()
+CoreV1GCEPersistentDiskVolumeSource.update_forward_refs()
+CoreV1GRPCAction.update_forward_refs()
+CoreV1GitRepoVolumeSource.update_forward_refs()
+CoreV1GlusterfsPersistentVolumeSource.update_forward_refs()
+CoreV1GlusterfsVolumeSource.update_forward_refs()
+CoreV1HTTPGetAction.update_forward_refs()
+CoreV1HTTPHeader.update_forward_refs()
+CoreV1HostAlias.update_forward_refs()
+CoreV1HostPathVolumeSource.update_forward_refs()
+CoreV1ISCSIPersistentVolumeSource.update_forward_refs()
+CoreV1ISCSIVolumeSource.update_forward_refs()
+CoreV1KeyToPath.update_forward_refs()
+CoreV1Lifecycle.update_forward_refs()
+CoreV1LifecycleHandler.update_forward_refs()
+CoreV1LimitRange.update_forward_refs()
+CoreV1LimitRangeItem.update_forward_refs()
+CoreV1LimitRangeList.update_forward_refs()
+CoreV1LimitRangeSpec.update_forward_refs()
+CoreV1LoadBalancerIngress.update_forward_refs()
+CoreV1LoadBalancerStatus.update_forward_refs()
+CoreV1LocalObjectReference.update_forward_refs()
+CoreV1LocalVolumeSource.update_forward_refs()
+CoreV1NFSVolumeSource.update_forward_refs()
+CoreV1Namespace.update_forward_refs()
+CoreV1NamespaceCondition.update_forward_refs()
+CoreV1NamespaceList.update_forward_refs()
+CoreV1NamespaceSpec.update_forward_refs()
+CoreV1NamespaceStatus.update_forward_refs()
+CoreV1Node.update_forward_refs()
+CoreV1NodeAddress.update_forward_refs()
+CoreV1NodeAffinity.update_forward_refs()
+CoreV1NodeCondition.update_forward_refs()
+CoreV1NodeConfigSource.update_forward_refs()
+CoreV1NodeConfigStatus.update_forward_refs()
+CoreV1NodeDaemonEndpoints.update_forward_refs()
+CoreV1NodeList.update_forward_refs()
+CoreV1NodeSelector.update_forward_refs()
+CoreV1NodeSelectorRequirement.update_forward_refs()
+CoreV1NodeSelectorTerm.update_forward_refs()
+CoreV1NodeSpec.update_forward_refs()
+CoreV1NodeStatus.update_forward_refs()
+CoreV1NodeSystemInfo.update_forward_refs()
+CoreV1ObjectFieldSelector.update_forward_refs()
+CoreV1ObjectReference.update_forward_refs()
+CoreV1PersistentVolume.update_forward_refs()
+CoreV1PersistentVolumeClaim.update_forward_refs()
+CoreV1PersistentVolumeClaimCondition.update_forward_refs()
+CoreV1PersistentVolumeClaimList.update_forward_refs()
+CoreV1PersistentVolumeClaimSpec.update_forward_refs()
+CoreV1PersistentVolumeClaimStatus.update_forward_refs()
+CoreV1PersistentVolumeClaimTemplate.update_forward_refs()
+CoreV1PersistentVolumeClaimVolumeSource.update_forward_refs()
+CoreV1PersistentVolumeList.update_forward_refs()
+CoreV1PersistentVolumeSpec.update_forward_refs()
+CoreV1PersistentVolumeStatus.update_forward_refs()
+CoreV1PhotonPersistentDiskVolumeSource.update_forward_refs()
+CoreV1Pod.update_forward_refs()
+CoreV1PodAffinity.update_forward_refs()
+CoreV1PodAffinityTerm.update_forward_refs()
+CoreV1PodAntiAffinity.update_forward_refs()
+CoreV1PodCondition.update_forward_refs()
+CoreV1PodDNSConfig.update_forward_refs()
+CoreV1PodDNSConfigOption.update_forward_refs()
+CoreV1PodIP.update_forward_refs()
+CoreV1PodList.update_forward_refs()
+CoreV1PodOS.update_forward_refs()
+CoreV1PodReadinessGate.update_forward_refs()
+CoreV1PodSecurityContext.update_forward_refs()
+CoreV1PodSpec.update_forward_refs()
+CoreV1PodStatus.update_forward_refs()
+CoreV1PodTemplate.update_forward_refs()
+CoreV1PodTemplateList.update_forward_refs()
+CoreV1PodTemplateSpec.update_forward_refs()
+CoreV1PortStatus.update_forward_refs()
+CoreV1PortworxVolumeSource.update_forward_refs()
+CoreV1PreferredSchedulingTerm.update_forward_refs()
+CoreV1Probe.update_forward_refs()
+CoreV1ProjectedVolumeSource.update_forward_refs()
+CoreV1QuobyteVolumeSource.update_forward_refs()
+CoreV1RBDPersistentVolumeSource.update_forward_refs()
+CoreV1RBDVolumeSource.update_forward_refs()
+CoreV1ReplicationController.update_forward_refs()
+CoreV1ReplicationControllerCondition.update_forward_refs()
+CoreV1ReplicationControllerList.update_forward_refs()
+CoreV1ReplicationControllerSpec.update_forward_refs()
+CoreV1ReplicationControllerStatus.update_forward_refs()
+CoreV1ResourceFieldSelector.update_forward_refs()
+CoreV1ResourceQuota.update_forward_refs()
+CoreV1ResourceQuotaList.update_forward_refs()
+CoreV1ResourceQuotaSpec.update_forward_refs()
+CoreV1ResourceQuotaStatus.update_forward_refs()
+CoreV1ResourceRequirements.update_forward_refs()
+CoreV1SELinuxOptions.update_forward_refs()
+CoreV1ScaleIOPersistentVolumeSource.update_forward_refs()
+CoreV1ScaleIOVolumeSource.update_forward_refs()
+CoreV1ScopeSelector.update_forward_refs()
+CoreV1ScopedResourceSelectorRequirement.update_forward_refs()
+CoreV1SeccompProfile.update_forward_refs()
+CoreV1Secret.update_forward_refs()
+CoreV1SecretEnvSource.update_forward_refs()
+CoreV1SecretKeySelector.update_forward_refs()
+CoreV1SecretList.update_forward_refs()
+CoreV1SecretProjection.update_forward_refs()
+CoreV1SecretReference.update_forward_refs()
+CoreV1SecretVolumeSource.update_forward_refs()
+CoreV1SecurityContext.update_forward_refs()
+CoreV1Service.update_forward_refs()
+CoreV1ServiceAccount.update_forward_refs()
+CoreV1ServiceAccountList.update_forward_refs()
+CoreV1ServiceAccountTokenProjection.update_forward_refs()
+CoreV1ServiceList.update_forward_refs()
+CoreV1ServicePort.update_forward_refs()
+CoreV1ServiceSpec.update_forward_refs()
+CoreV1ServiceStatus.update_forward_refs()
+CoreV1SessionAffinityConfig.update_forward_refs()
+CoreV1StorageOSPersistentVolumeSource.update_forward_refs()
+CoreV1StorageOSVolumeSource.update_forward_refs()
+CoreV1Sysctl.update_forward_refs()
+CoreV1TCPSocketAction.update_forward_refs()
+CoreV1Taint.update_forward_refs()
+CoreV1Toleration.update_forward_refs()
+CoreV1TopologySpreadConstraint.update_forward_refs()
+CoreV1TypedLocalObjectReference.update_forward_refs()
+CoreV1Volume.update_forward_refs()
+CoreV1VolumeDevice.update_forward_refs()
+CoreV1VolumeMount.update_forward_refs()
+CoreV1VolumeNodeAffinity.update_forward_refs()
+CoreV1VolumeProjection.update_forward_refs()
+CoreV1VsphereVirtualDiskVolumeSource.update_forward_refs()
+CoreV1WeightedPodAffinityTerm.update_forward_refs()
+CoreV1WindowsSecurityContextOptions.update_forward_refs()
+iok8sapipolicyV1Eviction.update_forward_refs()
+iok8sapimachinerypkgapiresourceQuantity.update_forward_refs()
+MetaV1APIResource.update_forward_refs()
+MetaV1APIResourceList.update_forward_refs()
+MetaV1Condition.update_forward_refs()
+MetaV1DeleteOptions.update_forward_refs()
+MetaV1FieldsV1.update_forward_refs()
+MetaV1LabelSelector.update_forward_refs()
+MetaV1LabelSelectorRequirement.update_forward_refs()
+MetaV1ListMeta.update_forward_refs()
+MetaV1ManagedFieldsEntry.update_forward_refs()
+MetaV1MicroTime.update_forward_refs()
+MetaV1ObjectMeta.update_forward_refs()
+MetaV1OwnerReference.update_forward_refs()
+MetaV1Preconditions.update_forward_refs()
+MetaV1Status.update_forward_refs()
+MetaV1StatusCause.update_forward_refs()
+MetaV1StatusDetails.update_forward_refs()
+MetaV1Time.update_forward_refs()
+MetaV1WatchEvent.update_forward_refs()
+RuntimeRawExtension.update_forward_refs()
+UtilIntOrString.update_forward_refs()

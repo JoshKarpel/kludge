@@ -56,7 +56,7 @@ def generate(
             "from __future__ import annotations",
             "from aiohttp import ClientSession",
             "from pydantic import BaseModel, Field",
-            "",
+            "from kludge.klient import Klient" "",
         ]
     )
 
@@ -85,6 +85,10 @@ def generate(
             chunks.append(r.render())
         except Error as e:
             console.print(e)
+
+    for r in renderers:
+        if isinstance(r, Klass):
+            chunks.append(r.render_update_forward_refs_call())
 
     out.write_text("\n".join(c for c in chunks if c))
     console.print(Text(f"Wrote generated code to {out}", style=Style(color="green")))
@@ -163,6 +167,9 @@ class Klass:
 
         return c
 
+    def render_update_forward_refs_call(self) -> str:
+        return f"{object_ref_to_name(self.name)}.update_forward_refs()"
+
 
 def schema_to_type(schema: Schema | Reference) -> str:
     if isinstance(schema, Reference):
@@ -223,7 +230,7 @@ class Funcs:
 
     def render(self) -> str:
         params = params_from_path(self.path)
-        args = ["session: ClientSession"] + [f"{p}: str" for p in params]
+        args = ["klient: Klient"] + [f"{p}: str" for p in params]
         fmt_args = ", ".join(args)
         if self.spec.get is not None:
             op_id = self.spec.get.operationId
@@ -237,7 +244,7 @@ class Funcs:
 
                 return_line = (
                     f"return {rt}.parse_obj(await response.json())"
-                    if rt != "string"
+                    if rt != "str"
                     else "return await response.text()"
                 )
 
@@ -249,7 +256,7 @@ class Funcs:
                             Op ID: {op_id}
                             Derived params: {params}
                             \"\"\"
-                            async with session.get(f"{self.path}") as response:
+                            async with await klient.get(f"{self.path}") as response:
                                 {return_line}
                         """
                 )
