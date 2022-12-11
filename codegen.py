@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from tempfile import gettempdir
 from textwrap import dedent
-from typing import Iterator
 
 from openapi_schema_pydantic import OpenAPI, PathItem, Reference, Schema
 from rich.console import Console, Group, RenderableType
@@ -82,18 +81,17 @@ def generate(
         renderers.append(Funcs(path, spec))
 
     for r in renderers:
-        for z in r.render():
-            if isinstance(z, str):
-                chunks.append(z)
-            else:
-                console.print(z)
+        try:
+            chunks.append(r.render())
+        except Error as e:
+            console.print(e)
 
     out.write_text("\n".join(c for c in chunks if c))
     console.print(Text(f"Wrote generated code to {out}", style=Style(color="green")))
 
 
 @dataclass
-class Error:
+class Error(Exception):
     title: str
     parts: list[RenderableType]
 
@@ -111,80 +109,46 @@ class Klass:
     name: str
     schema: Schema
 
-    def render(self) -> Iterator[str | Error]:
+    def render(self) -> str:
         fields = []
 
-        if self.schema.properties is None:
-            yield Error(
-                title=f"Empty schema.properties in {self.name}",
-                parts=[
-                    Pretty(self.schema),
-                ],
-            )
-            return
+        if self.schema.properties is None:  # root prop
+            t = schema_to_type(self.schema)
+            fields.append(f"__root__: {t}")
 
-        required = self.schema.required or []
+        else:  # object with sub-properties
+            required = self.schema.required or []
 
-        for prop_name, prop in self.schema.properties.items():
-            if prop.type is None:
-                try:
-                    t = object_ref_to_name(prop.allOf[0].ref)
-                except:
-                    console.print(f"{self.name=}")
-                    console.print(f"{prop.type=} {prop=}")
-                    t = "panic"
-            elif prop.type == "string":
-                t = "str"
-            elif prop.type == "integer":
-                t = "int"
-            elif prop.type == "boolean":
-                t = "bool"
-            elif prop.type == "array":
-                if isinstance(prop.items, Reference):
-                    item_type = object_ref_to_name(prop.items.ref)
+            for prop_name, prop in self.schema.properties.items():
+                t = schema_to_type(prop)
+
+                if prop.default is not None:
+                    if prop.type == "string":
+                        d = f'default="{prop.default}"'
+                    else:
+                        d = f"default={prop.default}"
+                elif prop_name == "kind":
+                    d = f'"{self.name.split(".")[-1]}"'
+                elif prop_name == "apiVersion":
+                    d = '"v1"' if "v1" in self.name else "..."
                 else:
-                    try:
-                        item_type = object_ref_to_name(prop.items.allOf[0].ref)
-                    except Exception:
-                        yield Error(
-                            title=f"Unknown array item type in {self.name}",
-                            parts=[
-                                f"{prop_name=}",
-                                Pretty(prop),
-                            ],
-                        )
-                        return
-                t = f"list[{item_type}]"
-            else:
-                yield Error(
-                    title=f"Unknown prop type in {self.name}",
-                    parts=[
-                        f"{prop_name=}",
-                        Pretty(prop),
-                    ],
-                )
-                return
+                    d = "..."
 
-            if prop.default is not None:
-                if prop.type == "string":
-                    d = f'default="{prop.default}"'
-                else:
-                    d = f"default={prop.default}"
-            elif prop_name == "kind":
-                d = f'"{self.name.split(".")[-1]}"'
-            elif prop_name == "apiVersion":
-                d = '"v1"' if "v1" in self.name else "..."
-            else:
-                d = "..."
+                if prop_name not in required and prop.default is None:
+                    t = f"{t} | None"
 
-            if prop_name not in required and prop.default is None:
-                t = f"{t} | None"
+                if prop_name == "continue":
+                    prop_name = "continue_"
 
-            if prop_name == "continue":
-                prop_name = "continue_"
+                field_args = [d]
+                attr_name = camel_to_snake(prop_name)
+                if prop_name != attr_name:
+                    field_args.append(f'alias="{prop_name}"')
 
-            fields.append(f'{camel_to_snake(prop_name)}: {t} = Field({d}, alias="{prop_name}")')
-            # fields.append(f"{camel_to_snake(prop_name)}: {t} = Field({d}, alias=\"{prop_name}\", description=\"{prop.description}\")")
+                fa = ", ".join(field_args)
+
+                fields.append(f"{attr_name}: {t} = Field({fa})")
+                # fields.append(f"{camel_to_snake(prop_name)}: {t} = Field({d}, alias=\"{prop_name}\", description=\"{prop.description}\")")
 
         c = dedent(
             f"""\
@@ -197,7 +161,59 @@ class Klass:
         for f in fields:
             c += f"    {f}\n"
 
-        yield c
+        return c
+
+
+def schema_to_type(schema: Schema | Reference) -> str:
+    if isinstance(schema, Reference):
+        return object_ref_to_name(schema.ref)
+
+    if schema.properties is not None:
+        raise Error(
+            title="schema_to_type doesn't support schema.properties", parts=[Pretty(schema)]
+        )
+    elif schema.type is not None:
+        if schema.type == "string":
+            return "str"
+        elif schema.type == "integer":
+            return "int"
+        elif schema.type == "number":
+            return "float"
+        elif schema.type == "boolean":
+            return "bool"
+        elif schema.type == "array":
+            item_type = schema_to_type(schema.items)
+            return f"list[{item_type}]"
+        elif schema.type == "object":
+            if isinstance(schema.additionalProperties, Schema):
+                vt = schema_to_type(schema.additionalProperties)
+                return f"dict[str, {vt}]"
+            elif isinstance(schema.additionalProperties, Reference):
+                vt = object_ref_to_name(schema.additionalProperties.ref)
+                return f"dict[str, {vt}]"
+            else:
+                return f"dict[str, object]"
+
+    elif schema.oneOf is not None:
+        return " | ".join(schema_to_type(s) for s in schema.oneOf)
+    elif schema.allOf is not None:
+        if len(schema.allOf) != 1:
+            raise Error(title="Schema has more than one allOf entry", parts=[Pretty(schema)])
+
+        entry = schema.allOf[0]
+
+        if isinstance(entry, Reference):
+            return object_ref_to_name(entry.ref)
+        else:
+            raise Error(
+                title="Schema had an allOf that wasn't a single Ref", parts=[Pretty(schema)]
+            )
+
+    else:
+        raise Error(
+            title="Could not parse schema into a type",
+            parts=[Pretty(schema)],
+        )
 
 
 @dataclass
@@ -205,7 +221,7 @@ class Funcs:
     path: str
     spec: PathItem
 
-    def render(self) -> Iterator[str | Error]:
+    def render(self) -> str:
         params = params_from_path(self.path)
         args = ["session: ClientSession"] + [f"{p}: str" for p in params]
         fmt_args = ", ".join(args)
@@ -217,7 +233,7 @@ class Funcs:
                 if isinstance(return_type.media_type_schema, Reference):
                     rt = object_ref_to_name(return_type.media_type_schema.ref)
                 else:
-                    rt = return_type.media_type_schema.type
+                    rt = schema_to_type(return_type.media_type_schema)
 
                 return_line = (
                     f"return {rt}.parse_obj(await response.json())"
@@ -225,7 +241,7 @@ class Funcs:
                     else "return await response.text()"
                 )
 
-                yield dedent(
+                return dedent(
                     f"""\
                         async def {camel_to_snake(op_id)}({fmt_args}) -> {rt}:
                             \"\"\"
@@ -252,6 +268,8 @@ def object_ref_to_name(ref: str) -> str:
         .replace("io.k8s.api.authentication.", "Authentication")
         .replace("io.k8s.api.core.", "Core")
         .replace("io.k8s.apimachinery.pkg.apis.meta.", "Meta")
+        .replace("io.k8s.apimachinery.pkg.runtime", "Runtime")
+        .replace("io.k8s.apimachinery.pkg.util.intstr", "Util")
         .replace("io.k8s.api.autoscaling.", "Autoscaling")
         .replace("v1", "V1")
         .replace(".", "")
@@ -260,6 +278,7 @@ def object_ref_to_name(ref: str) -> str:
 
 def camel_to_snake(s: str) -> str:
     # https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
+    s = s.replace("IP", "Ip")
     s = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", s)
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s).lower()
 
