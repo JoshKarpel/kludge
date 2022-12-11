@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import Mapping
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from enum import Enum
 from fnmatch import fnmatch
-from typing import Callable, Generic, Iterable, Literal, TypeVar
+from typing import Callable, Generic, Iterable, Iterator, Literal, TypeVar
 
+import yaml
+from click import edit
+from pydantic import BaseModel
 from rich.console import RenderableType
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -178,13 +183,14 @@ class ResourcesTable(Widget):
     namespace: str | None = reactive(None)
     resource: RESOURCE = reactive("pod")
     filter: str = reactive("*")
-    raw_results: list[object] = reactive(list, always_update=True)
-    results: list[object] = reactive(list, always_update=True)
+    raw_results: list[BaseModel] = reactive(list, always_update=True)
+    results: list[BaseModel] = reactive(list, always_update=True)
     col_verbosity: ColumnVerbosity = reactive(ColumnVerbosity.Normal)
     namespaces: list[CoreV1Namespace] = reactive(list)
 
     BINDINGS = [
         Binding("w", "cycle_col_verbosity", "Cycle column verbosity"),
+        Binding("e", "edit_yaml", "Edit YAML for selected resource"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -273,7 +279,7 @@ class ResourcesTable(Widget):
         srted = sorted(filtered, key=lambda ns: longest_match_length(value, ns), reverse=True)
         return [DropdownItem(ns) for ns in srted]
 
-    def selected_resource(self) -> object:
+    def selected_resource(self) -> BaseModel:
         return self.results[self.query_one(DataTable).cursor_cell.row]
 
     def on_key(self, event: Key) -> None:
@@ -318,6 +324,13 @@ class ResourcesTable(Widget):
         self.col_verbosity = ColumnVerbosity((self.col_verbosity + 1) % (max(ColumnVerbosity) + 1))
         self.results = self.results  # force results watcher to run
 
+    def action_edit_yaml(self) -> None:
+        current = yaml.dump(self.selected_resource().dict(by_alias=True, exclude_defaults=True))
+        with self.app.suspend():
+            new = edit(current)
+            self.log(new)
+            # TODO: post it back!
+
 
 class KludgeApp(App[None]):
     CSS_PATH = "kludge.css"
@@ -331,6 +344,17 @@ class KludgeApp(App[None]):
 
     def compose(self) -> ComposeResult:
         yield ResourcesTable()
+
+    @contextmanager
+    def suspend(self) -> Iterator[None]:
+        driver = self._driver
+
+        if driver is not None:
+            driver.stop_application_mode()
+            driver.exit_event.clear()  # type: ignore[attr-defined]
+            with redirect_stdout(sys.__stdout__), redirect_stderr(sys.__stderr__):
+                yield
+            driver.start_application_mode()
 
 
 def longest_match_length(a: str, b: str) -> int:

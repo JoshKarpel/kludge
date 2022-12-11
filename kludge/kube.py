@@ -12,8 +12,8 @@ class AuthenticationV1BoundObjectReference(BaseModel):
     Original name: io.k8s.api.authentication.v1.BoundObjectReference
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="BoundObjectReference")
     name: str | None = Field(default=None)
     uid: str | None = Field(default=None)
 
@@ -23,8 +23,8 @@ class AuthenticationV1TokenRequest(BaseModel):
     Original name: io.k8s.api.authentication.v1.TokenRequest
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="TokenRequest")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: AuthenticationV1TokenRequestSpec = Field(default={})
     status: AuthenticationV1TokenRequestStatus = Field(default={})
@@ -56,8 +56,8 @@ class AutoscalingV1Scale(BaseModel):
     Original name: io.k8s.api.autoscaling.v1.Scale
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="Scale")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: AutoscalingV1ScaleSpec = Field(default={})
     status: AutoscalingV1ScaleStatus = Field(default={})
@@ -119,7 +119,7 @@ class CoreV1AzureDiskVolumeSource(BaseModel):
     disk_name: str = Field(default="", alias="diskName")
     disk_uri: str = Field(default="", alias="diskURI")
     fs_type: str | None = Field(default=None, alias="fsType")
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="AzureDiskVolumeSource")
     read_only: bool | None = Field(default=None, alias="readOnly")
 
 
@@ -149,8 +149,8 @@ class CoreV1Binding(BaseModel):
     Original name: io.k8s.api.core.v1.Binding
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="Binding")
     metadata: MetaV1ObjectMeta = Field(default={})
     target: CoreV1ObjectReference = Field(default={})
 
@@ -277,9 +277,9 @@ class CoreV1ComponentStatus(BaseModel):
     Original name: io.k8s.api.core.v1.ComponentStatus
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     conditions: list[CoreV1ComponentCondition] | None = Field(default=None)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ComponentStatus")
     metadata: MetaV1ObjectMeta = Field(default={})
 
 
@@ -288,9 +288,9 @@ class CoreV1ComponentStatusList(BaseModel):
     Original name: io.k8s.api.core.v1.ComponentStatusList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1ComponentStatus] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ComponentStatusList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -299,11 +299,11 @@ class CoreV1ConfigMap(BaseModel):
     Original name: io.k8s.api.core.v1.ConfigMap
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     binary_data: dict[str, str] | None = Field(default=None, alias="binaryData")
     data: dict[str, str] | None = Field(default=None)
     immutable: bool | None = Field(default=None)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ConfigMap")
     metadata: MetaV1ObjectMeta = Field(default={})
 
 
@@ -331,9 +331,9 @@ class CoreV1ConfigMapList(BaseModel):
     Original name: io.k8s.api.core.v1.ConfigMapList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1ConfigMap] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ConfigMapList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -565,8 +565,8 @@ class CoreV1Endpoints(BaseModel):
     Original name: io.k8s.api.core.v1.Endpoints
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="Endpoints")
     metadata: MetaV1ObjectMeta = Field(default={})
     subsets: list[CoreV1EndpointSubset] | None = Field(default=None)
 
@@ -576,9 +576,9 @@ class CoreV1EndpointsList(BaseModel):
     Original name: io.k8s.api.core.v1.EndpointsList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1Endpoints] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="EndpointsList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -663,12 +663,12 @@ class CoreV1Event(BaseModel):
     """
 
     action: str | None = Field(default=None)
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     count: int | None = Field(default=None)
     event_time: MetaV1MicroTime = Field(default={}, alias="eventTime")
     first_timestamp: datetime | None = Field(default=None, alias="firstTimestamp")
     involved_object: CoreV1ObjectReference = Field(default={}, alias="involvedObject")
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="Event")
     last_timestamp: datetime | None = Field(default=None, alias="lastTimestamp")
     message: str | None = Field(default=None)
     metadata: MetaV1ObjectMeta = Field(default={})
@@ -686,9 +686,9 @@ class CoreV1EventList(BaseModel):
     Original name: io.k8s.api.core.v1.EventList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1Event] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="EventList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -923,8 +923,8 @@ class CoreV1LimitRange(BaseModel):
     Original name: io.k8s.api.core.v1.LimitRange
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="LimitRange")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1LimitRangeSpec = Field(default={})
 
@@ -951,9 +951,9 @@ class CoreV1LimitRangeList(BaseModel):
     Original name: io.k8s.api.core.v1.LimitRangeList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1LimitRange] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="LimitRangeList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1015,8 +1015,8 @@ class CoreV1Namespace(BaseModel):
     Original name: io.k8s.api.core.v1.Namespace
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="Namespace")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1NamespaceSpec = Field(default={})
     status: CoreV1NamespaceStatus = Field(default={})
@@ -1039,9 +1039,9 @@ class CoreV1NamespaceList(BaseModel):
     Original name: io.k8s.api.core.v1.NamespaceList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1Namespace] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="NamespaceList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1067,8 +1067,8 @@ class CoreV1Node(BaseModel):
     Original name: io.k8s.api.core.v1.Node
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="Node")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1NodeSpec = Field(default={})
     status: CoreV1NodeStatus = Field(default={})
@@ -1141,9 +1141,9 @@ class CoreV1NodeList(BaseModel):
     Original name: io.k8s.api.core.v1.NodeList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1Node] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="NodeList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1234,7 +1234,7 @@ class CoreV1ObjectFieldSelector(BaseModel):
     Original name: io.k8s.api.core.v1.ObjectFieldSelector
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     field_path: str = Field(default="", alias="fieldPath")
 
 
@@ -1243,9 +1243,9 @@ class CoreV1ObjectReference(BaseModel):
     Original name: io.k8s.api.core.v1.ObjectReference
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     field_path: str | None = Field(default=None, alias="fieldPath")
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ObjectReference")
     name: str | None = Field(default=None)
     namespace: str | None = Field(default=None)
     resource_version: str | None = Field(default=None, alias="resourceVersion")
@@ -1257,8 +1257,8 @@ class CoreV1PersistentVolume(BaseModel):
     Original name: io.k8s.api.core.v1.PersistentVolume
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="PersistentVolume")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PersistentVolumeSpec = Field(default={})
     status: CoreV1PersistentVolumeStatus = Field(default={})
@@ -1269,8 +1269,8 @@ class CoreV1PersistentVolumeClaim(BaseModel):
     Original name: io.k8s.api.core.v1.PersistentVolumeClaim
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="PersistentVolumeClaim")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PersistentVolumeClaimSpec = Field(default={})
     status: CoreV1PersistentVolumeClaimStatus = Field(default={})
@@ -1294,9 +1294,9 @@ class CoreV1PersistentVolumeClaimList(BaseModel):
     Original name: io.k8s.api.core.v1.PersistentVolumeClaimList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1PersistentVolumeClaim] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="PersistentVolumeClaimList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1355,9 +1355,9 @@ class CoreV1PersistentVolumeList(BaseModel):
     Original name: io.k8s.api.core.v1.PersistentVolumeList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1PersistentVolume] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="PersistentVolumeList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1434,8 +1434,8 @@ class CoreV1Pod(BaseModel):
     Original name: io.k8s.api.core.v1.Pod
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="Pod")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PodSpec = Field(default={})
     status: CoreV1PodStatus = Field(default={})
@@ -1523,9 +1523,9 @@ class CoreV1PodList(BaseModel):
     Original name: io.k8s.api.core.v1.PodList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1Pod] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="PodList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1651,8 +1651,8 @@ class CoreV1PodTemplate(BaseModel):
     Original name: io.k8s.api.core.v1.PodTemplate
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="PodTemplate")
     metadata: MetaV1ObjectMeta = Field(default={})
     template: CoreV1PodTemplateSpec = Field(default={})
 
@@ -1662,9 +1662,9 @@ class CoreV1PodTemplateList(BaseModel):
     Original name: io.k8s.api.core.v1.PodTemplateList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1PodTemplate] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="PodTemplateList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1782,8 +1782,8 @@ class CoreV1ReplicationController(BaseModel):
     Original name: io.k8s.api.core.v1.ReplicationController
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="ReplicationController")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1ReplicationControllerSpec = Field(default={})
     status: CoreV1ReplicationControllerStatus = Field(default={})
@@ -1806,9 +1806,9 @@ class CoreV1ReplicationControllerList(BaseModel):
     Original name: io.k8s.api.core.v1.ReplicationControllerList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1ReplicationController] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ReplicationControllerList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1851,8 +1851,8 @@ class CoreV1ResourceQuota(BaseModel):
     Original name: io.k8s.api.core.v1.ResourceQuota
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="ResourceQuota")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1ResourceQuotaSpec = Field(default={})
     status: CoreV1ResourceQuotaStatus = Field(default={})
@@ -1863,9 +1863,9 @@ class CoreV1ResourceQuotaList(BaseModel):
     Original name: io.k8s.api.core.v1.ResourceQuotaList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1ResourceQuota] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ResourceQuotaList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -1976,10 +1976,10 @@ class CoreV1Secret(BaseModel):
     Original name: io.k8s.api.core.v1.Secret
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     data: dict[str, str] | None = Field(default=None)
     immutable: bool | None = Field(default=None)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="Secret")
     metadata: MetaV1ObjectMeta = Field(default={})
     string_data: dict[str, str] | None = Field(default=None, alias="stringData")
     type: str | None = Field(default=None)
@@ -2009,9 +2009,9 @@ class CoreV1SecretList(BaseModel):
     Original name: io.k8s.api.core.v1.SecretList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1Secret] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="SecretList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -2070,8 +2070,8 @@ class CoreV1Service(BaseModel):
     Original name: io.k8s.api.core.v1.Service
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
-    kind: str | None = Field(default=None)
+    api_version: str = Field(default="v1", alias="apiVersion")
+    kind: str = Field(default="Service")
     metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1ServiceSpec = Field(default={})
     status: CoreV1ServiceStatus = Field(default={})
@@ -2082,14 +2082,14 @@ class CoreV1ServiceAccount(BaseModel):
     Original name: io.k8s.api.core.v1.ServiceAccount
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     automount_service_account_token: bool | None = Field(
         default=None, alias="automountServiceAccountToken"
     )
     image_pull_secrets: list[CoreV1LocalObjectReference] | None = Field(
         default=None, alias="imagePullSecrets"
     )
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ServiceAccount")
     metadata: MetaV1ObjectMeta = Field(default={})
     secrets: list[CoreV1ObjectReference] | None = Field(default=None)
 
@@ -2099,9 +2099,9 @@ class CoreV1ServiceAccountList(BaseModel):
     Original name: io.k8s.api.core.v1.ServiceAccountList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1ServiceAccount] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ServiceAccountList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -2120,9 +2120,9 @@ class CoreV1ServiceList(BaseModel):
     Original name: io.k8s.api.core.v1.ServiceList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     items: list[CoreV1Service] = Field(...)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="ServiceList")
     metadata: MetaV1ListMeta = Field(default={})
 
 
@@ -2404,9 +2404,9 @@ class iok8sapipolicyV1Eviction(BaseModel):
     Original name: io.k8s.api.policy.v1.Eviction
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     delete_options: MetaV1DeleteOptions | None = Field(default=None, alias="deleteOptions")
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="Eviction")
     metadata: MetaV1ObjectMeta = Field(default={})
 
 
@@ -2440,9 +2440,9 @@ class MetaV1APIResourceList(BaseModel):
     Original name: io.k8s.apimachinery.pkg.apis.meta.v1.APIResourceList
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     group_version: str = Field(default="", alias="groupVersion")
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="APIResourceList")
     resources: list[MetaV1APIResource] = Field(...)
 
 
@@ -2464,10 +2464,10 @@ class MetaV1DeleteOptions(BaseModel):
     Original name: io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     dry_run: list[str] | None = Field(default=None, alias="dryRun")
     grace_period_seconds: int | None = Field(default=None, alias="gracePeriodSeconds")
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="DeleteOptions")
     orphan_dependents: bool | None = Field(default=None, alias="orphanDependents")
     preconditions: MetaV1Preconditions | None = Field(default=None)
     propagation_policy: str | None = Field(default=None, alias="propagationPolicy")
@@ -2518,7 +2518,7 @@ class MetaV1ManagedFieldsEntry(BaseModel):
     Original name: io.k8s.apimachinery.pkg.apis.meta.v1.ManagedFieldsEntry
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     fields_type: str | None = Field(default=None, alias="fieldsType")
     fields_v1: MetaV1FieldsV1 | None = Field(default=None, alias="fieldsV1")
     manager: str | None = Field(default=None)
@@ -2590,10 +2590,10 @@ class MetaV1Status(BaseModel):
     Original name: io.k8s.apimachinery.pkg.apis.meta.v1.Status
     """
 
-    api_version: str | None = Field(default=None, alias="apiVersion")
+    api_version: str = Field(default="v1", alias="apiVersion")
     code: int | None = Field(default=None)
     details: MetaV1StatusDetails | None = Field(default=None)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="Status")
     message: str | None = Field(default=None)
     metadata: MetaV1ListMeta = Field(default={})
     reason: str | None = Field(default=None)
@@ -2617,7 +2617,7 @@ class MetaV1StatusDetails(BaseModel):
 
     causes: list[MetaV1StatusCause] | None = Field(default=None)
     group: str | None = Field(default=None)
-    kind: str | None = Field(default=None)
+    kind: str = Field(default="StatusDetails")
     name: str | None = Field(default=None)
     retry_after_seconds: int | None = Field(default=None, alias="retryAfterSeconds")
     uid: str | None = Field(default=None)

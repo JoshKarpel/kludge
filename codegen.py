@@ -137,7 +137,6 @@ class Klass:
                     d = f'default="{self.name.split(".")[-1]}"'
                 elif prop_name == "apiVersion":
                     d = 'default="v1"' if "v1" in self.name else "..."
-
                 else:
                     d = "..."
 
@@ -148,7 +147,11 @@ class Klass:
                 if t == "MetaV1Time":
                     t = "datetime | None"
                     d = "default=None"
-                elif prop_name not in required and prop.default is None:
+                elif (
+                    prop_name not in required
+                    and prop.default is None
+                    and prop_name not in ("kind", "apiVersion")
+                ):
                     t = f"{t} | None"
                     d = "default=None"
 
