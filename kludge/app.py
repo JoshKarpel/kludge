@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import Mapping
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from difflib import SequenceMatcher
 from enum import Enum
 from fnmatch import fnmatch
-from typing import Callable, Generic, Iterable, Literal, TypeVar
+from typing import Callable, Generic, Iterable, Iterator, Literal, TypeVar
 
-from kubernetes_asyncio.client import ApiClient, CoreV1Api, V1Namespace, V1Node, V1Pod, V1Service
-from kubernetes_asyncio.config import load_kube_config
+import yaml
+from click import edit
+from pydantic import BaseModel
 from rich.console import RenderableType
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -17,6 +21,22 @@ from textual.events import Key
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import DataTable, Input
+from textual_autocomplete import AutoComplete, Dropdown, DropdownItem
+
+from kludge.klient import Klient
+from kludge.konfig import Konfig
+from kludge.kube import (
+    CoreV1Namespace,
+    CoreV1Node,
+    CoreV1Pod,
+    CoreV1Service,
+    list_core_v1_namespace,
+    list_core_v1_namespaced_pod,
+    list_core_v1_namespaced_service,
+    list_core_v1_node,
+    list_core_v1_pod_for_all_namespaces,
+    list_core_v1_service_for_all_namespaces,
+)
 
 RESOURCE = Literal[
     "node",
@@ -89,7 +109,7 @@ def age(obj) -> str:
     return time_since(obj.metadata.creation_timestamp)
 
 
-def pod_containers_ready(pod: V1Pod) -> str:
+def pod_containers_ready(pod: CoreV1Pod) -> str:
     container_statuses = pod.status.container_statuses
 
     num_total = len(container_statuses)
@@ -113,7 +133,7 @@ class Col(Generic[R]):
     verbosity: ColumnVerbosity = ColumnVerbosity.Normal
 
 
-NODE_COLS: list[Col[V1Node]] = [
+NODE_COLS: list[Col[CoreV1Node]] = [
     Col(header="name", getter=name),
     Col(
         header="status",
@@ -124,12 +144,12 @@ NODE_COLS: list[Col[V1Node]] = [
     Col(header="age", getter=age),
 ]
 
-NAMESPACE_COLS: list[Col[V1Namespace]] = [
+NAMESPACE_COLS: list[Col[CoreV1Namespace]] = [
     Col(header="name", getter=name),
     Col(header="age", getter=age),
 ]
 
-POD_COLS: list[Col[V1Pod]] = [
+POD_COLS: list[Col[CoreV1Pod]] = [
     Col(header="namespace", getter=namespace),
     Col(header="name", getter=name),
     Col(header="ready", getter=pod_containers_ready),
@@ -138,7 +158,7 @@ POD_COLS: list[Col[V1Pod]] = [
     Col(header="pod-ip", getter=lambda pod: pod.status.pod_ip, verbosity=ColumnVerbosity.Wide),
 ]
 
-SERVICE_COLS: list[Col[V1Service]] = [
+SERVICE_COLS: list[Col[CoreV1Service]] = [
     Col(header="namespace", getter=namespace),
     Col(header="name", getter=name),
     Col(header="cluster-ip", getter=lambda service: service.spec.cluster_ip),
@@ -163,28 +183,35 @@ class ResourcesTable(Widget):
     namespace: str | None = reactive(None)
     resource: RESOURCE = reactive("pod")
     filter: str = reactive("*")
-    raw_results: list[object] = reactive(list, always_update=True)
-    results: list[object] = reactive(list, always_update=True)
+    raw_results: list[BaseModel] = reactive(list, always_update=True)
+    results: list[BaseModel] = reactive(list, always_update=True)
     col_verbosity: ColumnVerbosity = reactive(ColumnVerbosity.Normal)
+    namespaces: list[CoreV1Namespace] = reactive(list)
 
     BINDINGS = [
         Binding("w", "cycle_col_verbosity", "Cycle column verbosity"),
+        Binding("e", "edit_yaml", "Edit YAML for selected resource"),
     ]
-
-    async def api(self) -> ApiClient:
-        return await self.app.api()
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
-            Input(name="Namespace", id="namespace", value="", placeholder="all"),
-            Input(name="Resource", id="resource", value="pod"),
-            Input(name="Filter", id="filter", value="", placeholder="*"),
+            AutoComplete(
+                Input(name="Namespace", id="namespace", value="", placeholder="all"),
+                Dropdown(
+                    items=self.namespace_dropdown_items,
+                    id="namespaces-dropdown",
+                ),
+                classes="w-1fr",
+            ),
+            Input(name="Resource", id="resource", value="pod", classes="w-1fr"),
+            Input(name="Filter", id="filter", value="", placeholder="*", classes="w-1fr"),
             id="inputs",
         )
         yield DataTable()
 
-    def on_mount(self):
+    async def on_mount(self):
         self.set_interval(1, self.refresh_query)
+        self.set_interval(1, self.refresh_namespaces)
         self.query_one(DataTable).focus()
 
     def validate_resource(self, resource: str) -> RESOURCE:
@@ -206,21 +233,23 @@ class ResourcesTable(Widget):
         self.results = [r for r in raw_results if fnmatch(r.metadata.name, f"{self.filter}*")]
 
     async def _query(self, resource: RESOURCE, namespace: str) -> list[object]:
-        api = await self.api()
-
         match resource, namespace:
             case "node", _:
-                return (await CoreV1Api(api).list_node()).items
+                return (await list_core_v1_node(self.app.klient)).items
             case "namespace", _:
-                return (await CoreV1Api(api).list_namespace()).items
+                return (await list_core_v1_namespace(self.app.klient)).items
             case "pod", None:
-                return (await CoreV1Api(api).list_pod_for_all_namespaces()).items
+                return (await list_core_v1_pod_for_all_namespaces(self.app.klient)).items
             case "pod", namespace:
-                return (await CoreV1Api(api).list_namespaced_pod(namespace)).items
+                return (
+                    await list_core_v1_namespaced_pod(self.app.klient, namespace=namespace)
+                ).items
             case "service", None:
-                return (await CoreV1Api(api).list_service_for_all_namespaces()).items
+                return (await list_core_v1_service_for_all_namespaces(self.app.klient)).items
             case "service", namespace:
-                return (await CoreV1Api(api).list_namespaced_service(namespace)).items
+                return (
+                    await list_core_v1_namespaced_service(self.app.klient, namespace=namespace)
+                ).items
             case _:
                 self.app.bell()
                 return []
@@ -239,12 +268,18 @@ class ResourcesTable(Widget):
         for o in results:
             dt.add_row(*(c.getter(o) for c in cols))
 
-    async def namespace_names(self) -> set[str]:
-        return {
-            ns.metadata.name for ns in (await CoreV1Api(await self.api()).list_namespace()).items
-        }
+    async def refresh_namespaces(self) -> None:
+        self.namespaces = (await list_core_v1_namespace(self.app.klient)).items
 
-    def selected_resource(self) -> object:
+    def namespace_names(self) -> set[str]:
+        return {ns.metadata.name for ns in self.namespaces}
+
+    def namespace_dropdown_items(self, value: str, cursor_position: int) -> list[DropdownItem]:
+        filtered = (ns for ns in self.namespace_names() if fnmatch(ns, "*" + "*".join(value) + "*"))
+        srted = sorted(filtered, key=lambda ns: longest_match_length(value, ns), reverse=True)
+        return [DropdownItem(ns) for ns in srted]
+
+    def selected_resource(self) -> BaseModel:
         return self.results[self.query_one(DataTable).cursor_cell.row]
 
     def on_key(self, event: Key) -> None:
@@ -276,7 +311,7 @@ class ResourcesTable(Widget):
             if event.value == "":
                 self.namespace = None
                 event.input.remove_class("bad")
-            elif event.value in (await self.namespace_names()):
+            elif event.value in self.namespace_names():
                 self.namespace = event.value
                 event.input.remove_class("bad")
             else:
@@ -289,19 +324,38 @@ class ResourcesTable(Widget):
         self.col_verbosity = ColumnVerbosity((self.col_verbosity + 1) % (max(ColumnVerbosity) + 1))
         self.results = self.results  # force results watcher to run
 
+    def action_edit_yaml(self) -> None:
+        current = yaml.dump(self.selected_resource().dict(by_alias=True, exclude_defaults=True))
+        with self.app.suspend():
+            new = edit(current)
+            self.log(new)
+            # TODO: post it back!
+
 
 class KludgeApp(App[None]):
     CSS_PATH = "kludge.css"
     BINDINGS = []
     SCREENS = {}
 
-    async def api(self) -> ApiClient:
-        if hasattr(self, "_api"):
-            return self._api
+    def __init__(self):
+        super().__init__()
 
-        await load_kube_config()
-        self._api = ApiClient()
-        return self._api
+        self.klient = Klient(Konfig.build())
 
     def compose(self) -> ComposeResult:
         yield ResourcesTable()
+
+    @contextmanager
+    def suspend(self) -> Iterator[None]:
+        driver = self._driver
+
+        if driver is not None:
+            driver.stop_application_mode()
+            driver.exit_event.clear()  # type: ignore[attr-defined]
+            with redirect_stdout(sys.__stdout__), redirect_stderr(sys.__stderr__):
+                yield
+            driver.start_application_mode()
+
+
+def longest_match_length(a: str, b: str) -> int:
+    return SequenceMatcher(a=a, b=b).find_longest_match().size
