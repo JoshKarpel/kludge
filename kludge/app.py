@@ -7,7 +7,6 @@ from enum import Enum
 from fnmatch import fnmatch
 from typing import Callable, Generic, Iterable, Literal, TypeVar
 
-from kubernetes_asyncio.client import ApiClient, CoreV1Api, V1Namespace, V1Node, V1Pod, V1Service
 from rich.console import RenderableType
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -20,6 +19,10 @@ from textual.widgets import DataTable, Input
 from kludge.klient import Klient
 from kludge.konfig import Konfig
 from kludge.kube import (
+    CoreV1Namespace,
+    CoreV1Node,
+    CoreV1Pod,
+    CoreV1Service,
     list_core_v1_namespace,
     list_core_v1_namespaced_pod,
     list_core_v1_namespaced_service,
@@ -99,7 +102,7 @@ def age(obj) -> str:
     return time_since(obj.metadata.creation_timestamp)
 
 
-def pod_containers_ready(pod: V1Pod) -> str:
+def pod_containers_ready(pod: CoreV1Pod) -> str:
     container_statuses = pod.status.container_statuses
 
     num_total = len(container_statuses)
@@ -123,7 +126,7 @@ class Col(Generic[R]):
     verbosity: ColumnVerbosity = ColumnVerbosity.Normal
 
 
-NODE_COLS: list[Col[V1Node]] = [
+NODE_COLS: list[Col[CoreV1Node]] = [
     Col(header="name", getter=name),
     Col(
         header="status",
@@ -134,12 +137,12 @@ NODE_COLS: list[Col[V1Node]] = [
     Col(header="age", getter=age),
 ]
 
-NAMESPACE_COLS: list[Col[V1Namespace]] = [
+NAMESPACE_COLS: list[Col[CoreV1Namespace]] = [
     Col(header="name", getter=name),
     Col(header="age", getter=age),
 ]
 
-POD_COLS: list[Col[V1Pod]] = [
+POD_COLS: list[Col[CoreV1Pod]] = [
     Col(header="namespace", getter=namespace),
     Col(header="name", getter=name),
     Col(header="ready", getter=pod_containers_ready),
@@ -148,7 +151,7 @@ POD_COLS: list[Col[V1Pod]] = [
     Col(header="pod-ip", getter=lambda pod: pod.status.pod_ip, verbosity=ColumnVerbosity.Wide),
 ]
 
-SERVICE_COLS: list[Col[V1Service]] = [
+SERVICE_COLS: list[Col[CoreV1Service]] = [
     Col(header="namespace", getter=namespace),
     Col(header="name", getter=name),
     Col(header="cluster-ip", getter=lambda service: service.spec.cluster_ip),

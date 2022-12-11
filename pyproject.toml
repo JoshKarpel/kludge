@@ -25,8 +25,8 @@ python = ">=3.10,<4"
 rich = ">=12"
 typer = ">=0.6"
 textual = ">=0.5"
-kubernetes-asyncio = "^24.2.2"
 pydantic = "^1.10.2"
+pyyaml = ">=6.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7"
