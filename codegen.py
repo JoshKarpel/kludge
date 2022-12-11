@@ -296,7 +296,7 @@ class Funcs:
                         Op ID: {op_id}
                         Derived params: {params}
                         \"\"\"
-                        async with await klient.get(f"{self.path}") as response:
+                        async with await klient.delete(f"{self.path}") as response:
                             {return_line}
                     """
                 )

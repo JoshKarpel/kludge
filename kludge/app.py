@@ -4,7 +4,7 @@ import sys
 from collections.abc import Mapping
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from difflib import SequenceMatcher
 from enum import Enum
 from fnmatch import fnmatch
@@ -30,6 +30,10 @@ from kludge.kube import (
     CoreV1Node,
     CoreV1Pod,
     CoreV1Service,
+    delete_core_v1_namespace,
+    delete_core_v1_namespaced_pod,
+    delete_core_v1_namespaced_service,
+    delete_core_v1_node,
     list_core_v1_namespace,
     list_core_v1_namespaced_pod,
     list_core_v1_namespaced_service,
@@ -68,14 +72,16 @@ def first_item_with_attr_value(items: Iterable[T], attr: str, value: object) -> 
     return None
 
 
-def time_since(timestamp: datetime) -> str:
-    td = datetime.now(timezone.utc) - timestamp
+def now() -> datetime:
+    return datetime.now(timezone.utc)
 
+
+def human_time(delta: timedelta) -> str:
     parts = []
-    if td.days > 0:
-        parts.append(f"{td.days}d")
+    if delta.days > 0:
+        parts.append(f"{delta.days}d")
 
-    hours, remainder = divmod(td.seconds, 3600)
+    hours, remainder = divmod(delta.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
 
     if hours > 0:
@@ -106,16 +112,17 @@ def namespace(obj) -> str:
 
 
 def age(obj) -> str:
-    return time_since(obj.metadata.creation_timestamp)
+    return human_time(now() - obj.metadata.creation_timestamp)
 
 
 def pod_containers_ready(pod: CoreV1Pod) -> str:
     container_statuses = pod.status.container_statuses
-
-    num_total = len(container_statuses)
-    num_ready = sum(cs.ready for cs in container_statuses)
-
-    return f"{num_ready}/{num_total}"
+    if container_statuses is None:
+        return f"0/0"
+    else:
+        num_total = len(container_statuses)
+        num_ready = sum(cs.ready for cs in container_statuses)
+        return f"{num_ready}/{num_total}"
 
 
 class ColumnVerbosity(int, Enum):
@@ -153,7 +160,12 @@ POD_COLS: list[Col[CoreV1Pod]] = [
     Col(header="namespace", getter=namespace),
     Col(header="name", getter=name),
     Col(header="ready", getter=pod_containers_ready),
-    Col(header="status", getter=lambda pod: pod.status.phase),
+    Col(
+        header="status",
+        getter=lambda pod: f"Terminating (grace: {human_time(pod.metadata.deletion_timestamp - now())})"
+        if pod.metadata.deletion_timestamp is not None
+        else pod.status.phase,
+    ),
     Col(header="age", getter=age),
     Col(header="pod-ip", getter=lambda pod: pod.status.pod_ip, verbosity=ColumnVerbosity.Wide),
 ]
@@ -191,6 +203,7 @@ class ResourcesTable(Widget):
     BINDINGS = [
         Binding("w", "cycle_col_verbosity", "Cycle column verbosity"),
         Binding("e", "edit_yaml", "Edit YAML for selected resource"),
+        Binding("d", "delete_selected_resource", "Delete the selected resource"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -338,6 +351,33 @@ class ResourcesTable(Widget):
             new = edit(current)
             self.log(new)
             # TODO: post it back!
+
+    async def action_delete_selected_resource(self) -> None:
+        selected_metadata = self.selected_resource().metadata
+        name = selected_metadata.name
+        namespace = selected_metadata.namespace
+
+        # TODO: ask for confirmation
+
+        match self.resource, self.namespace:
+            case "node", _:
+                await delete_core_v1_node(self.app.klient, name=name)
+            case "namespace", _:
+                await delete_core_v1_namespace(self.app.klient, name=name)
+            case "pod", None:
+                await delete_core_v1_namespaced_pod(self.app.klient, namespace=namespace, name=name)
+            case "pod", namespace:
+                await delete_core_v1_namespaced_pod(self.app.klient, namespace=namespace, name=name)
+            case "service", None:
+                await delete_core_v1_namespaced_service(
+                    self.app.klient, namespace=namespace, name=name
+                )
+            case "service", namespace:
+                await delete_core_v1_namespaced_service(
+                    self.app.klient, namespace=namespace, name=name
+                )
+            case _:
+                self.app.bell()
 
 
 class KludgeApp(App[None]):

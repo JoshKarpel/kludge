@@ -64,3 +64,6 @@ class Klient:
 
     async def get(self, path: str) -> _RequestContextManager:
         return (await self.session()).get(url=self.url(path), ssl=self.sslcontext)
+
+    async def delete(self, path: str) -> _RequestContextManager:
+        return (await self.session()).delete(url=self.url(path), ssl=self.sslcontext)

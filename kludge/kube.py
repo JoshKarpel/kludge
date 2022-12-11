@@ -2752,7 +2752,7 @@ async def delete_core_v1_collection_namespaced_config_map(
     Op ID: deleteCoreV1CollectionNamespacedConfigMap
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/configmaps") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2776,7 +2776,7 @@ async def delete_core_v1_namespaced_config_map(
     Op ID: deleteCoreV1NamespacedConfigMap
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps/{name}") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/configmaps/{name}") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2798,7 +2798,7 @@ async def delete_core_v1_collection_namespaced_endpoints(
     Op ID: deleteCoreV1CollectionNamespacedEndpoints
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/endpoints") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2822,7 +2822,7 @@ async def delete_core_v1_namespaced_endpoints(
     Op ID: deleteCoreV1NamespacedEndpoints
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints/{name}") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/endpoints/{name}") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2844,7 +2844,7 @@ async def delete_core_v1_collection_namespaced_event(
     Op ID: deleteCoreV1CollectionNamespacedEvent
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/events") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/events") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2866,7 +2866,7 @@ async def delete_core_v1_namespaced_event(
     Op ID: deleteCoreV1NamespacedEvent
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/events/{name}") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/events/{name}") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2890,7 +2890,7 @@ async def delete_core_v1_collection_namespaced_limit_range(
     Op ID: deleteCoreV1CollectionNamespacedLimitRange
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/limitranges") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2914,7 +2914,9 @@ async def delete_core_v1_namespaced_limit_range(
     Op ID: deleteCoreV1NamespacedLimitRange
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges/{name}") as response:
+    async with await klient.delete(
+        f"/api/v1/namespaces/{namespace}/limitranges/{name}"
+    ) as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -2940,7 +2942,7 @@ async def delete_core_v1_collection_namespaced_persistent_volume_claim(
     Op ID: deleteCoreV1CollectionNamespacedPersistentVolumeClaim
     Derived params: ['namespace']
     """
-    async with await klient.get(
+    async with await klient.delete(
         f"/api/v1/namespaces/{namespace}/persistentvolumeclaims"
     ) as response:
         return MetaV1Status.parse_obj(await response.json())
@@ -2968,7 +2970,7 @@ async def delete_core_v1_namespaced_persistent_volume_claim(
     Op ID: deleteCoreV1NamespacedPersistentVolumeClaim
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(
+    async with await klient.delete(
         f"/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
     ) as response:
         return CoreV1PersistentVolumeClaim.parse_obj(await response.json())
@@ -3004,7 +3006,7 @@ async def delete_core_v1_collection_namespaced_pod(klient: Klient, namespace: st
     Op ID: deleteCoreV1CollectionNamespacedPod
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/pods") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3024,7 +3026,7 @@ async def delete_core_v1_namespaced_pod(klient: Klient, namespace: str, name: st
     Op ID: deleteCoreV1NamespacedPod
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/pods/{name}") as response:
         return CoreV1Pod.parse_obj(await response.json())
 
 
@@ -3084,7 +3086,7 @@ async def delete_core_v1_collection_namespaced_pod_template(
     Op ID: deleteCoreV1CollectionNamespacedPodTemplate
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/podtemplates") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3108,7 +3110,9 @@ async def delete_core_v1_namespaced_pod_template(
     Op ID: deleteCoreV1NamespacedPodTemplate
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates/{name}") as response:
+    async with await klient.delete(
+        f"/api/v1/namespaces/{namespace}/podtemplates/{name}"
+    ) as response:
         return CoreV1PodTemplate.parse_obj(await response.json())
 
 
@@ -3134,7 +3138,7 @@ async def delete_core_v1_collection_namespaced_replication_controller(
     Op ID: deleteCoreV1CollectionNamespacedReplicationController
     Derived params: ['namespace']
     """
-    async with await klient.get(
+    async with await klient.delete(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers"
     ) as response:
         return MetaV1Status.parse_obj(await response.json())
@@ -3162,7 +3166,7 @@ async def delete_core_v1_namespaced_replication_controller(
     Op ID: deleteCoreV1NamespacedReplicationController
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(
+    async with await klient.delete(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}"
     ) as response:
         return MetaV1Status.parse_obj(await response.json())
@@ -3216,7 +3220,7 @@ async def delete_core_v1_collection_namespaced_resource_quota(
     Op ID: deleteCoreV1CollectionNamespacedResourceQuota
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/resourcequotas") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/resourcequotas") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3242,7 +3246,7 @@ async def delete_core_v1_namespaced_resource_quota(
     Op ID: deleteCoreV1NamespacedResourceQuota
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(
+    async with await klient.delete(
         f"/api/v1/namespaces/{namespace}/resourcequotas/{name}"
     ) as response:
         return CoreV1ResourceQuota.parse_obj(await response.json())
@@ -3280,7 +3284,7 @@ async def delete_core_v1_collection_namespaced_secret(
     Op ID: deleteCoreV1CollectionNamespacedSecret
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/secrets") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3302,7 +3306,7 @@ async def delete_core_v1_namespaced_secret(
     Op ID: deleteCoreV1NamespacedSecret
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets/{name}") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/secrets/{name}") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3326,7 +3330,7 @@ async def delete_core_v1_collection_namespaced_service_account(
     Op ID: deleteCoreV1CollectionNamespacedServiceAccount
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/serviceaccounts") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/serviceaccounts") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3352,7 +3356,7 @@ async def delete_core_v1_namespaced_service_account(
     Op ID: deleteCoreV1NamespacedServiceAccount
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(
+    async with await klient.delete(
         f"/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
     ) as response:
         return CoreV1ServiceAccount.parse_obj(await response.json())
@@ -3376,7 +3380,7 @@ async def delete_core_v1_collection_namespaced_service(
     Op ID: deleteCoreV1CollectionNamespacedService
     Derived params: ['namespace']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/services") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/services") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3400,7 +3404,7 @@ async def delete_core_v1_namespaced_service(
     Op ID: deleteCoreV1NamespacedService
     Derived params: ['namespace', 'name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{namespace}/services/{name}") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{namespace}/services/{name}") as response:
         return CoreV1Service.parse_obj(await response.json())
 
 
@@ -3434,7 +3438,7 @@ async def delete_core_v1_namespace(klient: Klient, name: str) -> MetaV1Status:
     Op ID: deleteCoreV1Namespace
     Derived params: ['name']
     """
-    async with await klient.get(f"/api/v1/namespaces/{name}") as response:
+    async with await klient.delete(f"/api/v1/namespaces/{name}") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3464,7 +3468,7 @@ async def delete_core_v1_collection_node(klient: Klient) -> MetaV1Status:
     Op ID: deleteCoreV1CollectionNode
     Derived params: []
     """
-    async with await klient.get(f"/api/v1/nodes") as response:
+    async with await klient.delete(f"/api/v1/nodes") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3484,7 +3488,7 @@ async def delete_core_v1_node(klient: Klient, name: str) -> MetaV1Status:
     Op ID: deleteCoreV1Node
     Derived params: ['name']
     """
-    async with await klient.get(f"/api/v1/nodes/{name}") as response:
+    async with await klient.delete(f"/api/v1/nodes/{name}") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3526,7 +3530,7 @@ async def delete_core_v1_collection_persistent_volume(klient: Klient) -> MetaV1S
     Op ID: deleteCoreV1CollectionPersistentVolume
     Derived params: []
     """
-    async with await klient.get(f"/api/v1/persistentvolumes") as response:
+    async with await klient.delete(f"/api/v1/persistentvolumes") as response:
         return MetaV1Status.parse_obj(await response.json())
 
 
@@ -3546,7 +3550,7 @@ async def delete_core_v1_persistent_volume(klient: Klient, name: str) -> CoreV1P
     Op ID: deleteCoreV1PersistentVolume
     Derived params: ['name']
     """
-    async with await klient.get(f"/api/v1/persistentvolumes/{name}") as response:
+    async with await klient.delete(f"/api/v1/persistentvolumes/{name}") as response:
         return CoreV1PersistentVolume.parse_obj(await response.json())
 
 
