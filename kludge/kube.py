@@ -521,9 +521,7 @@ class CoreV1EmptyDirVolumeSource(BaseModel):
     """
 
     medium: str | None = Field(default=None)
-    size_limit: iok8sapimachinerypkgapiresourceQuantity | None = Field(
-        default=None, alias="sizeLimit"
-    )
+    size_limit: ResourceQuantity | None = Field(default=None, alias="sizeLimit")
 
 
 class CoreV1EndpointAddress(BaseModel):
@@ -934,15 +932,15 @@ class CoreV1LimitRangeItem(BaseModel):
     Original name: io.k8s.api.core.v1.LimitRangeItem
     """
 
-    default: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
-    default_request: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(
+    default: dict[str, ResourceQuantity] | None = Field(default=None)
+    default_request: dict[str, ResourceQuantity] | None = Field(
         default=None, alias="defaultRequest"
     )
-    max: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
-    max_limit_request_ratio: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(
+    max: dict[str, ResourceQuantity] | None = Field(default=None)
+    max_limit_request_ratio: dict[str, ResourceQuantity] | None = Field(
         default=None, alias="maxLimitRequestRatio"
     )
-    min: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    min: dict[str, ResourceQuantity] | None = Field(default=None)
     type: str = Field(default="")
 
 
@@ -1198,8 +1196,8 @@ class CoreV1NodeStatus(BaseModel):
     """
 
     addresses: list[CoreV1NodeAddress] | None = Field(default=None)
-    allocatable: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
-    capacity: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    allocatable: dict[str, ResourceQuantity] | None = Field(default=None)
+    capacity: dict[str, ResourceQuantity] | None = Field(default=None)
     conditions: list[CoreV1NodeCondition] | None = Field(default=None)
     config: CoreV1NodeConfigStatus | None = Field(default=None)
     daemon_endpoints: CoreV1NodeDaemonEndpoints = Field(default={}, alias="daemonEndpoints")
@@ -1323,10 +1321,10 @@ class CoreV1PersistentVolumeClaimStatus(BaseModel):
     """
 
     access_modes: list[str] | None = Field(default=None, alias="accessModes")
-    allocated_resources: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(
+    allocated_resources: dict[str, ResourceQuantity] | None = Field(
         default=None, alias="allocatedResources"
     )
-    capacity: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    capacity: dict[str, ResourceQuantity] | None = Field(default=None)
     conditions: list[CoreV1PersistentVolumeClaimCondition] | None = Field(default=None)
     phase: str | None = Field(default=None)
     resize_status: str | None = Field(default=None, alias="resizeStatus")
@@ -1374,7 +1372,7 @@ class CoreV1PersistentVolumeSpec(BaseModel):
     azure_file: CoreV1AzureFilePersistentVolumeSource | None = Field(
         default=None, alias="azureFile"
     )
-    capacity: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    capacity: dict[str, ResourceQuantity] | None = Field(default=None)
     cephfs: CoreV1CephFSPersistentVolumeSource | None = Field(default=None)
     cinder: CoreV1CinderPersistentVolumeSource | None = Field(default=None)
     claim_ref: CoreV1ObjectReference | None = Field(default=None, alias="claimRef")
@@ -1594,7 +1592,7 @@ class CoreV1PodSpec(BaseModel):
     node_name: str | None = Field(default=None, alias="nodeName")
     node_selector: dict[str, str] | None = Field(default=None, alias="nodeSelector")
     os: CoreV1PodOS | None = Field(default=None)
-    overhead: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    overhead: dict[str, ResourceQuantity] | None = Field(default=None)
     preemption_policy: str | None = Field(default=None, alias="preemptionPolicy")
     priority: int | None = Field(default=None)
     priority_class_name: str | None = Field(default=None, alias="priorityClassName")
@@ -1842,7 +1840,7 @@ class CoreV1ResourceFieldSelector(BaseModel):
     """
 
     container_name: str | None = Field(default=None, alias="containerName")
-    divisor: iok8sapimachinerypkgapiresourceQuantity = Field(default={})
+    divisor: ResourceQuantity = Field(default={})
     resource: str = Field(default="")
 
 
@@ -1874,7 +1872,7 @@ class CoreV1ResourceQuotaSpec(BaseModel):
     Original name: io.k8s.api.core.v1.ResourceQuotaSpec
     """
 
-    hard: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    hard: dict[str, ResourceQuantity] | None = Field(default=None)
     scope_selector: CoreV1ScopeSelector | None = Field(default=None, alias="scopeSelector")
     scopes: list[str] | None = Field(default=None)
 
@@ -1884,8 +1882,8 @@ class CoreV1ResourceQuotaStatus(BaseModel):
     Original name: io.k8s.api.core.v1.ResourceQuotaStatus
     """
 
-    hard: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
-    used: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    hard: dict[str, ResourceQuantity] | None = Field(default=None)
+    used: dict[str, ResourceQuantity] | None = Field(default=None)
 
 
 class CoreV1ResourceRequirements(BaseModel):
@@ -1893,8 +1891,8 @@ class CoreV1ResourceRequirements(BaseModel):
     Original name: io.k8s.api.core.v1.ResourceRequirements
     """
 
-    limits: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
-    requests: dict[str, iok8sapimachinerypkgapiresourceQuantity] | None = Field(default=None)
+    limits: dict[str, ResourceQuantity] | None = Field(default=None)
+    requests: dict[str, ResourceQuantity] | None = Field(default=None)
 
 
 class CoreV1SELinuxOptions(BaseModel):
@@ -2399,7 +2397,7 @@ class CoreV1WindowsSecurityContextOptions(BaseModel):
     run_as_user_name: str | None = Field(default=None, alias="runAsUserName")
 
 
-class iok8sapipolicyV1Eviction(BaseModel):
+class PolicyV1Eviction(BaseModel):
     """
     Original name: io.k8s.api.policy.v1.Eviction
     """
@@ -2410,7 +2408,7 @@ class iok8sapipolicyV1Eviction(BaseModel):
     metadata: MetaV1ObjectMeta = Field(default={})
 
 
-class iok8sapimachinerypkgapiresourceQuantity(BaseModel):
+class ResourceQuantity(BaseModel):
     """
     Original name: io.k8s.apimachinery.pkg.api.resource.Quantity
     """
@@ -2746,6 +2744,18 @@ async def list_core_v1_namespaced_config_map(klient: Klient, namespace: str) -> 
         return CoreV1ConfigMapList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_config_map(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/configmaps
+    Op ID: deleteCoreV1CollectionNamespacedConfigMap
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_config_map(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1ConfigMap:
@@ -2758,6 +2768,18 @@ async def read_core_v1_namespaced_config_map(
         return CoreV1ConfigMap.parse_obj(await response.json())
 
 
+async def delete_core_v1_namespaced_config_map(
+    klient: Klient, namespace: str, name: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/configmaps/{name}
+    Op ID: deleteCoreV1NamespacedConfigMap
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps/{name}") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def list_core_v1_namespaced_endpoints(klient: Klient, namespace: str) -> CoreV1EndpointsList:
     """
     Original path: /api/v1/namespaces/{namespace}/endpoints
@@ -2766,6 +2788,18 @@ async def list_core_v1_namespaced_endpoints(klient: Klient, namespace: str) -> C
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints") as response:
         return CoreV1EndpointsList.parse_obj(await response.json())
+
+
+async def delete_core_v1_collection_namespaced_endpoints(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/endpoints
+    Op ID: deleteCoreV1CollectionNamespacedEndpoints
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints") as response:
+        return MetaV1Status.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_endpoints(
@@ -2780,6 +2814,18 @@ async def read_core_v1_namespaced_endpoints(
         return CoreV1Endpoints.parse_obj(await response.json())
 
 
+async def delete_core_v1_namespaced_endpoints(
+    klient: Klient, namespace: str, name: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/endpoints/{name}
+    Op ID: deleteCoreV1NamespacedEndpoints
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints/{name}") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def list_core_v1_namespaced_event(klient: Klient, namespace: str) -> CoreV1EventList:
     """
     Original path: /api/v1/namespaces/{namespace}/events
@@ -2790,6 +2836,18 @@ async def list_core_v1_namespaced_event(klient: Klient, namespace: str) -> CoreV
         return CoreV1EventList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_event(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/events
+    Op ID: deleteCoreV1CollectionNamespacedEvent
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/events") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_event(klient: Klient, namespace: str, name: str) -> CoreV1Event:
     """
     Original path: /api/v1/namespaces/{namespace}/events/{name}
@@ -2798,6 +2856,18 @@ async def read_core_v1_namespaced_event(klient: Klient, namespace: str, name: st
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/events/{name}") as response:
         return CoreV1Event.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_event(
+    klient: Klient, namespace: str, name: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/events/{name}
+    Op ID: deleteCoreV1NamespacedEvent
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/events/{name}") as response:
+        return MetaV1Status.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_limit_range(
@@ -2812,6 +2882,18 @@ async def list_core_v1_namespaced_limit_range(
         return CoreV1LimitRangeList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_limit_range(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/limitranges
+    Op ID: deleteCoreV1CollectionNamespacedLimitRange
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_limit_range(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1LimitRange:
@@ -2822,6 +2904,18 @@ async def read_core_v1_namespaced_limit_range(
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges/{name}") as response:
         return CoreV1LimitRange.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_limit_range(
+    klient: Klient, namespace: str, name: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/limitranges/{name}
+    Op ID: deleteCoreV1NamespacedLimitRange
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges/{name}") as response:
+        return MetaV1Status.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_persistent_volume_claim(
@@ -2838,12 +2932,40 @@ async def list_core_v1_namespaced_persistent_volume_claim(
         return CoreV1PersistentVolumeClaimList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_persistent_volume_claim(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/persistentvolumeclaims
+    Op ID: deleteCoreV1CollectionNamespacedPersistentVolumeClaim
+    Derived params: ['namespace']
+    """
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/persistentvolumeclaims"
+    ) as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_persistent_volume_claim(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1PersistentVolumeClaim:
     """
     Original path: /api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}
     Op ID: readCoreV1NamespacedPersistentVolumeClaim
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
+    ) as response:
+        return CoreV1PersistentVolumeClaim.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_persistent_volume_claim(
+    klient: Klient, namespace: str, name: str
+) -> CoreV1PersistentVolumeClaim:
+    """
+    Original path: /api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}
+    Op ID: deleteCoreV1NamespacedPersistentVolumeClaim
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(
@@ -2876,10 +2998,30 @@ async def list_core_v1_namespaced_pod(klient: Klient, namespace: str) -> CoreV1P
         return CoreV1PodList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_pod(klient: Klient, namespace: str) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/pods
+    Op ID: deleteCoreV1CollectionNamespacedPod
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_pod(klient: Klient, namespace: str, name: str) -> CoreV1Pod:
     """
     Original path: /api/v1/namespaces/{namespace}/pods/{name}
     Op ID: readCoreV1NamespacedPod
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}") as response:
+        return CoreV1Pod.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_pod(klient: Klient, namespace: str, name: str) -> CoreV1Pod:
+    """
+    Original path: /api/v1/namespaces/{namespace}/pods/{name}
+    Op ID: deleteCoreV1NamespacedPod
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}") as response:
@@ -2934,12 +3076,36 @@ async def list_core_v1_namespaced_pod_template(
         return CoreV1PodTemplateList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_pod_template(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/podtemplates
+    Op ID: deleteCoreV1CollectionNamespacedPodTemplate
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_pod_template(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1PodTemplate:
     """
     Original path: /api/v1/namespaces/{namespace}/podtemplates/{name}
     Op ID: readCoreV1NamespacedPodTemplate
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates/{name}") as response:
+        return CoreV1PodTemplate.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_pod_template(
+    klient: Klient, namespace: str, name: str
+) -> CoreV1PodTemplate:
+    """
+    Original path: /api/v1/namespaces/{namespace}/podtemplates/{name}
+    Op ID: deleteCoreV1NamespacedPodTemplate
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates/{name}") as response:
@@ -2960,6 +3126,20 @@ async def list_core_v1_namespaced_replication_controller(
         return CoreV1ReplicationControllerList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_replication_controller(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/replicationcontrollers
+    Op ID: deleteCoreV1CollectionNamespacedReplicationController
+    Derived params: ['namespace']
+    """
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/replicationcontrollers"
+    ) as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_replication_controller(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1ReplicationController:
@@ -2972,6 +3152,20 @@ async def read_core_v1_namespaced_replication_controller(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}"
     ) as response:
         return CoreV1ReplicationController.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_replication_controller(
+    klient: Klient, namespace: str, name: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/replicationcontrollers/{name}
+    Op ID: deleteCoreV1NamespacedReplicationController
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}"
+    ) as response:
+        return MetaV1Status.parse_obj(await response.json())
 
 
 async def read_core_v1_namespaced_replication_controller_scale(
@@ -3014,12 +3208,38 @@ async def list_core_v1_namespaced_resource_quota(
         return CoreV1ResourceQuotaList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_resource_quota(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/resourcequotas
+    Op ID: deleteCoreV1CollectionNamespacedResourceQuota
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/resourcequotas") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_resource_quota(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1ResourceQuota:
     """
     Original path: /api/v1/namespaces/{namespace}/resourcequotas/{name}
     Op ID: readCoreV1NamespacedResourceQuota
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/resourcequotas/{name}"
+    ) as response:
+        return CoreV1ResourceQuota.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_resource_quota(
+    klient: Klient, namespace: str, name: str
+) -> CoreV1ResourceQuota:
+    """
+    Original path: /api/v1/namespaces/{namespace}/resourcequotas/{name}
+    Op ID: deleteCoreV1NamespacedResourceQuota
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(
@@ -3052,6 +3272,18 @@ async def list_core_v1_namespaced_secret(klient: Klient, namespace: str) -> Core
         return CoreV1SecretList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_secret(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/secrets
+    Op ID: deleteCoreV1CollectionNamespacedSecret
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_secret(klient: Klient, namespace: str, name: str) -> CoreV1Secret:
     """
     Original path: /api/v1/namespaces/{namespace}/secrets/{name}
@@ -3060,6 +3292,18 @@ async def read_core_v1_namespaced_secret(klient: Klient, namespace: str, name: s
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets/{name}") as response:
         return CoreV1Secret.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_secret(
+    klient: Klient, namespace: str, name: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/secrets/{name}
+    Op ID: deleteCoreV1NamespacedSecret
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets/{name}") as response:
+        return MetaV1Status.parse_obj(await response.json())
 
 
 async def list_core_v1_namespaced_service_account(
@@ -3074,12 +3318,38 @@ async def list_core_v1_namespaced_service_account(
         return CoreV1ServiceAccountList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_service_account(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/serviceaccounts
+    Op ID: deleteCoreV1CollectionNamespacedServiceAccount
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/serviceaccounts") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_service_account(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1ServiceAccount:
     """
     Original path: /api/v1/namespaces/{namespace}/serviceaccounts/{name}
     Op ID: readCoreV1NamespacedServiceAccount
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(
+        f"/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
+    ) as response:
+        return CoreV1ServiceAccount.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_service_account(
+    klient: Klient, namespace: str, name: str
+) -> CoreV1ServiceAccount:
+    """
+    Original path: /api/v1/namespaces/{namespace}/serviceaccounts/{name}
+    Op ID: deleteCoreV1NamespacedServiceAccount
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(
@@ -3098,12 +3368,36 @@ async def list_core_v1_namespaced_service(klient: Klient, namespace: str) -> Cor
         return CoreV1ServiceList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_namespaced_service(
+    klient: Klient, namespace: str
+) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{namespace}/services
+    Op ID: deleteCoreV1CollectionNamespacedService
+    Derived params: ['namespace']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/services") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespaced_service(
     klient: Klient, namespace: str, name: str
 ) -> CoreV1Service:
     """
     Original path: /api/v1/namespaces/{namespace}/services/{name}
     Op ID: readCoreV1NamespacedService
+    Derived params: ['namespace', 'name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{namespace}/services/{name}") as response:
+        return CoreV1Service.parse_obj(await response.json())
+
+
+async def delete_core_v1_namespaced_service(
+    klient: Klient, namespace: str, name: str
+) -> CoreV1Service:
+    """
+    Original path: /api/v1/namespaces/{namespace}/services/{name}
+    Op ID: deleteCoreV1NamespacedService
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/services/{name}") as response:
@@ -3134,6 +3428,16 @@ async def read_core_v1_namespace(klient: Klient, name: str) -> CoreV1Namespace:
         return CoreV1Namespace.parse_obj(await response.json())
 
 
+async def delete_core_v1_namespace(klient: Klient, name: str) -> MetaV1Status:
+    """
+    Original path: /api/v1/namespaces/{name}
+    Op ID: deleteCoreV1Namespace
+    Derived params: ['name']
+    """
+    async with await klient.get(f"/api/v1/namespaces/{name}") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_namespace_status(klient: Klient, name: str) -> CoreV1Namespace:
     """
     Original path: /api/v1/namespaces/{name}/status
@@ -3154,6 +3458,16 @@ async def list_core_v1_node(klient: Klient) -> CoreV1NodeList:
         return CoreV1NodeList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_node(klient: Klient) -> MetaV1Status:
+    """
+    Original path: /api/v1/nodes
+    Op ID: deleteCoreV1CollectionNode
+    Derived params: []
+    """
+    async with await klient.get(f"/api/v1/nodes") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_node(klient: Klient, name: str) -> CoreV1Node:
     """
     Original path: /api/v1/nodes/{name}
@@ -3162,6 +3476,16 @@ async def read_core_v1_node(klient: Klient, name: str) -> CoreV1Node:
     """
     async with await klient.get(f"/api/v1/nodes/{name}") as response:
         return CoreV1Node.parse_obj(await response.json())
+
+
+async def delete_core_v1_node(klient: Klient, name: str) -> MetaV1Status:
+    """
+    Original path: /api/v1/nodes/{name}
+    Op ID: deleteCoreV1Node
+    Derived params: ['name']
+    """
+    async with await klient.get(f"/api/v1/nodes/{name}") as response:
+        return MetaV1Status.parse_obj(await response.json())
 
 
 async def read_core_v1_node_status(klient: Klient, name: str) -> CoreV1Node:
@@ -3196,10 +3520,30 @@ async def list_core_v1_persistent_volume(klient: Klient) -> CoreV1PersistentVolu
         return CoreV1PersistentVolumeList.parse_obj(await response.json())
 
 
+async def delete_core_v1_collection_persistent_volume(klient: Klient) -> MetaV1Status:
+    """
+    Original path: /api/v1/persistentvolumes
+    Op ID: deleteCoreV1CollectionPersistentVolume
+    Derived params: []
+    """
+    async with await klient.get(f"/api/v1/persistentvolumes") as response:
+        return MetaV1Status.parse_obj(await response.json())
+
+
 async def read_core_v1_persistent_volume(klient: Klient, name: str) -> CoreV1PersistentVolume:
     """
     Original path: /api/v1/persistentvolumes/{name}
     Op ID: readCoreV1PersistentVolume
+    Derived params: ['name']
+    """
+    async with await klient.get(f"/api/v1/persistentvolumes/{name}") as response:
+        return CoreV1PersistentVolume.parse_obj(await response.json())
+
+
+async def delete_core_v1_persistent_volume(klient: Klient, name: str) -> CoreV1PersistentVolume:
+    """
+    Original path: /api/v1/persistentvolumes/{name}
+    Op ID: deleteCoreV1PersistentVolume
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/persistentvolumes/{name}") as response:
@@ -3487,8 +3831,8 @@ CoreV1VolumeProjection.update_forward_refs()
 CoreV1VsphereVirtualDiskVolumeSource.update_forward_refs()
 CoreV1WeightedPodAffinityTerm.update_forward_refs()
 CoreV1WindowsSecurityContextOptions.update_forward_refs()
-iok8sapipolicyV1Eviction.update_forward_refs()
-iok8sapimachinerypkgapiresourceQuantity.update_forward_refs()
+PolicyV1Eviction.update_forward_refs()
+ResourceQuantity.update_forward_refs()
 MetaV1APIResource.update_forward_refs()
 MetaV1APIResourceList.update_forward_refs()
 MetaV1Condition.update_forward_refs()
