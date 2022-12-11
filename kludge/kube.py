@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic import BaseModel, Field
-from textual import log
 
 from kludge.klient import Klient
 
@@ -2664,7 +2663,6 @@ async def get_core_v1_api_resources(klient: Klient) -> MetaV1APIResourceList:
     Derived params: []
     """
     async with await klient.get(f"/api/v1/") as response:
-        log(await response.json())
         return MetaV1APIResourceList.parse_obj(await response.json())
 
 
@@ -2675,7 +2673,6 @@ async def list_core_v1_component_status(klient: Klient) -> CoreV1ComponentStatus
     Derived params: []
     """
     async with await klient.get(f"/api/v1/componentstatuses") as response:
-        log(await response.json())
         return CoreV1ComponentStatusList.parse_obj(await response.json())
 
 
@@ -2686,7 +2683,6 @@ async def read_core_v1_component_status(klient: Klient, name: str) -> CoreV1Comp
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/componentstatuses/{name}") as response:
-        log(await response.json())
         return CoreV1ComponentStatus.parse_obj(await response.json())
 
 
@@ -2697,7 +2693,6 @@ async def list_core_v1_config_map_for_all_namespaces(klient: Klient) -> CoreV1Co
     Derived params: []
     """
     async with await klient.get(f"/api/v1/configmaps") as response:
-        log(await response.json())
         return CoreV1ConfigMapList.parse_obj(await response.json())
 
 
@@ -2708,7 +2703,6 @@ async def list_core_v1_endpoints_for_all_namespaces(klient: Klient) -> CoreV1End
     Derived params: []
     """
     async with await klient.get(f"/api/v1/endpoints") as response:
-        log(await response.json())
         return CoreV1EndpointsList.parse_obj(await response.json())
 
 
@@ -2719,7 +2713,6 @@ async def list_core_v1_event_for_all_namespaces(klient: Klient) -> CoreV1EventLi
     Derived params: []
     """
     async with await klient.get(f"/api/v1/events") as response:
-        log(await response.json())
         return CoreV1EventList.parse_obj(await response.json())
 
 
@@ -2730,7 +2723,6 @@ async def list_core_v1_limit_range_for_all_namespaces(klient: Klient) -> CoreV1L
     Derived params: []
     """
     async with await klient.get(f"/api/v1/limitranges") as response:
-        log(await response.json())
         return CoreV1LimitRangeList.parse_obj(await response.json())
 
 
@@ -2741,7 +2733,6 @@ async def list_core_v1_namespace(klient: Klient) -> CoreV1NamespaceList:
     Derived params: []
     """
     async with await klient.get(f"/api/v1/namespaces") as response:
-        log(await response.json())
         return CoreV1NamespaceList.parse_obj(await response.json())
 
 
@@ -2752,7 +2743,6 @@ async def list_core_v1_namespaced_config_map(klient: Klient, namespace: str) -> 
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps") as response:
-        log(await response.json())
         return CoreV1ConfigMapList.parse_obj(await response.json())
 
 
@@ -2765,7 +2755,6 @@ async def read_core_v1_namespaced_config_map(
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/configmaps/{name}") as response:
-        log(await response.json())
         return CoreV1ConfigMap.parse_obj(await response.json())
 
 
@@ -2776,7 +2765,6 @@ async def list_core_v1_namespaced_endpoints(klient: Klient, namespace: str) -> C
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints") as response:
-        log(await response.json())
         return CoreV1EndpointsList.parse_obj(await response.json())
 
 
@@ -2789,7 +2777,6 @@ async def read_core_v1_namespaced_endpoints(
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/endpoints/{name}") as response:
-        log(await response.json())
         return CoreV1Endpoints.parse_obj(await response.json())
 
 
@@ -2800,7 +2787,6 @@ async def list_core_v1_namespaced_event(klient: Klient, namespace: str) -> CoreV
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/events") as response:
-        log(await response.json())
         return CoreV1EventList.parse_obj(await response.json())
 
 
@@ -2811,7 +2797,6 @@ async def read_core_v1_namespaced_event(klient: Klient, namespace: str, name: st
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/events/{name}") as response:
-        log(await response.json())
         return CoreV1Event.parse_obj(await response.json())
 
 
@@ -2824,7 +2809,6 @@ async def list_core_v1_namespaced_limit_range(
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges") as response:
-        log(await response.json())
         return CoreV1LimitRangeList.parse_obj(await response.json())
 
 
@@ -2837,7 +2821,6 @@ async def read_core_v1_namespaced_limit_range(
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/limitranges/{name}") as response:
-        log(await response.json())
         return CoreV1LimitRange.parse_obj(await response.json())
 
 
@@ -2852,7 +2835,6 @@ async def list_core_v1_namespaced_persistent_volume_claim(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/persistentvolumeclaims"
     ) as response:
-        log(await response.json())
         return CoreV1PersistentVolumeClaimList.parse_obj(await response.json())
 
 
@@ -2867,7 +2849,6 @@ async def read_core_v1_namespaced_persistent_volume_claim(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
     ) as response:
-        log(await response.json())
         return CoreV1PersistentVolumeClaim.parse_obj(await response.json())
 
 
@@ -2882,7 +2863,6 @@ async def read_core_v1_namespaced_persistent_volume_claim_status(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}/status"
     ) as response:
-        log(await response.json())
         return CoreV1PersistentVolumeClaim.parse_obj(await response.json())
 
 
@@ -2893,7 +2873,6 @@ async def list_core_v1_namespaced_pod(klient: Klient, namespace: str) -> CoreV1P
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/pods") as response:
-        log(await response.json())
         return CoreV1PodList.parse_obj(await response.json())
 
 
@@ -2904,7 +2883,6 @@ async def read_core_v1_namespaced_pod(klient: Klient, namespace: str, name: str)
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}") as response:
-        log(await response.json())
         return CoreV1Pod.parse_obj(await response.json())
 
 
@@ -2919,7 +2897,6 @@ async def read_core_v1_namespaced_pod_ephemeralcontainers(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/pods/{name}/ephemeralcontainers"
     ) as response:
-        log(await response.json())
         return CoreV1Pod.parse_obj(await response.json())
 
 
@@ -2930,7 +2907,6 @@ async def read_core_v1_namespaced_pod_log(klient: Klient, namespace: str, name: 
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}/log") as response:
-        log(await response.json())
         return await response.text()
 
 
@@ -2943,7 +2919,6 @@ async def read_core_v1_namespaced_pod_status(
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/pods/{name}/status") as response:
-        log(await response.json())
         return CoreV1Pod.parse_obj(await response.json())
 
 
@@ -2956,7 +2931,6 @@ async def list_core_v1_namespaced_pod_template(
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates") as response:
-        log(await response.json())
         return CoreV1PodTemplateList.parse_obj(await response.json())
 
 
@@ -2969,7 +2943,6 @@ async def read_core_v1_namespaced_pod_template(
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/podtemplates/{name}") as response:
-        log(await response.json())
         return CoreV1PodTemplate.parse_obj(await response.json())
 
 
@@ -2984,7 +2957,6 @@ async def list_core_v1_namespaced_replication_controller(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers"
     ) as response:
-        log(await response.json())
         return CoreV1ReplicationControllerList.parse_obj(await response.json())
 
 
@@ -2999,7 +2971,6 @@ async def read_core_v1_namespaced_replication_controller(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}"
     ) as response:
-        log(await response.json())
         return CoreV1ReplicationController.parse_obj(await response.json())
 
 
@@ -3014,7 +2985,6 @@ async def read_core_v1_namespaced_replication_controller_scale(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}/scale"
     ) as response:
-        log(await response.json())
         return AutoscalingV1Scale.parse_obj(await response.json())
 
 
@@ -3029,7 +2999,6 @@ async def read_core_v1_namespaced_replication_controller_status(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/replicationcontrollers/{name}/status"
     ) as response:
-        log(await response.json())
         return CoreV1ReplicationController.parse_obj(await response.json())
 
 
@@ -3042,7 +3011,6 @@ async def list_core_v1_namespaced_resource_quota(
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/resourcequotas") as response:
-        log(await response.json())
         return CoreV1ResourceQuotaList.parse_obj(await response.json())
 
 
@@ -3057,7 +3025,6 @@ async def read_core_v1_namespaced_resource_quota(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/resourcequotas/{name}"
     ) as response:
-        log(await response.json())
         return CoreV1ResourceQuota.parse_obj(await response.json())
 
 
@@ -3072,7 +3039,6 @@ async def read_core_v1_namespaced_resource_quota_status(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/resourcequotas/{name}/status"
     ) as response:
-        log(await response.json())
         return CoreV1ResourceQuota.parse_obj(await response.json())
 
 
@@ -3083,7 +3049,6 @@ async def list_core_v1_namespaced_secret(klient: Klient, namespace: str) -> Core
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets") as response:
-        log(await response.json())
         return CoreV1SecretList.parse_obj(await response.json())
 
 
@@ -3094,7 +3059,6 @@ async def read_core_v1_namespaced_secret(klient: Klient, namespace: str, name: s
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/secrets/{name}") as response:
-        log(await response.json())
         return CoreV1Secret.parse_obj(await response.json())
 
 
@@ -3107,7 +3071,6 @@ async def list_core_v1_namespaced_service_account(
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/serviceaccounts") as response:
-        log(await response.json())
         return CoreV1ServiceAccountList.parse_obj(await response.json())
 
 
@@ -3122,7 +3085,6 @@ async def read_core_v1_namespaced_service_account(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
     ) as response:
-        log(await response.json())
         return CoreV1ServiceAccount.parse_obj(await response.json())
 
 
@@ -3133,7 +3095,6 @@ async def list_core_v1_namespaced_service(klient: Klient, namespace: str) -> Cor
     Derived params: ['namespace']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/services") as response:
-        log(await response.json())
         return CoreV1ServiceList.parse_obj(await response.json())
 
 
@@ -3146,7 +3107,6 @@ async def read_core_v1_namespaced_service(
     Derived params: ['namespace', 'name']
     """
     async with await klient.get(f"/api/v1/namespaces/{namespace}/services/{name}") as response:
-        log(await response.json())
         return CoreV1Service.parse_obj(await response.json())
 
 
@@ -3161,7 +3121,6 @@ async def read_core_v1_namespaced_service_status(
     async with await klient.get(
         f"/api/v1/namespaces/{namespace}/services/{name}/status"
     ) as response:
-        log(await response.json())
         return CoreV1Service.parse_obj(await response.json())
 
 
@@ -3172,7 +3131,6 @@ async def read_core_v1_namespace(klient: Klient, name: str) -> CoreV1Namespace:
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/namespaces/{name}") as response:
-        log(await response.json())
         return CoreV1Namespace.parse_obj(await response.json())
 
 
@@ -3183,7 +3141,6 @@ async def read_core_v1_namespace_status(klient: Klient, name: str) -> CoreV1Name
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/namespaces/{name}/status") as response:
-        log(await response.json())
         return CoreV1Namespace.parse_obj(await response.json())
 
 
@@ -3194,7 +3151,6 @@ async def list_core_v1_node(klient: Klient) -> CoreV1NodeList:
     Derived params: []
     """
     async with await klient.get(f"/api/v1/nodes") as response:
-        log(await response.json())
         return CoreV1NodeList.parse_obj(await response.json())
 
 
@@ -3205,7 +3161,6 @@ async def read_core_v1_node(klient: Klient, name: str) -> CoreV1Node:
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/nodes/{name}") as response:
-        log(await response.json())
         return CoreV1Node.parse_obj(await response.json())
 
 
@@ -3216,7 +3171,6 @@ async def read_core_v1_node_status(klient: Klient, name: str) -> CoreV1Node:
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/nodes/{name}/status") as response:
-        log(await response.json())
         return CoreV1Node.parse_obj(await response.json())
 
 
@@ -3229,7 +3183,6 @@ async def list_core_v1_persistent_volume_claim_for_all_namespaces(
     Derived params: []
     """
     async with await klient.get(f"/api/v1/persistentvolumeclaims") as response:
-        log(await response.json())
         return CoreV1PersistentVolumeClaimList.parse_obj(await response.json())
 
 
@@ -3240,7 +3193,6 @@ async def list_core_v1_persistent_volume(klient: Klient) -> CoreV1PersistentVolu
     Derived params: []
     """
     async with await klient.get(f"/api/v1/persistentvolumes") as response:
-        log(await response.json())
         return CoreV1PersistentVolumeList.parse_obj(await response.json())
 
 
@@ -3251,7 +3203,6 @@ async def read_core_v1_persistent_volume(klient: Klient, name: str) -> CoreV1Per
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/persistentvolumes/{name}") as response:
-        log(await response.json())
         return CoreV1PersistentVolume.parse_obj(await response.json())
 
 
@@ -3264,7 +3215,6 @@ async def read_core_v1_persistent_volume_status(
     Derived params: ['name']
     """
     async with await klient.get(f"/api/v1/persistentvolumes/{name}/status") as response:
-        log(await response.json())
         return CoreV1PersistentVolume.parse_obj(await response.json())
 
 
@@ -3275,7 +3225,6 @@ async def list_core_v1_pod_for_all_namespaces(klient: Klient) -> CoreV1PodList:
     Derived params: []
     """
     async with await klient.get(f"/api/v1/pods") as response:
-        log(await response.json())
         return CoreV1PodList.parse_obj(await response.json())
 
 
@@ -3286,7 +3235,6 @@ async def list_core_v1_pod_template_for_all_namespaces(klient: Klient) -> CoreV1
     Derived params: []
     """
     async with await klient.get(f"/api/v1/podtemplates") as response:
-        log(await response.json())
         return CoreV1PodTemplateList.parse_obj(await response.json())
 
 
@@ -3299,7 +3247,6 @@ async def list_core_v1_replication_controller_for_all_namespaces(
     Derived params: []
     """
     async with await klient.get(f"/api/v1/replicationcontrollers") as response:
-        log(await response.json())
         return CoreV1ReplicationControllerList.parse_obj(await response.json())
 
 
@@ -3310,7 +3257,6 @@ async def list_core_v1_resource_quota_for_all_namespaces(klient: Klient) -> Core
     Derived params: []
     """
     async with await klient.get(f"/api/v1/resourcequotas") as response:
-        log(await response.json())
         return CoreV1ResourceQuotaList.parse_obj(await response.json())
 
 
@@ -3321,7 +3267,6 @@ async def list_core_v1_secret_for_all_namespaces(klient: Klient) -> CoreV1Secret
     Derived params: []
     """
     async with await klient.get(f"/api/v1/secrets") as response:
-        log(await response.json())
         return CoreV1SecretList.parse_obj(await response.json())
 
 
@@ -3334,7 +3279,6 @@ async def list_core_v1_service_account_for_all_namespaces(
     Derived params: []
     """
     async with await klient.get(f"/api/v1/serviceaccounts") as response:
-        log(await response.json())
         return CoreV1ServiceAccountList.parse_obj(await response.json())
 
 
@@ -3345,7 +3289,6 @@ async def list_core_v1_service_for_all_namespaces(klient: Klient) -> CoreV1Servi
     Derived params: []
     """
     async with await klient.get(f"/api/v1/services") as response:
-        log(await response.json())
         return CoreV1ServiceList.parse_obj(await response.json())
 
 

@@ -1052,6 +1052,21 @@ rich = ">=12.6.0,<13.0.0"
 dev = ["aiohttp (>=3.8.1)", "click (>=8.1.2)", "msgpack (>=1.0.3)"]
 
 [[package]]
+name = "textual-autocomplete"
+version = "1.0.0b0"
+description = "Easily add autocomplete dropdowns to your Textual apps."
+category = "main"
+optional = false
+python-versions = ">=3.7.8,<4.0.0"
+files = [
+    {file = "textual_autocomplete-1.0.0b0-py3-none-any.whl", hash = "sha256:58f2db5a490bc7c427048b67bc4f43bcadac6d6d00c2d5ca9a848c440e3d7c90"},
+    {file = "textual_autocomplete-1.0.0b0.tar.gz", hash = "sha256:b8501e2d5837485c4be7d05cab2464814125299668a7bca703bf66f7045f6c3b"},
+]
+
+[package.dependencies]
+textual = ">=0.5.0"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -1244,4 +1259,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "455ed41c529c5dcfedf50f6e23b1a489e8c1c5c2f3452ee8edaf8e43655a481f"
+content-hash = "b3dea8724497ca7c4af737390e35edcbf0326a4f6a23cdce64c15ee3b2c3af35"

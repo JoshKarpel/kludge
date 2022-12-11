@@ -268,7 +268,6 @@ class Funcs:
                             Derived params: {params}
                             \"\"\"
                             async with await klient.get(f"{self.path}") as response:
-                                log(await response.json())
                                 {return_line}
                         """
                 )

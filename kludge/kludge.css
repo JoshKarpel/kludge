@@ -2,9 +2,12 @@
     height: 3;
 }
 
+.w-1fr {
+    width: 1fr
+}
+
 Input {
     border: cyan round;
-    width: 1fr;
 }
 
 Input.bad {

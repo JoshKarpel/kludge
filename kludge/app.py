@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from difflib import SequenceMatcher
 from enum import Enum
 from fnmatch import fnmatch
 from typing import Callable, Generic, Iterable, Literal, TypeVar
@@ -15,6 +16,7 @@ from textual.events import Key
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import DataTable, Input
+from textual_autocomplete import AutoComplete, Dropdown, DropdownItem
 
 from kludge.klient import Klient
 from kludge.konfig import Konfig
@@ -179,25 +181,31 @@ class ResourcesTable(Widget):
     raw_results: list[object] = reactive(list, always_update=True)
     results: list[object] = reactive(list, always_update=True)
     col_verbosity: ColumnVerbosity = reactive(ColumnVerbosity.Normal)
+    namespaces: list[CoreV1Namespace] = reactive(list)
 
     BINDINGS = [
         Binding("w", "cycle_col_verbosity", "Cycle column verbosity"),
     ]
 
-    async def api(self) -> ApiClient:
-        return await self.app.api()
-
     def compose(self) -> ComposeResult:
         yield Horizontal(
-            Input(name="Namespace", id="namespace", value="", placeholder="all"),
-            Input(name="Resource", id="resource", value="pod"),
-            Input(name="Filter", id="filter", value="", placeholder="*"),
+            AutoComplete(
+                Input(name="Namespace", id="namespace", value="", placeholder="all"),
+                Dropdown(
+                    items=self.namespace_dropdown_items,
+                    id="namespaces-dropdown",
+                ),
+                classes="w-1fr",
+            ),
+            Input(name="Resource", id="resource", value="pod", classes="w-1fr"),
+            Input(name="Filter", id="filter", value="", placeholder="*", classes="w-1fr"),
             id="inputs",
         )
         yield DataTable()
 
-    def on_mount(self):
+    async def on_mount(self):
         self.set_interval(1, self.refresh_query)
+        self.set_interval(1, self.refresh_namespaces)
         self.query_one(DataTable).focus()
 
     def validate_resource(self, resource: str) -> RESOURCE:
@@ -254,10 +262,16 @@ class ResourcesTable(Widget):
         for o in results:
             dt.add_row(*(c.getter(o) for c in cols))
 
-    async def namespace_names(self) -> set[str]:
-        return {
-            ns.metadata.name for ns in (await CoreV1Api(await self.api()).list_namespace()).items
-        }
+    async def refresh_namespaces(self) -> None:
+        self.namespaces = (await list_core_v1_namespace(self.app.klient)).items
+
+    def namespace_names(self) -> set[str]:
+        return {ns.metadata.name for ns in self.namespaces}
+
+    def namespace_dropdown_items(self, value: str, cursor_position: int) -> list[DropdownItem]:
+        filtered = (ns for ns in self.namespace_names() if fnmatch(ns, "*" + "*".join(value) + "*"))
+        srted = sorted(filtered, key=lambda ns: longest_match_length(value, ns), reverse=True)
+        return [DropdownItem(ns) for ns in srted]
 
     def selected_resource(self) -> object:
         return self.results[self.query_one(DataTable).cursor_cell.row]
@@ -291,7 +305,7 @@ class ResourcesTable(Widget):
             if event.value == "":
                 self.namespace = None
                 event.input.remove_class("bad")
-            elif event.value in (await self.namespace_names()):
+            elif event.value in self.namespace_names():
                 self.namespace = event.value
                 event.input.remove_class("bad")
             else:
@@ -317,3 +331,7 @@ class KludgeApp(App[None]):
 
     def compose(self) -> ComposeResult:
         yield ResourcesTable()
+
+
+def longest_match_length(a: str, b: str) -> int:
+    return SequenceMatcher(a=a, b=b).find_longest_match().size
