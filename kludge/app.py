@@ -199,14 +199,22 @@ class ResourcesTable(Widget):
                 Input(name="Namespace", id="namespace", value="", placeholder="all"),
                 Dropdown(
                     items=self.namespace_dropdown_items,
-                    id="namespaces-dropdown",
+                    id="namespace-dropdown",
                 ),
                 classes="w-1fr",
             ),
-            Input(name="Resource", id="resource", value="pod", classes="w-1fr"),
+            AutoComplete(
+                Input(name="Resource", id="resource", value="pod"),
+                Dropdown(
+                    items=[DropdownItem(k) for k in RESOURCE_ALIASES.keys()],
+                    id="resource-dropdown",
+                ),
+                classes="w-1fr",
+            ),
             Input(name="Filter", id="filter", value="", placeholder="*", classes="w-1fr"),
             id="inputs",
         )
+
         yield DataTable()
 
     async def on_mount(self):
