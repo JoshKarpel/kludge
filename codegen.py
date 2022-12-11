@@ -54,9 +54,11 @@ def generate(
     chunks.extend(
         [
             "from __future__ import annotations",
-            "from aiohttp import ClientSession",
             "from pydantic import BaseModel, Field",
-            "from kludge.klient import Klient" "",
+            "from kludge.klient import Klient",
+            "from textual import log",
+            "from datetime import datetime",
+            "",
         ]
     )
 
@@ -118,7 +120,7 @@ class Klass:
 
         if self.schema.properties is None:  # root prop
             t = schema_to_type(self.schema)
-            fields.append(f"__root__: {t}")
+            fields.append(f"__root__: {t} | None = Field(default=None)")
 
         else:  # object with sub-properties
             required = self.schema.required or []
@@ -132,14 +134,23 @@ class Klass:
                     else:
                         d = f"default={prop.default}"
                 elif prop_name == "kind":
-                    d = f'"{self.name.split(".")[-1]}"'
+                    d = f'default="{self.name.split(".")[-1]}"'
                 elif prop_name == "apiVersion":
-                    d = '"v1"' if "v1" in self.name else "..."
+                    d = 'default="v1"' if "v1" in self.name else "..."
+
                 else:
                     d = "..."
 
-                if prop_name not in required and prop.default is None:
+                # TODO: hack!
+                # is there actually something different in e.g. how
+                # CoreV1PodCondition.last_probe_time and CoreV1PodCondition.last_transition_time
+                # are defined?
+                if t == "MetaV1Time":
+                    t = "datetime | None"
+                    d = "default=None"
+                elif prop_name not in required and prop.default is None:
                     t = f"{t} | None"
+                    d = "default=None"
 
                 if prop_name == "continue":
                     prop_name = "continue_"
@@ -257,6 +268,7 @@ class Funcs:
                             Derived params: {params}
                             \"\"\"
                             async with await klient.get(f"{self.path}") as response:
+                                log(await response.json())
                                 {return_line}
                         """
                 )
