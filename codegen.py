@@ -83,6 +83,15 @@ def generate(
             continue
         renderers.append(Funcs(path, spec))
 
+    chunks.append(
+        dedent(
+            """\
+        class WithMetadata(BaseModel):
+            metadata: MetaV1ObjectMeta = Field(default={})
+        """
+        )
+    )
+
     for r in renderers:
         try:
             chunks.extend(r.render())
@@ -118,6 +127,8 @@ class Klass:
 
     def render(self) -> Iterable[str]:
         fields = []
+
+        has_metadata = False
 
         if self.schema.properties is None:  # root prop
             t = schema_to_type(self.schema)
@@ -166,12 +177,16 @@ class Klass:
 
                 fa = ", ".join(field_args)
 
-                fields.append(f"{attr_name}: {t} = Field({fa})")
-                # fields.append(f"{camel_to_snake(prop_name)}: {t} = Field({d}, alias=\"{prop_name}\", description=\"{prop.description}\")")
+                if attr_name == "metadata" and t == "MetaV1ObjectMeta":
+                    has_metadata = True
+                else:
+                    fields.append(f"{attr_name}: {t} = Field({fa})")
+
+        base_class = "WithMetadata" if has_metadata else "BaseModel"
 
         c = dedent(
             f"""\
-            class {object_ref_to_name(self.name)}(BaseModel):
+            class {object_ref_to_name(self.name)}({base_class}):
                 \"\"\"
                 Original name: {self.name}
                 \"\"\"

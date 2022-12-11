@@ -7,6 +7,10 @@ from pydantic import BaseModel, Field
 from kludge.klient import Klient
 
 
+class WithMetadata(BaseModel):
+    metadata: MetaV1ObjectMeta = Field(default={})
+
+
 class AuthenticationV1BoundObjectReference(BaseModel):
     """
     Original name: io.k8s.api.authentication.v1.BoundObjectReference
@@ -18,14 +22,13 @@ class AuthenticationV1BoundObjectReference(BaseModel):
     uid: str | None = Field(default=None)
 
 
-class AuthenticationV1TokenRequest(BaseModel):
+class AuthenticationV1TokenRequest(WithMetadata):
     """
     Original name: io.k8s.api.authentication.v1.TokenRequest
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="TokenRequest")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: AuthenticationV1TokenRequestSpec = Field(default={})
     status: AuthenticationV1TokenRequestStatus = Field(default={})
 
@@ -51,14 +54,13 @@ class AuthenticationV1TokenRequestStatus(BaseModel):
     token: str = Field(default="")
 
 
-class AutoscalingV1Scale(BaseModel):
+class AutoscalingV1Scale(WithMetadata):
     """
     Original name: io.k8s.api.autoscaling.v1.Scale
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="Scale")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: AutoscalingV1ScaleSpec = Field(default={})
     status: AutoscalingV1ScaleStatus = Field(default={})
 
@@ -144,14 +146,13 @@ class CoreV1AzureFileVolumeSource(BaseModel):
     share_name: str = Field(default="", alias="shareName")
 
 
-class CoreV1Binding(BaseModel):
+class CoreV1Binding(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Binding
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="Binding")
-    metadata: MetaV1ObjectMeta = Field(default={})
     target: CoreV1ObjectReference = Field(default={})
 
 
@@ -272,7 +273,7 @@ class CoreV1ComponentCondition(BaseModel):
     type: str = Field(default="")
 
 
-class CoreV1ComponentStatus(BaseModel):
+class CoreV1ComponentStatus(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.ComponentStatus
     """
@@ -280,7 +281,6 @@ class CoreV1ComponentStatus(BaseModel):
     api_version: str = Field(default="v1", alias="apiVersion")
     conditions: list[CoreV1ComponentCondition] | None = Field(default=None)
     kind: str = Field(default="ComponentStatus")
-    metadata: MetaV1ObjectMeta = Field(default={})
 
 
 class CoreV1ComponentStatusList(BaseModel):
@@ -294,7 +294,7 @@ class CoreV1ComponentStatusList(BaseModel):
     metadata: MetaV1ListMeta = Field(default={})
 
 
-class CoreV1ConfigMap(BaseModel):
+class CoreV1ConfigMap(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.ConfigMap
     """
@@ -304,7 +304,6 @@ class CoreV1ConfigMap(BaseModel):
     data: dict[str, str] | None = Field(default=None)
     immutable: bool | None = Field(default=None)
     kind: str = Field(default="ConfigMap")
-    metadata: MetaV1ObjectMeta = Field(default={})
 
 
 class CoreV1ConfigMapEnvSource(BaseModel):
@@ -558,14 +557,13 @@ class CoreV1EndpointSubset(BaseModel):
     ports: list[CoreV1EndpointPort] | None = Field(default=None)
 
 
-class CoreV1Endpoints(BaseModel):
+class CoreV1Endpoints(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Endpoints
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="Endpoints")
-    metadata: MetaV1ObjectMeta = Field(default={})
     subsets: list[CoreV1EndpointSubset] | None = Field(default=None)
 
 
@@ -655,7 +653,7 @@ class CoreV1EphemeralVolumeSource(BaseModel):
     )
 
 
-class CoreV1Event(BaseModel):
+class CoreV1Event(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Event
     """
@@ -669,7 +667,6 @@ class CoreV1Event(BaseModel):
     kind: str = Field(default="Event")
     last_timestamp: datetime | None = Field(default=None, alias="lastTimestamp")
     message: str | None = Field(default=None)
-    metadata: MetaV1ObjectMeta = Field(default={})
     reason: str | None = Field(default=None)
     related: CoreV1ObjectReference | None = Field(default=None)
     reporting_component: str = Field(default="", alias="reportingComponent")
@@ -916,14 +913,13 @@ class CoreV1LifecycleHandler(BaseModel):
     tcp_socket: CoreV1TCPSocketAction | None = Field(default=None, alias="tcpSocket")
 
 
-class CoreV1LimitRange(BaseModel):
+class CoreV1LimitRange(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.LimitRange
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="LimitRange")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1LimitRangeSpec = Field(default={})
 
 
@@ -1008,14 +1004,13 @@ class CoreV1NFSVolumeSource(BaseModel):
     server: str = Field(default="")
 
 
-class CoreV1Namespace(BaseModel):
+class CoreV1Namespace(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Namespace
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="Namespace")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1NamespaceSpec = Field(default={})
     status: CoreV1NamespaceStatus = Field(default={})
 
@@ -1060,14 +1055,13 @@ class CoreV1NamespaceStatus(BaseModel):
     phase: str | None = Field(default=None)
 
 
-class CoreV1Node(BaseModel):
+class CoreV1Node(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Node
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="Node")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1NodeSpec = Field(default={})
     status: CoreV1NodeStatus = Field(default={})
 
@@ -1250,26 +1244,24 @@ class CoreV1ObjectReference(BaseModel):
     uid: str | None = Field(default=None)
 
 
-class CoreV1PersistentVolume(BaseModel):
+class CoreV1PersistentVolume(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.PersistentVolume
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="PersistentVolume")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PersistentVolumeSpec = Field(default={})
     status: CoreV1PersistentVolumeStatus = Field(default={})
 
 
-class CoreV1PersistentVolumeClaim(BaseModel):
+class CoreV1PersistentVolumeClaim(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.PersistentVolumeClaim
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="PersistentVolumeClaim")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PersistentVolumeClaimSpec = Field(default={})
     status: CoreV1PersistentVolumeClaimStatus = Field(default={})
 
@@ -1330,12 +1322,11 @@ class CoreV1PersistentVolumeClaimStatus(BaseModel):
     resize_status: str | None = Field(default=None, alias="resizeStatus")
 
 
-class CoreV1PersistentVolumeClaimTemplate(BaseModel):
+class CoreV1PersistentVolumeClaimTemplate(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.PersistentVolumeClaimTemplate
     """
 
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PersistentVolumeClaimSpec = Field(default={})
 
 
@@ -1427,14 +1418,13 @@ class CoreV1PhotonPersistentDiskVolumeSource(BaseModel):
     pd_id: str = Field(default="", alias="pdID")
 
 
-class CoreV1Pod(BaseModel):
+class CoreV1Pod(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Pod
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="Pod")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PodSpec = Field(default={})
     status: CoreV1PodStatus = Field(default={})
 
@@ -1644,14 +1634,13 @@ class CoreV1PodStatus(BaseModel):
     start_time: datetime | None = Field(default=None, alias="startTime")
 
 
-class CoreV1PodTemplate(BaseModel):
+class CoreV1PodTemplate(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.PodTemplate
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="PodTemplate")
-    metadata: MetaV1ObjectMeta = Field(default={})
     template: CoreV1PodTemplateSpec = Field(default={})
 
 
@@ -1666,12 +1655,11 @@ class CoreV1PodTemplateList(BaseModel):
     metadata: MetaV1ListMeta = Field(default={})
 
 
-class CoreV1PodTemplateSpec(BaseModel):
+class CoreV1PodTemplateSpec(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.PodTemplateSpec
     """
 
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1PodSpec = Field(default={})
 
 
@@ -1775,14 +1763,13 @@ class CoreV1RBDVolumeSource(BaseModel):
     user: str | None = Field(default=None)
 
 
-class CoreV1ReplicationController(BaseModel):
+class CoreV1ReplicationController(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.ReplicationController
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="ReplicationController")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1ReplicationControllerSpec = Field(default={})
     status: CoreV1ReplicationControllerStatus = Field(default={})
 
@@ -1844,14 +1831,13 @@ class CoreV1ResourceFieldSelector(BaseModel):
     resource: str = Field(default="")
 
 
-class CoreV1ResourceQuota(BaseModel):
+class CoreV1ResourceQuota(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.ResourceQuota
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="ResourceQuota")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1ResourceQuotaSpec = Field(default={})
     status: CoreV1ResourceQuotaStatus = Field(default={})
 
@@ -1969,7 +1955,7 @@ class CoreV1SeccompProfile(BaseModel):
     type: str = Field(default="")
 
 
-class CoreV1Secret(BaseModel):
+class CoreV1Secret(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Secret
     """
@@ -1978,7 +1964,6 @@ class CoreV1Secret(BaseModel):
     data: dict[str, str] | None = Field(default=None)
     immutable: bool | None = Field(default=None)
     kind: str = Field(default="Secret")
-    metadata: MetaV1ObjectMeta = Field(default={})
     string_data: dict[str, str] | None = Field(default=None, alias="stringData")
     type: str | None = Field(default=None)
 
@@ -2063,19 +2048,18 @@ class CoreV1SecurityContext(BaseModel):
     )
 
 
-class CoreV1Service(BaseModel):
+class CoreV1Service(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.Service
     """
 
     api_version: str = Field(default="v1", alias="apiVersion")
     kind: str = Field(default="Service")
-    metadata: MetaV1ObjectMeta = Field(default={})
     spec: CoreV1ServiceSpec = Field(default={})
     status: CoreV1ServiceStatus = Field(default={})
 
 
-class CoreV1ServiceAccount(BaseModel):
+class CoreV1ServiceAccount(WithMetadata):
     """
     Original name: io.k8s.api.core.v1.ServiceAccount
     """
@@ -2088,7 +2072,6 @@ class CoreV1ServiceAccount(BaseModel):
         default=None, alias="imagePullSecrets"
     )
     kind: str = Field(default="ServiceAccount")
-    metadata: MetaV1ObjectMeta = Field(default={})
     secrets: list[CoreV1ObjectReference] | None = Field(default=None)
 
 
@@ -2397,7 +2380,7 @@ class CoreV1WindowsSecurityContextOptions(BaseModel):
     run_as_user_name: str | None = Field(default=None, alias="runAsUserName")
 
 
-class PolicyV1Eviction(BaseModel):
+class PolicyV1Eviction(WithMetadata):
     """
     Original name: io.k8s.api.policy.v1.Eviction
     """
@@ -2405,7 +2388,6 @@ class PolicyV1Eviction(BaseModel):
     api_version: str = Field(default="v1", alias="apiVersion")
     delete_options: MetaV1DeleteOptions | None = Field(default=None, alias="deleteOptions")
     kind: str = Field(default="Eviction")
-    metadata: MetaV1ObjectMeta = Field(default={})
 
 
 class ResourceQuantity(BaseModel):

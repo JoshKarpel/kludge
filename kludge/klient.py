@@ -1,17 +1,3 @@
-# cluster = config.clusters[0].cluster
-# user = config.users[0].user
-#
-# sslcontext = ssl.create_default_context(cafile=cluster.certificate_authority)
-# sslcontext.load_cert_chain(certfile=user.client_certificate, keyfile=user.client_key)
-#
-# async with ClientSession() as session:
-#     async with session.get(
-#             f"{cluster.server}/apis/apps/v1/deployments", ssl=sslcontext
-#     ) as response:
-#         j = await response.json()
-#         console.print(j)
-#         console.print(DeploymentList.parse_obj(j))
-#
 from __future__ import annotations
 
 import ssl
@@ -29,7 +15,8 @@ from kludge.konfig import Konfig
 class Klient:
     def __init__(self, konfig: Konfig):
         self.konfig = konfig
-        self._session = None
+
+        self._session: ClientSession | None = None
 
     async def session(self) -> ClientSession:
         if self._session is not None:
@@ -50,7 +37,7 @@ class Klient:
         await (await self.session()).close()
 
     @cached_property
-    def sslcontext(self):
+    def sslcontext(self) -> ssl.SSLContext:
         cluster = self.konfig.clusters[0].cluster
         user = self.konfig.users[0].user
 

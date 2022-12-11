@@ -40,6 +40,7 @@ pytest-mock = ">=3"
 hypothesis = ">=6"
 textual = {extras = ["dev"], version = ">=0.5"}
 openapi-schema-pydantic = ">=1.2.4"
+types-pyyaml = "^6.0.12.2"
 
 
 [tool.poetry.scripts]

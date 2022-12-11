@@ -8,11 +8,10 @@ from datetime import datetime, timedelta, timezone
 from difflib import SequenceMatcher
 from enum import Enum
 from fnmatch import fnmatch
-from typing import Callable, Generic, Iterable, Iterator, Literal, TypeVar
+from typing import Callable, Generic, Iterable, Iterator, Literal, Sequence, TypeVar
 
 import yaml
 from click import edit
-from pydantic import BaseModel
 from rich.console import RenderableType
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -30,6 +29,7 @@ from kludge.kube import (
     CoreV1Node,
     CoreV1Pod,
     CoreV1Service,
+    WithMetadata,
     delete_core_v1_namespace,
     delete_core_v1_namespaced_pod,
     delete_core_v1_namespaced_service,
@@ -103,15 +103,15 @@ NODE_STATUS_MAP = {
 }
 
 
-def name(obj) -> str:
+def name(obj: WithMetadata) -> str:
     return obj.metadata.name
 
 
-def namespace(obj) -> str:
+def namespace(obj: WithMetadata) -> str:
     return obj.metadata.namespace
 
 
-def age(obj) -> str:
+def age(obj: WithMetadata) -> str:
     return human_time(now() - obj.metadata.creation_timestamp)
 
 
@@ -183,7 +183,7 @@ SERVICE_COLS: list[Col[CoreV1Service]] = [
     Col(header="age", getter=age),
 ]
 
-RESOURCE_COLS: Mapping[RESOURCE, list[Col]] = {
+RESOURCE_COLS: Mapping[RESOURCE, list[Col[WithMetadata]]] = {
     "node": NODE_COLS,
     "namespace": NAMESPACE_COLS,
     "pod": POD_COLS,
@@ -191,14 +191,18 @@ RESOURCE_COLS: Mapping[RESOURCE, list[Col]] = {
 }
 
 
-class ResourcesTable(Widget):
+class KludgeWidget(Widget):
+    app: KludgeApp
+
+
+class ResourcesTable(KludgeWidget):
     namespace: str | None = reactive(None)
     resource: RESOURCE = reactive("pod")
     filter: str = reactive("*")
-    raw_results: list[BaseModel] = reactive(list, always_update=True)
-    results: list[BaseModel] = reactive(list, always_update=True)
+    raw_results: Sequence[WithMetadata] = reactive(list, always_update=True)
+    results: Sequence[WithMetadata] = reactive(list, always_update=True)
     col_verbosity: ColumnVerbosity = reactive(ColumnVerbosity.Normal)
-    namespaces: list[CoreV1Namespace] = reactive(list)
+    namespaces: Sequence[CoreV1Namespace] = reactive(list)
 
     BINDINGS = [
         Binding("w", "cycle_col_verbosity", "Cycle column verbosity"),
@@ -230,7 +234,7 @@ class ResourcesTable(Widget):
 
         yield DataTable()
 
-    async def on_mount(self):
+    async def on_mount(self) -> None:
         self.set_interval(1, self.refresh_query)
         self.set_interval(1, self.refresh_namespaces)
         self.query_one(DataTable).focus()
@@ -250,10 +254,10 @@ class ResourcesTable(Widget):
     def watch_filter(self, filter: str) -> None:
         self.results = [r for r in self.raw_results if fnmatch(r.metadata.name, f"{filter}*")]
 
-    def watch_raw_results(self, raw_results: list[object]) -> None:
+    def watch_raw_results(self, raw_results: Sequence[WithMetadata]) -> None:
         self.results = [r for r in raw_results if fnmatch(r.metadata.name, f"{self.filter}*")]
 
-    async def _query(self, resource: RESOURCE, namespace: str) -> list[object]:
+    async def _query(self, resource: RESOURCE, namespace: str | None) -> Sequence[WithMetadata]:
         match resource, namespace:
             case "node", _:
                 return (await list_core_v1_node(self.app.klient)).items
@@ -300,7 +304,7 @@ class ResourcesTable(Widget):
         srted = sorted(filtered, key=lambda ns: longest_match_length(value, ns), reverse=True)
         return [DropdownItem(ns) for ns in srted]
 
-    def selected_resource(self) -> BaseModel:
+    def selected_resource(self) -> WithMetadata:
         return self.results[self.query_one(DataTable).cursor_cell.row]
 
     def on_key(self, event: Key) -> None:
@@ -354,27 +358,31 @@ class ResourcesTable(Widget):
 
     async def action_delete_selected_resource(self) -> None:
         selected_metadata = self.selected_resource().metadata
-        name = selected_metadata.name
-        namespace = selected_metadata.namespace
+        selected_name = selected_metadata.name
+        selected_namespace = selected_metadata.namespace
 
         # TODO: ask for confirmation
 
         match self.resource, self.namespace:
             case "node", _:
-                await delete_core_v1_node(self.app.klient, name=name)
+                await delete_core_v1_node(self.app.klient, name=selected_name)
             case "namespace", _:
-                await delete_core_v1_namespace(self.app.klient, name=name)
+                await delete_core_v1_namespace(self.app.klient, name=selected_name)
             case "pod", None:
-                await delete_core_v1_namespaced_pod(self.app.klient, namespace=namespace, name=name)
+                await delete_core_v1_namespaced_pod(
+                    self.app.klient, namespace=selected_namespace, name=selected_name
+                )
             case "pod", namespace:
-                await delete_core_v1_namespaced_pod(self.app.klient, namespace=namespace, name=name)
+                await delete_core_v1_namespaced_pod(
+                    self.app.klient, namespace=selected_namespace, name=selected_name
+                )
             case "service", None:
                 await delete_core_v1_namespaced_service(
-                    self.app.klient, namespace=namespace, name=name
+                    self.app.klient, namespace=selected_namespace, name=selected_name
                 )
             case "service", namespace:
                 await delete_core_v1_namespaced_service(
-                    self.app.klient, namespace=namespace, name=name
+                    self.app.klient, namespace=selected_namespace, name=selected_name
                 )
             case _:
                 self.app.bell()
@@ -385,7 +393,7 @@ class KludgeApp(App[None]):
     BINDINGS = []
     SCREENS = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.klient = Klient(Konfig.build())
