@@ -183,7 +183,7 @@ SERVICE_COLS: list[Col[CoreV1Service]] = [
     Col(header="age", getter=age),
 ]
 
-RESOURCE_COLS: Mapping[RESOURCE, list[Col[WithMetadata]]] = {
+RESOURCE_COLS: Mapping[RESOURCE, Sequence[Col[WithMetadata]]] = {
     "node": NODE_COLS,
     "namespace": NAMESPACE_COLS,
     "pod": POD_COLS,
@@ -279,7 +279,7 @@ class ResourcesTable(KludgeWidget):
                 self.app.bell()
                 return []
 
-    def watch_results(self, results: list[object]) -> None:
+    def watch_results(self, results: list[WithMetadata]) -> None:
         dt = self.query_one(DataTable)
         dt.clear()
         dt.columns.clear()
@@ -297,7 +297,7 @@ class ResourcesTable(KludgeWidget):
         self.namespaces = (await list_core_v1_namespace(self.app.klient)).items
 
     def namespace_names(self) -> set[str]:
-        return {ns.metadata.name for ns in self.namespaces}
+        return {ns.metadata.name for ns in self.namespace} - {None}
 
     def namespace_dropdown_items(self, value: str, cursor_position: int) -> list[DropdownItem]:
         filtered = (ns for ns in self.namespace_names() if fnmatch(ns, "*" + "*".join(value) + "*"))
@@ -361,6 +361,10 @@ class ResourcesTable(KludgeWidget):
         selected_name = selected_metadata.name
         selected_namespace = selected_metadata.namespace
 
+        if selected_name is None:
+            self.app.bell()
+            return
+
         # TODO: ask for confirmation
 
         match self.resource, self.namespace:
@@ -368,19 +372,19 @@ class ResourcesTable(KludgeWidget):
                 await delete_core_v1_node(self.app.klient, name=selected_name)
             case "namespace", _:
                 await delete_core_v1_namespace(self.app.klient, name=selected_name)
-            case "pod", None:
+            case "pod", _:
+                if selected_namespace is None:
+                    self.app.bell()
+                    return
+
                 await delete_core_v1_namespaced_pod(
                     self.app.klient, namespace=selected_namespace, name=selected_name
                 )
-            case "pod", namespace:
-                await delete_core_v1_namespaced_pod(
-                    self.app.klient, namespace=selected_namespace, name=selected_name
-                )
-            case "service", None:
-                await delete_core_v1_namespaced_service(
-                    self.app.klient, namespace=selected_namespace, name=selected_name
-                )
-            case "service", namespace:
+            case "service", _:
+                if selected_namespace is None:
+                    self.app.bell()
+                    return
+
                 await delete_core_v1_namespaced_service(
                     self.app.klient, namespace=selected_namespace, name=selected_name
                 )
