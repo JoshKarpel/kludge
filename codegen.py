@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from tempfile import gettempdir
 from textwrap import dedent
+from typing import Iterable
 
 from openapi_schema_pydantic import OpenAPI, PathItem, Reference, Schema
 from rich.console import Console, Group, RenderableType
@@ -82,9 +83,18 @@ def generate(
             continue
         renderers.append(Funcs(path, spec))
 
+    chunks.append(
+        dedent(
+            """\
+        class WithMetadata(BaseModel):
+            metadata: MetaV1ObjectMeta = Field(default={})
+        """
+        )
+    )
+
     for r in renderers:
         try:
-            chunks.append(r.render())
+            chunks.extend(r.render())
         except Error as e:
             console.print(e)
 
@@ -115,8 +125,10 @@ class Klass:
     name: str
     schema: Schema
 
-    def render(self) -> str:
+    def render(self) -> Iterable[str]:
         fields = []
+
+        has_metadata = False
 
         if self.schema.properties is None:  # root prop
             t = schema_to_type(self.schema)
@@ -165,12 +177,16 @@ class Klass:
 
                 fa = ", ".join(field_args)
 
-                fields.append(f"{attr_name}: {t} = Field({fa})")
-                # fields.append(f"{camel_to_snake(prop_name)}: {t} = Field({d}, alias=\"{prop_name}\", description=\"{prop.description}\")")
+                if attr_name == "metadata" and t == "MetaV1ObjectMeta":
+                    has_metadata = True
+                else:
+                    fields.append(f"{attr_name}: {t} = Field({fa})")
+
+        base_class = "WithMetadata" if has_metadata else "BaseModel"
 
         c = dedent(
             f"""\
-            class {object_ref_to_name(self.name)}(BaseModel):
+            class {object_ref_to_name(self.name)}({base_class}):
                 \"\"\"
                 Original name: {self.name}
                 \"\"\"
@@ -179,7 +195,7 @@ class Klass:
         for f in fields:
             c += f"    {f}\n"
 
-        return c
+        yield c
 
     def render_update_forward_refs_call(self) -> str:
         return f"{object_ref_to_name(self.name)}.update_forward_refs()"
@@ -242,7 +258,7 @@ class Funcs:
     path: str
     spec: PathItem
 
-    def render(self) -> str:
+    def render(self) -> Iterable[str]:
         params = params_from_path(self.path)
         args = ["klient: Klient"] + [f"{p}: str" for p in params]
         fmt_args = ", ".join(args)
@@ -262,17 +278,42 @@ class Funcs:
                     else "return await response.text()"
                 )
 
-                return dedent(
+                yield dedent(
                     f"""\
-                        async def {camel_to_snake(op_id)}({fmt_args}) -> {rt}:
-                            \"\"\"
-                            Original path: {self.path}
-                            Op ID: {op_id}
-                            Derived params: {params}
-                            \"\"\"
-                            async with await klient.get(f"{self.path}") as response:
-                                {return_line}
-                        """
+                    async def {camel_to_snake(op_id)}({fmt_args}) -> {rt}:
+                        \"\"\"
+                        Original path: {self.path}
+                        Op ID: {op_id}
+                        Derived params: {params}
+                        \"\"\"
+                        async with await klient.get(f"{self.path}") as response:
+                            {return_line}
+                    """
+                )
+
+        if self.spec.delete is not None:
+            op_id = self.spec.delete.operationId
+            response_types = self.spec.delete.responses["200"].content
+            if "application/json" in response_types:
+                return_type = response_types["application/json"]
+                if isinstance(return_type.media_type_schema, Reference):
+                    rt = object_ref_to_name(return_type.media_type_schema.ref)
+                else:
+                    rt = schema_to_type(return_type.media_type_schema)
+
+                return_line = f"return {rt}.parse_obj(await response.json())"
+
+                yield dedent(
+                    f"""\
+                    async def {camel_to_snake(op_id)}({fmt_args}) -> {rt}:
+                        \"\"\"
+                        Original path: {self.path}
+                        Op ID: {op_id}
+                        Derived params: {params}
+                        \"\"\"
+                        async with await klient.delete(f"{self.path}") as response:
+                            {return_line}
+                    """
                 )
 
 
@@ -292,6 +333,8 @@ def object_ref_to_name(ref: str) -> str:
         .replace("io.k8s.apimachinery.pkg.runtime", "Runtime")
         .replace("io.k8s.apimachinery.pkg.util.intstr", "Util")
         .replace("io.k8s.api.autoscaling.", "Autoscaling")
+        .replace("io.k8s.apimachinery.pkg.api.resource.", "Resource")
+        .replace("io.k8s.api.policy.", "Policy")
         .replace("v1", "V1")
         .replace(".", "")
     )

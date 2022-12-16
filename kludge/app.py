@@ -4,15 +4,14 @@ import sys
 from collections.abc import Mapping
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from difflib import SequenceMatcher
 from enum import Enum
 from fnmatch import fnmatch
-from typing import Callable, Generic, Iterable, Iterator, Literal, TypeVar
+from typing import Callable, Generic, Iterable, Iterator, Literal, Sequence, TypeVar
 
 import yaml
 from click import edit
-from pydantic import BaseModel
 from rich.console import RenderableType
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -30,6 +29,11 @@ from kludge.kube import (
     CoreV1Node,
     CoreV1Pod,
     CoreV1Service,
+    WithMetadata,
+    delete_core_v1_namespace,
+    delete_core_v1_namespaced_pod,
+    delete_core_v1_namespaced_service,
+    delete_core_v1_node,
     list_core_v1_namespace,
     list_core_v1_namespaced_pod,
     list_core_v1_namespaced_service,
@@ -68,14 +72,16 @@ def first_item_with_attr_value(items: Iterable[T], attr: str, value: object) -> 
     return None
 
 
-def time_since(timestamp: datetime) -> str:
-    td = datetime.now(timezone.utc) - timestamp
+def now() -> datetime:
+    return datetime.now(timezone.utc)
 
+
+def human_time(delta: timedelta) -> str:
     parts = []
-    if td.days > 0:
-        parts.append(f"{td.days}d")
+    if delta.days > 0:
+        parts.append(f"{delta.days}d")
 
-    hours, remainder = divmod(td.seconds, 3600)
+    hours, remainder = divmod(delta.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
 
     if hours > 0:
@@ -97,25 +103,26 @@ NODE_STATUS_MAP = {
 }
 
 
-def name(obj) -> str:
+def name(obj: WithMetadata) -> str:
     return obj.metadata.name
 
 
-def namespace(obj) -> str:
+def namespace(obj: WithMetadata) -> str:
     return obj.metadata.namespace
 
 
-def age(obj) -> str:
-    return time_since(obj.metadata.creation_timestamp)
+def age(obj: WithMetadata) -> str:
+    return human_time(now() - obj.metadata.creation_timestamp)
 
 
 def pod_containers_ready(pod: CoreV1Pod) -> str:
     container_statuses = pod.status.container_statuses
-
-    num_total = len(container_statuses)
-    num_ready = sum(cs.ready for cs in container_statuses)
-
-    return f"{num_ready}/{num_total}"
+    if container_statuses is None:
+        return f"0/0"
+    else:
+        num_total = len(container_statuses)
+        num_ready = sum(cs.ready for cs in container_statuses)
+        return f"{num_ready}/{num_total}"
 
 
 class ColumnVerbosity(int, Enum):
@@ -153,7 +160,12 @@ POD_COLS: list[Col[CoreV1Pod]] = [
     Col(header="namespace", getter=namespace),
     Col(header="name", getter=name),
     Col(header="ready", getter=pod_containers_ready),
-    Col(header="status", getter=lambda pod: pod.status.phase),
+    Col(
+        header="status",
+        getter=lambda pod: f"Terminating (grace: {human_time(pod.metadata.deletion_timestamp - now())})"
+        if pod.metadata.deletion_timestamp is not None
+        else pod.status.phase,
+    ),
     Col(header="age", getter=age),
     Col(header="pod-ip", getter=lambda pod: pod.status.pod_ip, verbosity=ColumnVerbosity.Wide),
 ]
@@ -171,7 +183,7 @@ SERVICE_COLS: list[Col[CoreV1Service]] = [
     Col(header="age", getter=age),
 ]
 
-RESOURCE_COLS: Mapping[RESOURCE, list[Col]] = {
+RESOURCE_COLS: Mapping[RESOURCE, Sequence[Col[WithMetadata]]] = {
     "node": NODE_COLS,
     "namespace": NAMESPACE_COLS,
     "pod": POD_COLS,
@@ -179,18 +191,23 @@ RESOURCE_COLS: Mapping[RESOURCE, list[Col]] = {
 }
 
 
-class ResourcesTable(Widget):
+class KludgeWidget(Widget):
+    app: KludgeApp
+
+
+class ResourcesTable(KludgeWidget):
     namespace: str | None = reactive(None)
     resource: RESOURCE = reactive("pod")
     filter: str = reactive("*")
-    raw_results: list[BaseModel] = reactive(list, always_update=True)
-    results: list[BaseModel] = reactive(list, always_update=True)
+    raw_results: Sequence[WithMetadata] = reactive(list, always_update=True)
+    results: Sequence[WithMetadata] = reactive(list, always_update=True)
     col_verbosity: ColumnVerbosity = reactive(ColumnVerbosity.Normal)
-    namespaces: list[CoreV1Namespace] = reactive(list)
+    namespaces: Sequence[CoreV1Namespace] = reactive(list)
 
     BINDINGS = [
         Binding("w", "cycle_col_verbosity", "Cycle column verbosity"),
         Binding("e", "edit_yaml", "Edit YAML for selected resource"),
+        Binding("d", "delete_selected_resource", "Delete the selected resource"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -199,17 +216,25 @@ class ResourcesTable(Widget):
                 Input(name="Namespace", id="namespace", value="", placeholder="all"),
                 Dropdown(
                     items=self.namespace_dropdown_items,
-                    id="namespaces-dropdown",
+                    id="namespace-dropdown",
                 ),
                 classes="w-1fr",
             ),
-            Input(name="Resource", id="resource", value="pod", classes="w-1fr"),
+            AutoComplete(
+                Input(name="Resource", id="resource", value="pod"),
+                Dropdown(
+                    items=[DropdownItem(k) for k in RESOURCE_ALIASES.keys()],
+                    id="resource-dropdown",
+                ),
+                classes="w-1fr",
+            ),
             Input(name="Filter", id="filter", value="", placeholder="*", classes="w-1fr"),
             id="inputs",
         )
+
         yield DataTable()
 
-    async def on_mount(self):
+    async def on_mount(self) -> None:
         self.set_interval(1, self.refresh_query)
         self.set_interval(1, self.refresh_namespaces)
         self.query_one(DataTable).focus()
@@ -229,10 +254,10 @@ class ResourcesTable(Widget):
     def watch_filter(self, filter: str) -> None:
         self.results = [r for r in self.raw_results if fnmatch(r.metadata.name, f"{filter}*")]
 
-    def watch_raw_results(self, raw_results: list[object]) -> None:
+    def watch_raw_results(self, raw_results: Sequence[WithMetadata]) -> None:
         self.results = [r for r in raw_results if fnmatch(r.metadata.name, f"{self.filter}*")]
 
-    async def _query(self, resource: RESOURCE, namespace: str) -> list[object]:
+    async def _query(self, resource: RESOURCE, namespace: str | None) -> Sequence[WithMetadata]:
         match resource, namespace:
             case "node", _:
                 return (await list_core_v1_node(self.app.klient)).items
@@ -254,7 +279,7 @@ class ResourcesTable(Widget):
                 self.app.bell()
                 return []
 
-    def watch_results(self, results: list[object]) -> None:
+    def watch_results(self, results: list[WithMetadata]) -> None:
         dt = self.query_one(DataTable)
         dt.clear()
         dt.columns.clear()
@@ -272,14 +297,14 @@ class ResourcesTable(Widget):
         self.namespaces = (await list_core_v1_namespace(self.app.klient)).items
 
     def namespace_names(self) -> set[str]:
-        return {ns.metadata.name for ns in self.namespaces}
+        return {ns.metadata.name for ns in self.namespace} - {None}
 
     def namespace_dropdown_items(self, value: str, cursor_position: int) -> list[DropdownItem]:
         filtered = (ns for ns in self.namespace_names() if fnmatch(ns, "*" + "*".join(value) + "*"))
         srted = sorted(filtered, key=lambda ns: longest_match_length(value, ns), reverse=True)
         return [DropdownItem(ns) for ns in srted]
 
-    def selected_resource(self) -> BaseModel:
+    def selected_resource(self) -> WithMetadata:
         return self.results[self.query_one(DataTable).cursor_cell.row]
 
     def on_key(self, event: Key) -> None:
@@ -331,13 +356,48 @@ class ResourcesTable(Widget):
             self.log(new)
             # TODO: post it back!
 
+    async def action_delete_selected_resource(self) -> None:
+        selected_metadata = self.selected_resource().metadata
+        selected_name = selected_metadata.name
+        selected_namespace = selected_metadata.namespace
+
+        if selected_name is None:
+            self.app.bell()
+            return
+
+        # TODO: ask for confirmation
+
+        match self.resource, self.namespace:
+            case "node", _:
+                await delete_core_v1_node(self.app.klient, name=selected_name)
+            case "namespace", _:
+                await delete_core_v1_namespace(self.app.klient, name=selected_name)
+            case "pod", _:
+                if selected_namespace is None:
+                    self.app.bell()
+                    return
+
+                await delete_core_v1_namespaced_pod(
+                    self.app.klient, namespace=selected_namespace, name=selected_name
+                )
+            case "service", _:
+                if selected_namespace is None:
+                    self.app.bell()
+                    return
+
+                await delete_core_v1_namespaced_service(
+                    self.app.klient, namespace=selected_namespace, name=selected_name
+                )
+            case _:
+                self.app.bell()
+
 
 class KludgeApp(App[None]):
     CSS_PATH = "kludge.css"
     BINDINGS = []
     SCREENS = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.klient = Klient(Konfig.build())
