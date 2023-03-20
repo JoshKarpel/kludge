@@ -22,7 +22,7 @@ jobs:
       PYTHON_VERSION: ${{ matrix.python-version }}
     steps:
     - name: Check out repository
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v3.4.0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4.3.0
       with:
