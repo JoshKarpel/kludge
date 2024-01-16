@@ -52,6 +52,9 @@ class Klient:
             if cluster.certificate_authority_data
             else None,
         )
+
+        # Work around Python's ssl lib not support client certs as data instead of files
+        # https://github.com/encode/httpx/discussions/2037#discussioncomment-2006795
         if user.client_certificate_data and user.client_key_data:
             with NamedTemporaryFile(mode="w+b") as certfile, NamedTemporaryFile() as keyfile:
                 certfile.write(b64decode(user.client_certificate_data))
