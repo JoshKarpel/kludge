@@ -67,11 +67,13 @@ class Klient:
                     certfile=certfile.name,
                     keyfile=keyfile.name,
                 )
-        else:
+        elif user.client_certificate is not None and user.client_key is not None:
             context.load_cert_chain(
                 certfile=user.client_certificate,
                 keyfile=user.client_key,
             )
+        else:
+            raise Exception("No client certificate or key provided")
 
         return context
 

@@ -1,5 +1,6 @@
 from asyncio import sleep
 
+from counterweight.components import component
 from counterweight.elements import Div, Text
 from counterweight.hooks import use_effect, use_state
 from counterweight.styles.utilities import *
@@ -11,8 +12,9 @@ from kludge.konfig import Konfig
 logger = get_logger()
 
 
+@component
 def root() -> Div:
-    pods, set_pods = use_state([])
+    pods, set_pods = use_state([])  # type: ignore[var-annotated]
 
     async def fetch() -> None:
         async with Klient(Konfig.build()) as klient:
