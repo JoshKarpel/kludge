@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .Values.pingPong.pingNamespace }}
+  name: {{ .Values.pingPong.namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ping
-  namespace: {{ .Values.pingPong.pingNamespace }}
+  namespace: {{ .Values.pingPong.namespace }}
   labels:
     app: ping
 spec:
@@ -25,16 +25,11 @@ spec:
         image: {{ .Values.pingPong.image }}
         command: ["sh", "-x", "-c", "while true ; do echo -n $({{ .Values.pingPong.call }}) '-> '  ;  nc pong.{{.Values.pingPong.pongNamespace}} {{ .Values.pingPong.pongPort }} ; sleep {{ .Values.pingPong.interval }} ; done"]
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ .Values.pingPong.pongNamespace }}
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pong
-  namespace: {{ .Values.pingPong.pongNamespace }}
+  namespace: {{ .Values.pingPong.namespace }}
   labels:
     app: pong
 spec:

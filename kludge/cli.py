@@ -1,20 +1,18 @@
-import os
+from asyncio import run
 from textwrap import dedent
 
-from rich.console import Console
+from counterweight.app import app
 from typer import Typer
 
-from kludge.app import KludgeApp
+from kludge.app import root
 from kludge.constants import PACKAGE_NAME
-
-console = Console()
 
 cli = Typer(
     name=PACKAGE_NAME,
     no_args_is_help=True,
     rich_markup_mode="rich",
     help=dedent(
-        f"""\
+        """\
         """
     ),
 )
@@ -22,7 +20,7 @@ cli = Typer(
 
 @cli.command()
 def kludge() -> None:
-    os.environ["TEXTUAL"] = ",".join(sorted(["debug", "devtools"]))
+    async def _() -> None:
+        await app(root)
 
-    app = KludgeApp()
-    app.run()
+    run(_())
