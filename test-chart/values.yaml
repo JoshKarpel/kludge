@@ -1,6 +1,5 @@
 pingPong:
-  pingNamespace: "ping"
-  pongNamespace: "pong"
+  namespace: "ping-pong"
   image: "docker.io/library/busybox:stable"
   replicas: 2
   pongPort: 80
@@ -9,10 +8,10 @@ pingPong:
   interval: 15
 
 ubuntu:
-  image: "ubuntu:20.04"
+  image: "ubuntu:22.04"
 
 python:
-  image: "python:3.10"
+  image: "python:3.11"
   packages:
     - ipython
     - kubernetes
