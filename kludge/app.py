@@ -38,6 +38,7 @@ def root() -> Div:
                 rf = resource_filter[:-1]
                 set_resource_filter(rf)
                 if rf in names_to_resources:
+                    # TODO: not all resources are list-able
                     set_selected_resource(names_to_resources[rf])
             case "namespaces", Key.Backspace:
                 nf = namespace_filter[:-1]
