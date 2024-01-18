@@ -1,10 +1,10 @@
 from asyncio import sleep
-from typing import ClassVar
+from typing import ClassVar, Literal
 
 from counterweight.components import component
 from counterweight.elements import Div, Text
 from counterweight.events import KeyPressed
-from counterweight.hooks import use_effect, use_state
+from counterweight.hooks import Setter, use_effect, use_state
 from counterweight.keys import Key
 from counterweight.styles.utilities import *
 from pydantic import BaseModel, ConfigDict
@@ -15,48 +15,29 @@ from kludge.konfig import Konfig
 
 logger = get_logger()
 
-FOCUS_ORDER = {
-    "resources": "namespaces",
-    "namespaces": "resources",
+FOCUS = {
+    0: "resources",
+    1: "namespaces",
 }
 
 
 @component
 def root() -> Div:
-    names_to_resources, set_names_to_resources = use_state(())  # type: ignore[var-annotated]
+    names_to_resources, set_names_to_resources = use_state({})
     resource_filter, set_resource_filter = use_state("pods")
     selected_resource, set_selected_resource = use_state(None)
     namespace_filter, set_namespace_filter = use_state("default")
     selected_namespace, set_selected_namespace = use_state("default")
     namespaces, set_namespaces = use_state(())
-    instances, set_instances = use_state(())  # type: ignore[var-annotated]
-    focus, set_focus = use_state("resources")
+    instances, set_instances = use_state(())
+    focus, set_focus = use_state(0)
 
     def on_key(event: KeyPressed) -> None:
-        match focus, event.key:
-            case "resources", Key.Backspace:
-                rf = resource_filter[:-1]
-                set_resource_filter(rf)
-                if rf in names_to_resources:
-                    # TODO: not all resources are list-able
-                    set_selected_resource(names_to_resources[rf])
-            case "namespaces", Key.Backspace:
-                nf = namespace_filter[:-1]
-                set_namespace_filter(nf)
-                if nf in namespaces:
-                    set_selected_namespace(nf)
-            case "resources", c if c.isprintable() and len(c) == 1:
-                rf = resource_filter + c
-                set_resource_filter(rf)
-                if rf in names_to_resources:
-                    set_selected_resource(names_to_resources[rf])
-            case "namespaces", c if c.isprintable() and len(c) == 1:
-                nf = namespace_filter + c
-                set_namespace_filter(nf)
-                if nf in namespaces:
-                    set_selected_namespace(nf)
-            case _, Key.Tab:
-                set_focus(lambda f: FOCUS_ORDER[f])
+        match event.key:
+            case Key.Tab:
+                set_focus(lambda f: (f + 1) % len(FOCUS))
+            case Key.BackTab:
+                set_focus(lambda f: (f - 1) % len(FOCUS))
 
     async def watch_resources() -> None:
         async with Klient(Konfig.build()) as klient:
@@ -64,10 +45,11 @@ def root() -> Div:
                 discovered_resources = await discover_resources(klient)
                 names_to_resources = {}
                 for r in discovered_resources:
-                    for n in r.names:
-                        names_to_resources[n] = r
+                    if "list" in r.verbs:
+                        for n in r.names:
+                            names_to_resources[n] = r
                 set_names_to_resources(names_to_resources)
-                set_selected_resource(lambda sr: names_to_resources["pods"] if sr is None else sr)
+                set_selected_resource(lambda sr: "pods" if sr is None else sr)
                 logger.debug("watch_resources", names_to_resources=names_to_resources)
 
                 await sleep(60)
@@ -100,7 +82,7 @@ def root() -> Div:
             while True:
                 async with await klient.request(
                     method="get",
-                    path=selected_resource.collection_url(selected_namespace),
+                    path=names_to_resources[selected_resource].collection_url(selected_namespace),
                 ) as response:
                     j = await response.json()
 
@@ -118,25 +100,39 @@ def root() -> Div:
         on_key=on_key,
         children=[
             Div(
-                style=row | weight_none,
+                style=row | weight_none | align_self_stretch,
                 children=[
-                    Text(
-                        style=weight_none
-                        | border_lightrounded
-                        | (border_amber_600 if focus == "resources" else None),
-                        content=f"Resource: {resource_filter}",
+                    filter_pad(
+                        title="Resource",
+                        filter_text=resource_filter,
+                        set_filter_text=set_resource_filter,
+                        options=set(names_to_resources.keys()),
+                        set_selected_option=set_selected_resource,
+                        focused=FOCUS[focus] == "resources",
+                        style=weight_1,
                     ),
-                    Text(
-                        style=weight_none
-                        | border_lightrounded
-                        | (border_amber_600 if focus == "namespaces" else None),
-                        content=f"Namespace: {namespace_filter}",
+                    filter_pad(
+                        title="Namespace",
+                        filter_text=namespace_filter,
+                        set_filter_text=set_namespace_filter,
+                        options=set(namespaces),
+                        set_selected_option=set_selected_namespace,
+                        focused=FOCUS[focus] == "namespaces",
+                        style=weight_1,
                     ),
                 ],
             ),
             Div(
                 style=col | border_lightrounded | pad_x_1 | align_self_stretch,
                 children=[
+                    Text(
+                        style=inset_top_center | absolute(y=-1),
+                        content=f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
+                        if selected_resource
+                        else "",
+                    )
+                ]
+                + [
                     Text(
                         style=weight_none,
                         content=instance["metadata"]["name"],
@@ -148,6 +144,82 @@ def root() -> Div:
     )
 
 
+@component
+def filter_pad(
+    title: str,
+    filter_text: str,
+    set_filter_text: Setter[str],
+    options: set[str],
+    set_selected_option: Setter[object],
+    focused: bool,
+    style: Style,
+) -> Div:
+    b = border_lightrounded | (border_amber_600 if focused else None)
+
+    def on_key(event: KeyPressed) -> None:
+        if not focused:
+            return
+
+        match event.key:
+            case Key.Backspace:
+                new_filter_text = filter_text[:-1]
+                set_filter_text(new_filter_text)
+
+                if new_filter_text in options:
+                    set_selected_option(new_filter_text)
+
+            case c if c.isprintable() and len(c) == 1:
+                new_filter_text = filter_text + c
+                set_filter_text(new_filter_text)
+
+                if new_filter_text in options:
+                    set_selected_option(new_filter_text)
+
+    is_valid = filter_text in options
+
+    children = [
+        Text(
+            style=weight_none | pad_x_1 | (text_gray_500 if not is_valid else None),
+            content=filter_text,
+        )
+    ]
+    typeahead = {o for o in options if o.startswith(filter_text)}
+    if focused and not is_valid and typeahead:
+        children.append(
+            Text(
+                style=pad_x_1 | b | absolute(x=-1, y=1),
+                content="\n".join(sorted(typeahead, key=lambda o: (len(o), o))[:10]),
+            )
+        )
+
+    return Div(
+        on_key=on_key,
+        style=row | b | style,
+        children=[
+            Text(
+                style=weight_none | b | border_right | pad_x_1,
+                content=title,
+            ),
+            Div(
+                style=row,
+                children=children,
+            ),
+        ],
+    )
+
+
+Verb = Literal[
+    "create",
+    "delete",
+    "deletecollection",
+    "get",
+    "list",
+    "patch",
+    "update",
+    "watch",
+]
+
+
 class Resource(BaseModel):
     core: bool
     groupVersion: str
@@ -156,7 +228,7 @@ class Resource(BaseModel):
     singularName: str
     namespaced: bool
     shortNames: tuple[str, ...] = ()
-    verbs: tuple[str, ...]
+    verbs: tuple[Verb, ...]
 
     model_config: ClassVar[ConfigDict] = {
         "frozen": True,
@@ -164,9 +236,7 @@ class Resource(BaseModel):
     }
 
     def collection_url(self, namespace: str) -> str:
-        parts = ["api" if self.core else "apis"]
-
-        parts.append(self.groupVersion)
+        parts = ["api" if self.core else "apis", self.groupVersion]
 
         if self.namespaced:
             parts.append("namespaces")
@@ -181,7 +251,11 @@ class Resource(BaseModel):
 
     @property
     def names(self) -> set[str]:
-        return {self.name, self.singularName, *self.shortNames} - {""}
+        return {
+            f"{self.groupVersion}/{self.name}" if not self.core else self.name,
+            self.singularName,
+            *self.shortNames,
+        } - {""}
 
 
 async def discover_resources(klient: Klient) -> tuple[Resource, ...]:
