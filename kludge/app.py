@@ -20,11 +20,13 @@ FOCUS = {
     1: "namespaces",
 }
 
+DEFAULT_SELECTED_RESOURCE = "pod"
+
 
 @component
 def root() -> Div:
     names_to_resources, set_names_to_resources = use_state({})
-    resource_filter, set_resource_filter = use_state("pods")
+    resource_filter, set_resource_filter = use_state(DEFAULT_SELECTED_RESOURCE)
     selected_resource, set_selected_resource = use_state(None)
     namespace_filter, set_namespace_filter = use_state("default")
     selected_namespace, set_selected_namespace = use_state("default")
@@ -49,7 +51,11 @@ def root() -> Div:
                         for n in r.names:
                             names_to_resources[n] = r
                 set_names_to_resources(names_to_resources)
-                set_selected_resource(lambda sr: "pods" if sr is None else sr)
+                set_selected_resource(
+                    lambda sr: DEFAULT_SELECTED_RESOURCE
+                    if sr is None and DEFAULT_SELECTED_RESOURCE in names_to_resources
+                    else sr
+                )
                 logger.debug("watch_resources", names_to_resources=names_to_resources)
 
                 await sleep(60)
@@ -126,9 +132,11 @@ def root() -> Div:
                 style=col | border_lightrounded | pad_x_1 | align_self_stretch,
                 children=[
                     Text(
-                        style=inset_top_center | absolute(y=-1),
+                        style=inset_top_center
+                        | absolute(y=-1)
+                        | z(1),  # TODO: z(1) should not be needed here
                         content=f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
-                        if selected_resource
+                        if selected_resource is not None
                         else "",
                     )
                 ]
@@ -154,7 +162,14 @@ def filter_pad(
     focused: bool,
     style: Style,
 ) -> Div:
-    b = border_lightrounded | (border_amber_600 if focused else None)
+    typeahead_idx, set_typeahead_idx = use_state(0)
+
+    b = border_lightrounded
+
+    typeahead = sorted(
+        (o for o in options if o.startswith(filter_text)),
+        key=lambda o: (len(o), o),
+    )[:15]
 
     def on_key(event: KeyPressed) -> None:
         if not focused:
@@ -167,6 +182,7 @@ def filter_pad(
 
                 if new_filter_text in options:
                     set_selected_option(new_filter_text)
+                    set_typeahead_idx(0)
 
             case c if c.isprintable() and len(c) == 1:
                 new_filter_text = filter_text + c
@@ -174,6 +190,18 @@ def filter_pad(
 
                 if new_filter_text in options:
                     set_selected_option(new_filter_text)
+                    set_typeahead_idx(0)
+
+            case Key.Down if not is_valid:
+                set_typeahead_idx(lambda i: clamp(0, i + 1, len(typeahead) - 1))
+
+            case Key.Up if not is_valid:
+                set_typeahead_idx(lambda i: clamp(0, i - 1, len(typeahead) - 1))
+
+            case Key.Enter if typeahead_idx is not None:
+                set_filter_text(typeahead[typeahead_idx])
+                set_selected_option(typeahead[typeahead_idx])
+                set_typeahead_idx(0)
 
     is_valid = filter_text in options
 
@@ -183,12 +211,19 @@ def filter_pad(
             content=filter_text,
         )
     ]
-    typeahead = {o for o in options if o.startswith(filter_text)}
     if focused and not is_valid and typeahead:
         children.append(
-            Text(
-                style=pad_x_1 | b | absolute(x=-1, y=1),
-                content="\n".join(sorted(typeahead, key=lambda o: (len(o), o))[:10]),
+            Div(
+                style=col | pad_x_1 | b | absolute(x=-1, y=1) | z(10),
+                children=[
+                    Text(
+                        style=weight_none
+                        | (text_cyan_400 if idx == typeahead_idx else None)
+                        | z(10),
+                        content=t,
+                    )
+                    for idx, t in enumerate(typeahead)
+                ],
             )
         )
 
@@ -197,7 +232,11 @@ def filter_pad(
         style=row | b | style,
         children=[
             Text(
-                style=weight_none | b | border_right | pad_x_1,
+                style=weight_none
+                | b
+                | border_right
+                | pad_x_1
+                | (text_cyan_400 if focused else None),
                 content=title,
             ),
             Div(
@@ -303,3 +342,7 @@ async def discover_resources(klient: Klient) -> tuple[Resource, ...]:
                 )
 
     return tuple(resources)
+
+
+def clamp(min_: int, val: int, max_: int) -> int:
+    return max(min_, min(val, max_))
