@@ -148,7 +148,7 @@ def root() -> Div:
 
 
 class Resource(BaseModel):
-    group: str | None
+    core: bool
     groupVersion: str
     name: str
     kind: str
@@ -163,12 +163,7 @@ class Resource(BaseModel):
     }
 
     def collection_url(self, namespace: str) -> str:
-        parts = []
-
-        if self.group is None:
-            parts.append("api")
-        else:
-            raise NotImplementedError
+        parts = ["api" if self.core else "apis"]
 
         parts.append(self.groupVersion)
 
@@ -194,6 +189,7 @@ async def discover_resources(klient: Klient) -> tuple[Resource, ...]:
     # Core API
     async with await klient.request(method="get", path="/api") as response:
         j = await response.json()
+        logger.debug("foo", j=j)
 
     for version in j["versions"]:
         async with await klient.request(method="get", path=f"/api/{version}") as response:
@@ -204,7 +200,31 @@ async def discover_resources(klient: Klient) -> tuple[Resource, ...]:
                 continue  # TODO: handle subresources
 
             resources.append(
-                Resource.model_validate(resource | {"group": None, "groupVersion": version})
+                Resource.model_validate(resource | {"core": True, "groupVersion": version})
             )
+
+    # Everything else
+    async with await klient.request(method="get", path="/apis") as response:
+        j = await response.json()
+
+    for group in j["groups"]:
+        v = group["preferredVersion"]
+
+        logger.debug("group", v=v)
+
+        async with await klient.request(
+            method="get", path=f"/apis/{v['groupVersion']}"
+        ) as response:
+            j = await response.json()
+            logger.debug("group", j=j)
+            for resource in j["resources"]:
+                if "/" in resource["name"]:
+                    continue  # TODO: handle subresources
+
+                resources.append(
+                    Resource.model_validate(
+                        resource | {"core": False, "groupVersion": v["groupVersion"]}
+                    )
+                )
 
     return tuple(resources)
