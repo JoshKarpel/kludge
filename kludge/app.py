@@ -2,11 +2,12 @@ from asyncio import sleep
 from typing import ClassVar, Literal
 
 from counterweight.components import component
-from counterweight.elements import Div, Text
+from counterweight.elements import Chunk, Div, Text
 from counterweight.events import KeyPressed
 from counterweight.hooks import Setter, use_effect, use_state
 from counterweight.keys import Key
 from counterweight.styles.utilities import *
+from more_itertools import intersperse
 from pydantic import BaseModel, ConfigDict
 from structlog import get_logger
 
@@ -170,6 +171,7 @@ def filter_pad(
         (o for o in options if o.startswith(filter_text)),
         key=lambda o: (len(o), o),
     )[:15]
+    typeahead_idx = clamp(0, typeahead_idx, len(typeahead) - 1)
 
     def on_key(event: KeyPressed) -> None:
         if not focused:
@@ -193,10 +195,10 @@ def filter_pad(
                     set_typeahead_idx(0)
 
             case Key.Down if not is_valid:
-                set_typeahead_idx(lambda i: clamp(0, i + 1, len(typeahead) - 1))
+                set_typeahead_idx(clamp(0, typeahead_idx + 1, len(typeahead) - 1))
 
             case Key.Up if not is_valid:
-                set_typeahead_idx(lambda i: clamp(0, i - 1, len(typeahead) - 1))
+                set_typeahead_idx(clamp(0, typeahead_idx - 1, len(typeahead) - 1))
 
             case Key.Enter if typeahead_idx is not None:
                 set_filter_text(typeahead[typeahead_idx])
@@ -213,17 +215,24 @@ def filter_pad(
     ]
     if focused and not is_valid and typeahead:
         children.append(
-            Div(
-                style=col | pad_x_1 | b | absolute(x=-1, y=1) | z(10),
-                children=[
-                    Text(
-                        style=weight_none
-                        | (text_cyan_400 if idx == typeahead_idx else None)
-                        | z(10),
-                        content=t,
-                    )
-                    for idx, t in enumerate(typeahead)
-                ],
+            Text(
+                style=pad_x_1 | b | absolute(x=-1, y=1) | z(10),
+                content=list(
+                    intersperse(
+                        Chunk.newline(),
+                        (
+                            Chunk(
+                                style=CellStyle(
+                                    foreground=cyan_400
+                                    if idx == typeahead_idx
+                                    else Color.from_name("white")
+                                ),
+                                content=t,
+                            )
+                            for idx, t in enumerate(typeahead)
+                        ),
+                    ),
+                ),
             )
         )
 
