@@ -81,6 +81,7 @@ class Klient:
         return urljoin(self.konfig.clusters[0].cluster.server, path)
 
     async def request(self, method: Literal["get"], path: str) -> _RequestContextManager:
+        logger.debug("k8s API request", method=method, path=path)
         return (await self.session()).request(
             method=method,
             url=self.url(path),
