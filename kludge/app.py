@@ -38,7 +38,7 @@ def root() -> Div:
     selected_namespace, set_selected_namespace = use_state("default")
     namespaces, set_namespaces = use_state(())
     resources, set_resources = use_state({"columnDefinitions": [], "items": []})
-    timestamp, set_timestamp = use_state(now)
+    last_fetch, set_last_fetch = use_state(None)
     focus, set_focus = use_state(0)
     wide, set_wide = use_state(False)
     use_utc, set_use_utc = use_state(True)
@@ -101,7 +101,7 @@ def root() -> Div:
                     j = await response.json()
 
                 set_resources(j)
-                set_timestamp(now())
+                set_last_fetch(now())
 
                 await sleep(1)
 
@@ -153,7 +153,9 @@ def root() -> Div:
                     ),
                     Text(
                         style=inset_bottom_center | absolute(y=1) | z(1),
-                        content=f" {timestamp if use_utc else timestamp.astimezone():%Y-%m-%d %H:%M:%S %z} ",
+                        content=f" {last_fetch if use_utc else last_fetch.astimezone():%Y-%m-%d %H:%M:%S %z} "
+                        if last_fetch is not None
+                        else " Waiting for first fetch ... ",
                     ),
                     *(
                         Text(
