@@ -12,4 +12,4 @@ watch:
   watchfiles 'kludge' kludge/
 
 helm:
-  helm upgrade --install test-chart ./test-chart
+  helm upgrade --install --force test-chart ./test-chart

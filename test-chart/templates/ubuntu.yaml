@@ -1,13 +1,15 @@
+{{ if ne .Values.ubuntu.namespace "default" }}
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ubuntu
+  name: {{ .Values.ubuntu.namespace }}
+{{ end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ubuntu
-  namespace: ubuntu
+  namespace: {{ .Values.ubuntu.namespace }}
   labels:
     app: ubuntu
 spec:

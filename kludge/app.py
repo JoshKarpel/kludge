@@ -1,4 +1,5 @@
 from asyncio import sleep
+from datetime import datetime, timezone
 from typing import ClassVar, Literal
 
 from counterweight.components import component
@@ -24,6 +25,10 @@ FOCUS = {
 DEFAULT_SELECTED_RESOURCE = "pod"
 
 
+def now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
 @component
 def root() -> Div:
     names_to_resources, set_names_to_resources = use_state({})
@@ -32,8 +37,11 @@ def root() -> Div:
     namespace_filter, set_namespace_filter = use_state("default")
     selected_namespace, set_selected_namespace = use_state("default")
     namespaces, set_namespaces = use_state(())
-    instances, set_instances = use_state(())
+    resources, set_resources = use_state({"columnDefinitions": [], "items": []})
+    timestamp, set_timestamp = use_state(now)
     focus, set_focus = use_state(0)
+    wide, set_wide = use_state(False)
+    use_utc, set_use_utc = use_state(True)
 
     def on_key(event: KeyPressed) -> None:
         match event.key:
@@ -41,6 +49,10 @@ def root() -> Div:
                 set_focus(lambda f: (f + 1) % len(FOCUS))
             case Key.BackTab:
                 set_focus(lambda f: (f - 1) % len(FOCUS))
+            case Key.ControlO:
+                set_wide(lambda w: not w)
+            case Key.ControlU:
+                set_use_utc(lambda u: not u)
 
     async def watch_resources() -> None:
         async with Klient(Konfig.build()) as klient:
@@ -57,7 +69,6 @@ def root() -> Div:
                     if sr is None and DEFAULT_SELECTED_RESOURCE in names_to_resources
                     else sr
                 )
-                logger.debug("watch_resources", names_to_resources=names_to_resources)
 
                 await sleep(60)
 
@@ -71,17 +82,10 @@ def root() -> Div:
 
                 ns = tuple(ns["metadata"]["name"] for ns in j["items"])
                 set_namespaces(ns)
-                logger.debug("watch_namespaces", namespaces=ns)
 
                 await sleep(60)
 
     async def watch_resource() -> None:
-        logger.debug(
-            "watch_resource",
-            selected_resource=selected_resource,
-            selected_namespace=selected_namespace,
-        )
-
         if selected_resource is None:
             return
 
@@ -90,13 +94,16 @@ def root() -> Div:
                 async with await klient.request(
                     method="get",
                     path=names_to_resources[selected_resource].collection_url(selected_namespace),
+                    headers={
+                        "Accept": "application/json;as=Table;g=meta.k8s.io;v=v1",  # https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables
+                    },
                 ) as response:
                     j = await response.json()
 
-                logger.debug("watch_resource", j=j)
-                set_instances(j["items"])
+                set_resources(j)
+                set_timestamp(now())
 
-                await sleep(5)
+                await sleep(1)
 
     use_effect(watch_resources, ())
     use_effect(watch_namespaces, ())
@@ -130,23 +137,46 @@ def root() -> Div:
                 ],
             ),
             Div(
-                style=col | border_lightrounded | pad_x_1 | align_self_stretch,
+                style=row | border_lightrounded | pad_x_1 | gap_children_2 | align_self_stretch,
                 children=[
                     Text(
                         style=inset_top_center
                         | absolute(y=-1)
                         | z(1),  # TODO: z(1) should not be needed here
-                        content=f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
+                        content=(
+                            f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
+                            if names_to_resources[selected_resource].namespaced
+                            else f" {names_to_resources[selected_resource].kind} "
+                        )
                         if selected_resource is not None
                         else "",
-                    )
-                ]
-                + [
+                    ),
                     Text(
-                        style=weight_none,
-                        content=instance["metadata"]["name"],
-                    )
-                    for instance in instances
+                        style=inset_bottom_center | absolute(y=1) | z(1),
+                        content=f" {timestamp if use_utc else timestamp.astimezone():%Y-%m-%d %H:%M:%S %z} ",
+                    ),
+                    *(
+                        Text(
+                            style=weight_none,
+                            content=list(
+                                intersperse(
+                                    Chunk.newline(),
+                                    (
+                                        Chunk(
+                                            content=col_def["name"].upper(),
+                                            style=CellStyle(bold=True),
+                                        ),
+                                        *(
+                                            Chunk(content=str(r["cells"][col_idx]))
+                                            for r in resources["rows"]
+                                        ),
+                                    ),
+                                )
+                            ),
+                        )
+                        for col_idx, col_def in enumerate(resources["columnDefinitions"])
+                        if wide or col_def["priority"] == 0
+                    ),
                 ],
             ),
         ],
@@ -312,7 +342,6 @@ async def discover_resources(klient: Klient) -> tuple[Resource, ...]:
     # Core API
     async with await klient.request(method="get", path="/api") as response:
         j = await response.json()
-        logger.debug("foo", j=j)
 
     for version in j["versions"]:
         async with await klient.request(method="get", path=f"/api/{version}") as response:
@@ -333,13 +362,10 @@ async def discover_resources(klient: Klient) -> tuple[Resource, ...]:
     for group in j["groups"]:
         v = group["preferredVersion"]
 
-        logger.debug("group", v=v)
-
         async with await klient.request(
             method="get", path=f"/apis/{v['groupVersion']}"
         ) as response:
             j = await response.json()
-            logger.debug("group", j=j)
             for resource in j["resources"]:
                 if "/" in resource["name"]:
                     continue  # TODO: handle subresources
