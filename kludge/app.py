@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from asyncio import sleep
 from datetime import datetime, timezone
 from typing import ClassVar, Literal
@@ -49,7 +51,7 @@ def root() -> Div:
                 set_focus(lambda f: (f + 1) % len(FOCUS))
             case Key.BackTab:
                 set_focus(lambda f: (f - 1) % len(FOCUS))
-            case Key.ControlO:
+            case Key.ControlW:
                 set_wide(lambda w: not w)
             case Key.ControlU:
                 set_use_utc(lambda u: not u)
@@ -136,50 +138,14 @@ def root() -> Div:
                     ),
                 ],
             ),
-            Div(
-                style=row | border_lightrounded | pad_x_1 | gap_children_2 | align_self_stretch,
-                children=[
-                    Text(
-                        style=inset_top_center
-                        | absolute(y=-1)
-                        | z(1),  # TODO: z(1) should not be needed here
-                        content=(
-                            f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
-                            if names_to_resources[selected_resource].namespaced
-                            else f" {names_to_resources[selected_resource].kind} "
-                        )
-                        if selected_resource is not None
-                        else "",
-                    ),
-                    Text(
-                        style=inset_bottom_center | absolute(y=1) | z(1),
-                        content=f" {last_fetch if use_utc else last_fetch.astimezone():%Y-%m-%d %H:%M:%S %z} "
-                        if last_fetch is not None
-                        else " Waiting for first fetch ... ",
-                    ),
-                    *(
-                        Text(
-                            style=weight_none,
-                            content=list(
-                                intersperse(
-                                    Chunk.newline(),
-                                    (
-                                        Chunk(
-                                            content=col_def["name"].upper(),
-                                            style=CellStyle(bold=True),
-                                        ),
-                                        *(
-                                            Chunk(content=str(r["cells"][col_idx]))
-                                            for r in resources["rows"]
-                                        ),
-                                    ),
-                                )
-                            ),
-                        )
-                        for col_idx, col_def in enumerate(resources["columnDefinitions"])
-                        if wide or col_def["priority"] == 0
-                    ),
-                ],
+            resource_table(
+                names_to_resources=names_to_resources,
+                selected_resource=selected_resource,
+                selected_namespace=selected_namespace,
+                resources=resources,
+                last_fetch=last_fetch,
+                use_utc=use_utc,
+                wide=wide,
             ),
         ],
     )
@@ -283,6 +249,63 @@ def filter_pad(
             Div(
                 style=row,
                 children=children,
+            ),
+        ],
+    )
+
+
+@component
+def resource_table(
+    names_to_resources: dict[str, Resource],
+    selected_resource: str | None,
+    selected_namespace: str,
+    resources: dict[str, object],
+    last_fetch: datetime | None,
+    use_utc: bool,
+    wide: bool,
+) -> Div:
+    return Div(
+        style=row | border_lightrounded | pad_x_1 | gap_children_2 | align_self_stretch,
+        children=[
+            Text(
+                style=inset_top_center
+                | absolute(y=-1)
+                | z(1),  # TODO: z(1) should not be needed here
+                content=(
+                    f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
+                    if names_to_resources[selected_resource].namespaced
+                    else f" {names_to_resources[selected_resource].kind} "
+                )
+                if selected_resource is not None
+                else "",
+            ),
+            Text(
+                style=inset_bottom_center | absolute(y=1) | z(1),
+                content=f" {last_fetch if use_utc else last_fetch.astimezone():%Y-%m-%d %H:%M:%S %z} "
+                if last_fetch is not None
+                else " Waiting for first fetch ... ",
+            ),
+            *(
+                Text(
+                    style=weight_none,
+                    content=list(
+                        intersperse(
+                            Chunk.newline(),
+                            (
+                                Chunk(
+                                    content=col_def["name"].upper(),
+                                    style=CellStyle(bold=True),
+                                ),
+                                *(
+                                    Chunk(content=str(r["cells"][col_idx]))
+                                    for r in resources["rows"]
+                                ),
+                            ),
+                        )
+                    ),
+                )
+                for col_idx, col_def in enumerate(resources["columnDefinitions"])
+                if wide or col_def["priority"] == 0
             ),
         ],
     )
