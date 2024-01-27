@@ -184,6 +184,10 @@ def filter_pad(
                     set_selected_option(new_filter_text)
                     set_typeahead_idx(0)
 
+            case Key.Delete:
+                set_filter_text("")
+                set_typeahead_idx(0)
+
             case c if c.isprintable() and len(c) == 1:
                 new_filter_text = filter_text + c
                 set_filter_text(new_filter_text)
@@ -268,9 +272,7 @@ def resource_table(
         style=row | border_lightrounded | pad_x_1 | gap_children_2 | align_self_stretch,
         children=[
             Text(
-                style=inset_top_center
-                | absolute(y=-1)
-                | z(1),  # TODO: z(1) should not be needed here
+                style=inset_top_center | absolute(y=-1),
                 content=(
                     f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
                     if names_to_resources[selected_resource].namespaced
@@ -280,7 +282,7 @@ def resource_table(
                 else "",
             ),
             Text(
-                style=inset_bottom_center | absolute(y=1) | z(1),
+                style=inset_bottom_center | absolute(y=1),
                 content=f" {last_fetch if use_utc else last_fetch.astimezone():%Y-%m-%d %H:%M:%S %z} "
                 if last_fetch is not None
                 else " Waiting for first fetch ... ",
