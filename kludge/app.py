@@ -22,6 +22,7 @@ logger = get_logger()
 FOCUS = {
     0: "resources",
     1: "namespaces",
+    2: "table",
 }
 
 DEFAULT_SELECTED_RESOURCE = "pod"
@@ -39,7 +40,7 @@ def root() -> Div:
     namespace_filter, set_namespace_filter = use_state("default")
     selected_namespace, set_selected_namespace = use_state("default")
     namespaces, set_namespaces = use_state(())
-    resources, set_resources = use_state({"columnDefinitions": [], "items": []})
+    resources, set_resources = use_state({"columnDefinitions": [], "rows": []})
     last_fetch, set_last_fetch = use_state(None)
     focus, set_focus = use_state(0)
     wide, set_wide = use_state(False)
@@ -125,6 +126,7 @@ def root() -> Div:
                         options=set(names_to_resources.keys()),
                         set_selected_option=set_selected_resource,
                         focused=FOCUS[focus] == "resources",
+                        set_focus=set_focus,
                         style=weight_1,
                     ),
                     filter_pad(
@@ -134,6 +136,7 @@ def root() -> Div:
                         options=set(namespaces),
                         set_selected_option=set_selected_namespace,
                         focused=FOCUS[focus] == "namespaces",
+                        set_focus=set_focus,
                         style=weight_1,
                     ),
                 ],
@@ -146,6 +149,7 @@ def root() -> Div:
                 last_fetch=last_fetch,
                 use_utc=use_utc,
                 wide=wide,
+                focused=FOCUS[focus] == "table",
             ),
         ],
     )
@@ -159,6 +163,7 @@ def filter_pad(
     options: set[str],
     set_selected_option: Setter[object],
     focused: bool,
+    set_focus: Setter[bool],
     style: Style,
 ) -> Div:
     typeahead_idx, set_typeahead_idx = use_state(0)
@@ -196,16 +201,23 @@ def filter_pad(
                     set_selected_option(new_filter_text)
                     set_typeahead_idx(0)
 
-            case Key.Down if not is_valid:
-                set_typeahead_idx(clamp(0, typeahead_idx + 1, len(typeahead) - 1))
+            case Key.Down:
+                if not is_valid:
+                    set_typeahead_idx(clamp(0, typeahead_idx + 1, len(typeahead) - 1))
+                else:
+                    set_focus(2)
 
-            case Key.Up if not is_valid:
-                set_typeahead_idx(clamp(0, typeahead_idx - 1, len(typeahead) - 1))
+            case Key.Up:
+                if not is_valid:
+                    set_typeahead_idx(clamp(0, typeahead_idx - 1, len(typeahead) - 1))
+                else:
+                    set_focus(2)
 
             case Key.Enter if typeahead_idx is not None:
                 set_filter_text(typeahead[typeahead_idx])
                 set_selected_option(typeahead[typeahead_idx])
                 set_typeahead_idx(0)
+                set_focus(2)
 
     is_valid = filter_text in options
 
@@ -267,8 +279,31 @@ def resource_table(
     last_fetch: datetime | None,
     use_utc: bool,
     wide: bool,
+    focused: bool,
 ) -> Div:
+    selected_resource_idx, set_selected_resource_idx = use_state(0)
+    selected_resource_idx = clamp(0, selected_resource_idx, len(resources["rows"]) - 1)
+
+    def on_key(event: KeyPressed) -> None:
+        if not focused:
+            return
+
+        match event.key:
+            case Key.Down:
+                set_selected_resource_idx(
+                    clamp(0, selected_resource_idx + 1, len(resources["rows"]) - 1)
+                )
+
+            case Key.Up:
+                set_selected_resource_idx(
+                    clamp(0, selected_resource_idx - 1, len(resources["rows"]) - 1)
+                )
+
+    # TODO: must switch to row-wise rendering instead of column-wise so that highlight goes all the way across,
+    # even with padding...
+
     return Div(
+        on_key=on_key,
         style=row | border_lightrounded | pad_x_1 | gap_children_2 | align_self_stretch,
         children=[
             Text(
@@ -299,8 +334,15 @@ def resource_table(
                                     style=CellStyle(bold=True),
                                 ),
                                 *(
-                                    Chunk(content=str(r["cells"][col_idx]))
-                                    for r in resources["rows"]
+                                    Chunk(
+                                        content=str(r["cells"][col_idx]),
+                                        style=CellStyle(
+                                            foreground=cyan_500 if focused else cyan_700
+                                        )
+                                        if row_idx == selected_resource_idx
+                                        else CellStyle(),
+                                    )
+                                    for row_idx, r in enumerate(resources["rows"])
                                 ),
                             ),
                         )
