@@ -1,13 +1,15 @@
+{{ if ne .Values.python.namespace "default" }}
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: python
+  name: {{ .Values.python.namespace }}
+{{ end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: python
-  namespace: python
+  namespace: {{ .Values.python.namespace }}
   labels:
     app: python
 spec:

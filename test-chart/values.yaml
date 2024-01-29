@@ -1,5 +1,5 @@
 pingPong:
-  namespace: "ping-pong"
+  namespace: default
   image: "docker.io/library/busybox:stable"
   replicas: 2
   pongPort: 80
@@ -8,14 +8,16 @@ pingPong:
   interval: 15
 
 ubuntu:
+  namespace: default
   image: "ubuntu:22.04"
 
 python:
+  namespace: "default"
   image: "python:3.11"
   packages:
     - ipython
     - kubernetes
 
 kuard:
-  namespace: kuard
+  namespace: default
   image: "gcr.io/kuar-demo/kuard-amd64:blue"
