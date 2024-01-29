@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -340,7 +342,7 @@ def resource_table(
                         f.flush()
 
                         subprocess.run(
-                            ["less", f.name],
+                            (*shlex.split(os.getenv("PAGER", "less")), f.name),
                             stdin=sys.stdin,
                             stdout=sys.stdout,
                             stderr=sys.stderr,
