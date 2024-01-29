@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from asyncio import sleep
 from datetime import datetime
+from typing import Any
 
 from counterweight.components import component
 from counterweight.elements import Chunk, Div, Text
@@ -30,14 +31,14 @@ DEFAULT_SELECTED_RESOURCE = "pod"
 
 @component
 def root() -> Div:
-    names_to_resources, set_names_to_resources = use_state({})
+    names_to_resources, set_names_to_resources = use_state({})  # type: ignore[var-annotated]
     resource_filter, set_resource_filter = use_state(DEFAULT_SELECTED_RESOURCE)
-    selected_resource, set_selected_resource = use_state(None)
+    selected_resource, set_selected_resource = use_state("")
     namespace_filter, set_namespace_filter = use_state("default")
     selected_namespace, set_selected_namespace = use_state("default")
     namespaces, set_namespaces = use_state(())
-    resources, set_resources = use_state({"columnDefinitions": [], "rows": []})
-    last_fetch, set_last_fetch = use_state(None)
+    resources, set_resources = use_state({"columnDefinitions": [], "rows": []})  # type: ignore[var-annotated]
+    last_fetch, set_last_fetch = use_state(now)
     focus, set_focus = use_state(0)
     wide, set_wide = use_state(False)
     use_utc, set_use_utc = use_state(True)
@@ -64,9 +65,11 @@ def root() -> Div:
                             names_to_resources[n] = r
                 set_names_to_resources(names_to_resources)
                 set_selected_resource(
-                    lambda sr: DEFAULT_SELECTED_RESOURCE
-                    if sr is None and DEFAULT_SELECTED_RESOURCE in names_to_resources
-                    else sr
+                    lambda sr: (
+                        DEFAULT_SELECTED_RESOURCE
+                        if not sr and DEFAULT_SELECTED_RESOURCE in names_to_resources
+                        else sr
+                    )
                 )
 
                 await sleep(60)
@@ -85,7 +88,7 @@ def root() -> Div:
                 await sleep(60)
 
     async def watch_resource() -> None:
-        if selected_resource is None:
+        if not selected_resource:  # checks for the empty string that this starts with
             return
 
         async with Klient(Konfig.build()) as klient:
@@ -157,9 +160,9 @@ def filter_pad(
     filter_text: str,
     set_filter_text: Setter[str],
     options: set[str],
-    set_selected_option: Setter[object],
+    set_selected_option: Setter[str],
     focused: bool,
-    set_focus: Setter[bool],
+    set_focus: Setter[int],
     style: Style,
 ) -> Div:
     typeahead_idx, set_typeahead_idx = use_state(0)
@@ -271,7 +274,7 @@ def resource_table(
     names_to_resources: dict[str, Resource],
     selected_resource: str | None,
     selected_namespace: str,
-    resources: dict[str, object],
+    resources: dict[str, Any],
     last_fetch: datetime | None,
     use_utc: bool,
     wide: bool,

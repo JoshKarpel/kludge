@@ -30,7 +30,7 @@ class Resource(BaseModel):
 
     model_config: ClassVar[ConfigDict] = {
         "frozen": True,
-        "extras": "ignore",
+        "extra": "ignore",
     }
 
     def collection_url(self, namespace: str) -> str:
