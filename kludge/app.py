@@ -290,7 +290,7 @@ def resource_table(
     selected_resource_idx, set_selected_resource_idx = use_state(0)
     selected_resource_idx = clamp(0, selected_resource_idx, len(resources["rows"]) - 1)
 
-    def on_key(event: KeyPressed) -> None:
+    def on_key(event: KeyPressed) -> Suspend | None:
         if not focused:
             return
 
@@ -322,9 +322,15 @@ def resource_table(
 
                     j["metadata"].pop("managedFields", None)
 
-                    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml") as f:
+                    with tempfile.NamedTemporaryFile(
+                        mode="w",
+                        prefix=f"{namespace}.{name}.",
+                        suffix=".yaml",
+                        encoding="utf-8",
+                    ) as f:
                         f.write(yaml.safe_dump(j, default_flow_style=False, sort_keys=False))
                         f.flush()
+
                         subprocess.run(
                             ["less", f.name],
                             stdin=sys.stdin,
