@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from asyncio import sleep
-from datetime import datetime, timezone
+from datetime import datetime
 
 from counterweight.components import component
 from counterweight.elements import Chunk, Div, Text
@@ -15,7 +15,7 @@ from structlog import get_logger
 from kludge.diskovery import Resource, discover_resources
 from kludge.klient import Klient
 from kludge.konfig import Konfig
-from kludge.utils import clamp
+from kludge.utils import clamp, now
 
 logger = get_logger()
 
@@ -26,10 +26,6 @@ FOCUS = {
 }
 
 DEFAULT_SELECTED_RESOURCE = "pod"
-
-
-def now() -> datetime:
-    return datetime.now(timezone.utc)
 
 
 @component
