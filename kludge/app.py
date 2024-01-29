@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import tempfile
@@ -305,7 +306,7 @@ def resource_table(
                     clamp(0, selected_resource_idx - 1, len(resources["rows"]) - 1)
                 )
 
-            case "y":
+            case "y" | Key.ControlY | "j" as k:
 
                 async def handler() -> None:
                     resource = names_to_resources[selected_resource]
@@ -320,15 +321,22 @@ def resource_table(
                         ) as r:
                             j = await r.json()
 
-                    j["metadata"].pop("managedFields", None)
+                    if k not in (Key.ControlY, "j"):
+                        j["metadata"].pop("managedFields", None)
+
+                    mode = "yaml" if k in ("y", Key.ControlY) else "json"
 
                     with tempfile.NamedTemporaryFile(
                         mode="w",
                         prefix=f"{namespace}.{name}.",
-                        suffix=".yaml",
+                        suffix=f".{mode}",
                         encoding="utf-8",
                     ) as f:
-                        f.write(yaml.safe_dump(j, default_flow_style=False, sort_keys=False))
+                        f.write(
+                            yaml.safe_dump(j, default_flow_style=False, sort_keys=False, indent=2)
+                            if mode == "yaml"
+                            else json.dumps(j, indent=2)
+                        )
                         f.flush()
 
                         subprocess.run(
