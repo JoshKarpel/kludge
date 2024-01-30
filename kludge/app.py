@@ -236,9 +236,11 @@ def filter_pad(
                         (
                             Chunk(
                                 style=CellStyle(
-                                    foreground=cyan_400
-                                    if idx == typeahead_idx
-                                    else Color.from_name("white")
+                                    foreground=(
+                                        cyan_400
+                                        if idx == typeahead_idx
+                                        else Color.from_name("white")
+                                    )
                                 ),
                                 content=t,
                             )
@@ -308,18 +310,22 @@ def resource_table(
             Text(
                 style=inset_top_center | absolute(y=-1),
                 content=(
-                    f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
-                    if names_to_resources[selected_resource].namespaced
-                    else f" {names_to_resources[selected_resource].kind} "
-                )
-                if selected_resource is not None
-                else "",
+                    (
+                        f" {names_to_resources[selected_resource].kind} in {selected_namespace} "
+                        if names_to_resources[selected_resource].namespaced
+                        else f" {names_to_resources[selected_resource].kind} "
+                    )
+                    if selected_resource is not None
+                    else ""
+                ),
             ),
             Text(
                 style=inset_bottom_center | absolute(y=1),
-                content=f" {last_fetch if use_utc else last_fetch.astimezone():%Y-%m-%d %H:%M:%S %z} "
-                if last_fetch is not None
-                else " Waiting for first fetch ... ",
+                content=(
+                    f" {last_fetch if use_utc else last_fetch.astimezone():%Y-%m-%d %H:%M:%S %z} "
+                    if last_fetch is not None
+                    else " Waiting for first fetch ... "
+                ),
             ),
             *(
                 Text(
@@ -335,11 +341,11 @@ def resource_table(
                                 *(
                                     Chunk(
                                         content=str(r["cells"][col_idx]),
-                                        style=CellStyle(
-                                            foreground=cyan_500 if focused else cyan_700
-                                        )
-                                        if row_idx == selected_resource_idx
-                                        else CellStyle(),
+                                        style=(
+                                            CellStyle(foreground=cyan_500 if focused else cyan_700)
+                                            if row_idx == selected_resource_idx
+                                            else CellStyle()
+                                        ),
                                     )
                                     for row_idx, r in enumerate(resources["rows"])
                                 ),

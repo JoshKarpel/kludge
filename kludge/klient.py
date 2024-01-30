@@ -48,9 +48,11 @@ class Klient:
 
         context = create_default_context(
             cafile=cluster.certificate_authority,
-            cadata=b64decode(cluster.certificate_authority_data).decode("utf-8")
-            if cluster.certificate_authority_data
-            else None,
+            cadata=(
+                b64decode(cluster.certificate_authority_data).decode("utf-8")
+                if cluster.certificate_authority_data
+                else None
+            ),
         )
 
         # Work around Python's ssl lib not support client certs as data instead of files
