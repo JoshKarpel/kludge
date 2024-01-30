@@ -282,7 +282,7 @@ def filter_pad(
 @component
 def resource_table(
     names_to_resources: dict[str, Resource],
-    selected_resource: str | None,
+    selected_resource: str,
     selected_namespace: str,
     resources: dict[str, Any],
     last_fetch: datetime | None,
@@ -295,7 +295,7 @@ def resource_table(
 
     def on_key(event: KeyPressed) -> Suspend | None:
         if not focused:
-            return
+            return None
 
         match event.key:
             case Key.Down:
@@ -350,6 +350,8 @@ def resource_table(
                         )
 
                 return Suspend(handler=handler)
+
+        return None
 
     return Div(
         on_key=on_key,
