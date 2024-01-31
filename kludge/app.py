@@ -315,7 +315,7 @@ def resource_table(
                         if names_to_resources[selected_resource].namespaced
                         else f" {names_to_resources[selected_resource].kind} "
                     )
-                    if selected_resource is not None
+                    if selected_resource
                     else ""
                 ),
             ),
