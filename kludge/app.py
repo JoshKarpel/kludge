@@ -53,6 +53,10 @@ def root() -> Div:
 
     def on_key(event: KeyPressed) -> None:
         match event.key:
+            case ":":
+                set_focus(0)
+            case "/":
+                set_focus(1)
             case Key.Tab:
                 set_focus(lambda f: (f + 1) % len(FOCUS))
             case Key.BackTab:
@@ -200,7 +204,7 @@ def filter_pad(
                 set_filter_text("")
                 set_typeahead_idx(0)
 
-            case c if c.isprintable() and len(c) == 1:
+            case c if c.isprintable() and len(c) == 1 and c != ":" and c != "/":  # TODO: bleh
                 new_filter_text = filter_text + c
                 set_filter_text(new_filter_text)
 
@@ -220,7 +224,7 @@ def filter_pad(
                 else:
                     set_focus(2)
 
-            case Key.Enter if typeahead_idx is not None:
+            case Key.Enter if typeahead_idx is not None and typeahead:
                 set_filter_text(typeahead[typeahead_idx])
                 set_selected_option(typeahead[typeahead_idx])
                 set_typeahead_idx(0)
@@ -348,6 +352,59 @@ def resource_table(
                             stderr=sys.stderr,
                             check=False,
                         )
+
+                return Suspend(handler=handler)
+
+            case "e":
+
+                async def handler() -> None:
+                    resource = names_to_resources[selected_resource]
+                    metadata = resources["rows"][selected_resource_idx]["object"]["metadata"]
+                    name = metadata["name"]
+                    namespace = metadata["namespace"]
+
+                    async with Klient(Konfig.build()) as klient:
+                        async with await klient.request(
+                            method="get",
+                            path=resource.instance_url(namespace, name),
+                        ) as r:
+                            j = await r.json()
+
+                        j["metadata"].pop("managedFields", None)
+
+                        with tempfile.NamedTemporaryFile(
+                            mode="w+",
+                            prefix=f"{namespace}.{name}.",
+                            suffix=".yaml",
+                            encoding="utf-8",
+                        ) as f:
+                            f.write(
+                                yaml.safe_dump(
+                                    j, default_flow_style=False, sort_keys=False, indent=2
+                                )
+                            )
+                            f.flush()
+
+                            subprocess.run(
+                                (*shlex.split(os.getenv("EDITOR", "vim")), f.name),
+                                stdin=sys.stdin,
+                                stdout=sys.stdout,
+                                stderr=sys.stderr,
+                                check=False,
+                            )
+
+                            f.seek(0)
+                            y = yaml.safe_load(f.read())
+
+                        if y == j:
+                            return
+
+                        async with await klient.request(
+                            method="put",
+                            path=resource.instance_url(namespace, name),
+                            json=y,
+                        ) as r:
+                            logger.debug("put", s=r.status, t=await r.text())
 
                 return Suspend(handler=handler)
 
