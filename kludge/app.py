@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import json
+import os
+import shlex
+import subprocess
+import sys
+import tempfile
 from asyncio import sleep
 from datetime import datetime
 from typing import Any
 
+import yaml
 from counterweight.components import component
+from counterweight.controls import Suspend
 from counterweight.elements import Chunk, Div, Text
 from counterweight.events import KeyPressed
 from counterweight.hooks import Setter, use_effect, use_state
@@ -274,7 +282,7 @@ def filter_pad(
 @component
 def resource_table(
     names_to_resources: dict[str, Resource],
-    selected_resource: str | None,
+    selected_resource: str,
     selected_namespace: str,
     resources: dict[str, Any],
     last_fetch: datetime | None,
@@ -285,9 +293,9 @@ def resource_table(
     selected_resource_idx, set_selected_resource_idx = use_state(0)
     selected_resource_idx = clamp(0, selected_resource_idx, len(resources["rows"]) - 1)
 
-    def on_key(event: KeyPressed) -> None:
+    def on_key(event: KeyPressed) -> Suspend | None:
         if not focused:
-            return
+            return None
 
         match event.key:
             case Key.Down:
@@ -300,8 +308,50 @@ def resource_table(
                     clamp(0, selected_resource_idx - 1, len(resources["rows"]) - 1)
                 )
 
-    # TODO: must switch to row-wise rendering instead of column-wise so that highlight goes all the way across,
-    # even with padding...
+            case "y" | Key.ControlY | "j" as k:
+
+                async def handler() -> None:
+                    resource = names_to_resources[selected_resource]
+                    metadata = resources["rows"][selected_resource_idx]["object"]["metadata"]
+                    name = metadata["name"]
+                    namespace = metadata["namespace"]
+
+                    async with Klient(Konfig.build()) as klient:
+                        async with await klient.request(
+                            method="get",
+                            path=resource.instance_url(namespace, name),
+                        ) as r:
+                            j = await r.json()
+
+                    if k not in (Key.ControlY, "j"):
+                        j["metadata"].pop("managedFields", None)
+
+                    mode = "yaml" if k in ("y", Key.ControlY) else "json"
+
+                    with tempfile.NamedTemporaryFile(
+                        mode="w",
+                        prefix=f"{namespace}.{name}.",
+                        suffix=f".{mode}",
+                        encoding="utf-8",
+                    ) as f:
+                        f.write(
+                            yaml.safe_dump(j, default_flow_style=False, sort_keys=False, indent=2)
+                            if mode == "yaml"
+                            else json.dumps(j, indent=2)
+                        )
+                        f.flush()
+
+                        subprocess.run(
+                            (*shlex.split(os.getenv("PAGER", "less")), f.name),
+                            stdin=sys.stdin,
+                            stdout=sys.stdout,
+                            stderr=sys.stderr,
+                            check=False,
+                        )
+
+                return Suspend(handler=handler)
+
+        return None
 
     return Div(
         on_key=on_key,
