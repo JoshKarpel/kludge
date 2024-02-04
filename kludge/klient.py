@@ -83,11 +83,16 @@ class Klient:
         return urljoin(self.konfig.clusters[0].cluster.server, path)
 
     async def request(
-        self, method: Literal["get"], path: str, headers: dict[str, str] | None = None
+        self,
+        method: Literal["get", "put"],
+        path: str,
+        headers: dict[str, str] | None = None,
+        json: object | None = None,
     ) -> _RequestContextManager:
         return (await self.session()).request(
             method=method,
             url=self.url(path),
             headers=headers,
             ssl=self.sslcontext,
+            json=json,
         )
